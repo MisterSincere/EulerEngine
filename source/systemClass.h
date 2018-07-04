@@ -5,6 +5,8 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "eulerengine.h"
+
 
 
 class System
@@ -28,7 +30,7 @@ private:
   void Update();
 
 private:
-
+  EEApplication m_application;
 
   bool m_IsRunning{ false };
 };
