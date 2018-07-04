@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.0)
 project (EulerEngine)
 
 # Source Files
-set(EULERTEST source/main.cpp)
+set(EULERTEST source/main.cpp source/systemClass.h source/systemClass.cpp)
 
 #FILTER
 source_group ("" FILES ${EULERTEST})
