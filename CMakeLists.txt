@@ -2,9 +2,12 @@ cmake_minimum_required (VERSION 3.0)
 project (EulerEngine)
 
 # Source Files
+set(VULKAN source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanDefs.h source/vulkanDefs.cpp)
+
 set(EULERTEST source/main.cpp source/systemClass.h source/systemClass.cpp)
 
 #FILTER
+source_group ("VULKAN" FILES ${VULKAN})
 source_group ("" FILES ${EULERTEST})
 
 link_directories (
@@ -19,4 +22,4 @@ include_directories (
 	)
 
 # Add files
-add_executable (EulerEngine ${EULERTEST})
+add_executable (EulerEngine ${EULERTEST} ${VULKAN})
