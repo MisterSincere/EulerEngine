@@ -21,41 +21,13 @@ namespace eewindow
    * @param pUserData A pointer to the user data the window was created with
    **/
   typedef void(*fpEEwindowResize)(GLFWwindow* window, int width, int height, void* pUserData);
-
-  /**
-   * The callback method for key events. 
-   *
-   * @param window    The window that received the event
-   * @param key       The key that was pressed or released
-   * @param scancode  The system-specific scancode of the key
-   * @param action    GLFW_PRESS, GLFW_RELEASE or GLFW_REPEAT
-   * @param mods      Bit field that described which modifier keys were held down
-   * @param pUserData A pointer to the user data the window was created with
-   **/
-  typedef void(*fpEEkeyEvent)(GLFWwindow* window, int key, int scancode, int action, int mods, void* pUserData);
-
-  /**
-   * The callback method for new mouse positions
-   * 
-   * @param window    The window the movement belongs to
-   * @param xpos      The new x coordinate of the mouse
-   * @param ypos      The new y coordinate of the mouse
-   * @param pUserData A pointer to the user data the window was created with
-   **/
-  typedef void(*fpEEcursorPos)(GLFWwindow* window, double xpos, double ypos, void* pUserData);
-
-  /* @brief Holds the different callback methods */
-  struct WindowCallbacks
-  {
-    fpEEwindowResize  windowResize;
-    fpEEkeyEvent      keyEvent;
-    fpEEcursorPos     cursorPos;
-  };
-
+  
   /* @brief A struct to hold the passed in user data and the callback functions passed in */
+  struct Window;
   struct UserData {
-    const WindowCallbacks* callbacks;
+    fpEEwindowResize resizeCallback;
     void* pUserData;
+    eewindow::Window* window;
   };
 
   struct Window
@@ -77,8 +49,20 @@ namespace eewindow
       bool mouseDisabled;
     } settings;
 
+    // Holds input values
+    struct {
+      bool* keysHit;
+      bool* keysPressed;
+      double mouseX;
+      double mouseY;
+      double mouseXDelta;
+      double mouseYDelta;
+    } input;
+
+    /* @brief User data to get for glfw callbacks */
     UserData userData;
 
+    // The title of the window shown
     const char* title;
 
     /**
@@ -92,8 +76,14 @@ namespace eewindow
     bool CreateWindow(
       EEWindow* winOut,
       const EEWindowCreateInfo* windowCInfo,
-      const WindowCallbacks* callbacks,
+      fpEEwindowResize resizeMethod,
       void* pUserData);
+
+    /**
+     * @brief Returns the VkSurfaceKHR to this window
+     * @note Needs to be destroyed manually
+     **/
+    VkSurfaceKHR createSurface(VkInstance instance, const VkAllocationCallbacks* pAllocator);
 
     /* @brief Call to free memory and destroy the window */
     void Release();
@@ -101,13 +91,23 @@ namespace eewindow
     /* @brief Call to poll the events of the window */
     bool PollEvents();
 
+    /* @brief Returns true of the keys was hit once */
+    bool KeyHit(EEKey key) const;
+
+    /* @brief Returns true while the key is held down */
+    bool KeyPressed(EEKey key) const;
+
+    /* @brief the the mouse movement since last poll */
+    void MouseMovement(double& dx, double& dy) const;
+
     /* @brief Helper method to initialize glfw. Will call glfw_initWindow automatically to create a window */
     bool glfw_initialize(
       const EEWindowCreateInfo* windowCInfo,
-      const WindowCallbacks* callbacks,
+      fpEEwindowResize resizeMethod,
       void* pUserData);
 
+    /* @brief Helper method to initialize the glfw window */
     bool glfw_initWindow(const EEWindowCreateInfo* windowCInfo);
-
   };
+
 }

@@ -71,7 +71,10 @@ void System::Release()
 
 void System::ProcessInput()
 {
-
+  if (m_application.KeyHit(EE_KEY_ESCAPE))
+  {
+    m_IsRunning = false;
+  }
 }
 
 void System::Update()

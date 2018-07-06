@@ -9,6 +9,8 @@
 #include <wchar.h>
 #include <stdio.h>
 
+#include "keycodes.h"
+
 //////////////////////
 // DEFINES / MACROS //
 //////////////////////
@@ -133,4 +135,8 @@ struct EEWindowCreateInfo {
 struct EEApplication {
   EEGraphics* graphics;
   EEWindow* window;
+
+  bool KeyHit(EEKey key) const;
+  bool KeyPressed(EEKey key) const;
+  void MouseMovement(double& dx, double& dy) const;
 };

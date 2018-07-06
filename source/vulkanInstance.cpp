@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanInstance.h"
 
+#include <GLFW/glfw3.h>
 
 namespace vk
 {
@@ -29,7 +30,14 @@ namespace vk
     }
 
     // EXTENSIONS
-    enabledExtensions.push_back("VK_KHR_surface");
+    uint32_t glfwExtensionCount = 0u;
+    const char** glfwExtensions;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    for (uint32_t i = 0u; i < glfwExtensionCount; i++)
+    {
+      enabledExtensions.push_back(glfwExtensions[i]);
+    }
+
     if (settings.validation)
     {
       enabledExtensions.push_back("VK_EXT_debug_report");

@@ -2,11 +2,11 @@ cmake_minimum_required (VERSION 3.0)
 project (EulerEngine)
 
 # Source Files
-set(VULKAN source/vulkanInstance.h source/vulkanInstance.cpp source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanDefs.h source/vulkanDefs.cpp)
+set(VULKAN source/vulkanDevice.h source/vulkanInstance.h source/vulkanInstance.cpp source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanDefs.h source/vulkanDefs.cpp)
 
 set(WINDOW source/window.h source/window.cpp)
 
-set(EULERENGINE source/eulerengine.h source/eulerengine.cpp source/eedefs.h)
+set(EULERENGINE source/eulerengine.h source/eulerengine.cpp source/eedefs.h source/keycodes.h)
 set(EULERTEST source/main.cpp source/systemClass.h source/systemClass.cpp)
 
 #FILTER

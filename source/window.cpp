@@ -5,6 +5,9 @@
 /////////////////////////////////////////////////////////////////////
 #include "window.h"
 
+#include "vulkanDefs.h"
+
+#include <assert.h>
 
 
 namespace eewindow
@@ -14,31 +17,55 @@ namespace eewindow
   {
     UserData* ud = reinterpret_cast<UserData*>(glfwGetWindowUserPointer(window));
 
-    ud->callbacks->windowResize(window, width, height, ud->pUserData);
+    if(ud->resizeCallback) ud->resizeCallback(window, width, height, ud->pUserData);
+    else printf_s("RESIZE: No callback function defined!\n");
   }
 
   void glfw_keyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
   {
-    UserData* ud = reinterpret_cast<UserData*>(glfwGetWindowUserPointer(window));
+    eewindow::Window* eewindow = (reinterpret_cast<UserData*>(glfwGetWindowUserPointer(window)))->window;
 
-    ud->callbacks->keyEvent(window, key, scancode, action, mods, ud->pUserData);
+    if (action == GLFW_PRESS)
+    {
+      eewindow->input.keysPressed[key] = true;
+      eewindow->input.keysHit[key] = true;
+    }
+    else if (action == GLFW_RELEASE)
+    {
+      eewindow->input.keysPressed[key] = false;
+    }
   }
 
   void glfw_cursorPos(GLFWwindow* window, double xpos, double ypos)
   {
-    UserData* ud = reinterpret_cast<UserData*>(glfwGetWindowUserPointer(window));
+    eewindow::Window* eewindow = (reinterpret_cast<UserData*>(glfwGetWindowUserPointer(window)))->window;
 
-    ud->callbacks->cursorPos(window, xpos, ypos, ud->pUserData);
+    eewindow->input.mouseXDelta = xpos - eewindow->input.mouseX;
+    eewindow->input.mouseYDelta = ypos - eewindow->input.mouseY;
+    eewindow->input.mouseX = xpos;
+    eewindow->input.mouseY = ypos;
   }
   
 
-  bool Window::CreateWindow(EEWindow* window, const EEWindowCreateInfo* windowCInfo, const WindowCallbacks* callbacks, void* pUserData)
+  bool Window::CreateWindow(EEWindow* window, const EEWindowCreateInfo* windowCInfo, fpEEwindowResize resizeCallback, void* pUserData)
   {
-    if (!glfw_initialize(windowCInfo, callbacks, pUserData))
+    // Initialize the input values
+    input.keysPressed = new bool[GLFW_KEY_LAST];
+    input.keysHit = new bool[GLFW_KEY_LAST];
+    memset(input.keysPressed, 0, sizeof(bool) * GLFW_KEY_LAST);
+    memset(input.keysHit, 0, sizeof(bool) * GLFW_KEY_LAST);
+    input.mouseXDelta = input.mouseYDelta = 0;
+
+    // Initialize the window
+    if (!glfw_initialize(windowCInfo, resizeCallback, pUserData))
     {
       EEPRINT("WINDOW CREATION FAILED!\n");
       return false;
     }
+
+    // Set mouse position to the current one
+    glfwGetCursorPos(this->window, &input.mouseX, &input.mouseY);
+
 
     // Store computed data in the winOut pointer
     window->clientSize = settings.clientSize;
@@ -50,8 +77,28 @@ namespace eewindow
     return true;
   }
 
+  VkSurfaceKHR Window::createSurface(VkInstance instance, const VkAllocationCallbacks* pAllocator)
+  {
+    assert(instance != VK_NULL_HANDLE);
+
+    VkSurfaceKHR surface;
+    VK_CHECK(glfwCreateWindowSurface(instance, this->window, pAllocator, &surface));
+
+    return surface;
+  }
+
   void Window::Release()
   {
+    // Free memory
+    if (input.keysHit) {
+      delete[] input.keysHit;
+      input.keysHit = nullptr;
+    }
+    if (input.keysPressed) {
+      delete[] input.keysPressed;
+      input.keysPressed = nullptr;
+    }
+
     glfwDestroyWindow(window);
     window = nullptr;
     monitor = nullptr;
@@ -61,15 +108,32 @@ namespace eewindow
 
   bool Window::PollEvents()
   {
+    // Reset input values
+    memset(input.keysHit, 0, sizeof(bool) * GLFW_KEY_LAST);
+    input.mouseXDelta = input.mouseYDelta = 0;
+
     glfwPollEvents();
 
     return glfwWindowShouldClose(window);
   }
 
-  bool Window::glfw_initialize(
-    const EEWindowCreateInfo* windowCInfo,
-    const WindowCallbacks* callbacks,
-    void* pUserData)
+  bool Window::KeyHit(EEKey key) const
+  {
+    return input.keysHit[key];
+  }
+
+  bool Window::KeyPressed(EEKey key) const
+  {
+    return input.keysPressed[key];
+  }
+
+  void Window::MouseMovement(double& dx, double& dy) const
+  {
+    dx = input.mouseXDelta;
+    dy = input.mouseYDelta;
+  }
+
+  bool Window::glfw_initialize(const EEWindowCreateInfo* windowCInfo, fpEEwindowResize resizeCallback, void* pUserData)
   {
     // Call glfw's init function and hint that we are going to use vulkan
     if (!glfwInit())
@@ -85,23 +149,20 @@ namespace eewindow
       return false;
     }
 
-    if (callbacks)
-    {
-      // Set user pointer
-      userData.callbacks = callbacks;
-      userData.pUserData = pUserData;
-      glfwSetWindowUserPointer(window, &userData);
+    // Set window user pointer
+    userData.resizeCallback = resizeCallback;
+    userData.pUserData = pUserData;
+    userData.window = this;
 
-      // Set callbacks
-      glfwSetWindowSizeCallback(window, glfw_onResize);
-      glfwSetKeyCallback(window, glfw_keyEvent);
-      glfwSetCursorPosCallback(window, glfw_cursorPos);
-    }
+    glfwSetWindowUserPointer(window, &userData);
+
+    // Set callbacks
+    glfwSetWindowSizeCallback(window, glfw_onResize);
+    glfwSetKeyCallback(window, glfw_keyEvent);
+    glfwSetCursorPosCallback(window, glfw_cursorPos);
 
     return true;
   }
-
-
 
   bool Window::glfw_initWindow(const EEWindowCreateInfo* cinfo)
   {
