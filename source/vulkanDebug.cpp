@@ -69,14 +69,14 @@ namespace vk
       // Create the message to display
       std::stringstream debugMessage;
       debugMessage << prefix << " [" << pLayerPrefix << "] Code " << msgCode << " : " << pMsg;
-
+      
       if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
       {
-        fprintf(stderr, "%s\n", debugMessage.str());
+        fprintf(stderr, "%s\n", debugMessage.str().c_str());
       }
       else
       {
-        fprintf(stdout, "%d\n", debugMessage.str());
+        fprintf(stdout, "%s\n", debugMessage.str().c_str());
       }
 
       fflush(stdout);

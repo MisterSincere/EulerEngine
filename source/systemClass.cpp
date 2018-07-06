@@ -56,6 +56,8 @@ int System::GameLoop()
   {
     ProcessInput();
 
+    printf("Hallo\n");
+
     Update();
   }
 

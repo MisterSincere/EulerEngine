@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.0)
 project (EulerEngine)
 
 # Source Files
-set(VULKAN source/vulkanDevice.h source/vulkanInstance.h source/vulkanInstance.cpp source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanDefs.h source/vulkanDefs.cpp)
+set(VULKAN source/vulkanBuffer.h source/vulkanInitializers.h source/vulkanDevice.h source/vulkanInstance.h source/vulkanInstance.cpp source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanDefs.h source/vulkanDefs.cpp)
 
 set(WINDOW source/window.h source/window.cpp)
 

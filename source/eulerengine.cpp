@@ -7,6 +7,7 @@
 
 #include "vulkanInstance.h"
 #include "window.h"
+#include "vulkanDevice.h"
 
 #pragma comment(lib, "vulkan-1.lib")
 #pragma comment(lib, "glfw3.lib")
@@ -19,6 +20,8 @@ struct EulerComponents
   vk::VulkanInstance* pInstance;
 
   VkSurfaceKHR surface;
+
+  vk::VulkanDevice* pDevice;
 
   struct {
 #if defined(_DEBUG) | defined(EE_DEBUG)
@@ -51,7 +54,12 @@ void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphi
   // Acquire surface
   comp->surface = comp->window->createSurface(comp->pInstance->instance, comp->pAllocator);
 
+  // Device
+  comp->pDevice = new vk::VulkanDevice(comp->pInstance->instance, comp->surface, comp->pAllocator);
+  VkPhysicalDeviceFeatures enabledFeatures{};
+  VK_CHECK(comp->pDevice->createLogicalDevice(enabledFeatures));
 
+  // Swapchain
 }
 
 void vk_resize(GLFWwindow* window, int width, int height, void* pUserData)
@@ -106,6 +114,9 @@ void eeReleaseApplication(EEApplication* app)
   {
     // Acquire right memory interpretation
     EulerComponents* comp = reinterpret_cast<EulerComponents*>(app->graphics->comp);
+
+    // DEVICE
+    delete comp->pDevice;
 
     // SURFACE
     vkDestroySurfaceKHR(comp->pInstance->instance, comp->surface, comp->pAllocator);
