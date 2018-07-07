@@ -5,14 +5,103 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanInstance.h"
 
-#include <GLFW/glfw3.h>
-
 namespace vk
 {
-  void VulkanInstance::CreateInstance(bool enableValidation, const VkAllocationCallbacks* pAllocator)
+
+  VulkanInstance::VulkanInstance(eewindow::Window* window, std::vector<const char*> desiredLayers, std::vector<const char*> desiredExtensions)
+  {
+    assert(window);
+
+    uint32_t count;
+
+    // LAYERS
+    {
+      // Store supported layers
+      vkEnumerateInstanceLayerProperties(&count, nullptr);
+      supportedLayers.resize(count);
+      vkEnumerateInstanceLayerProperties(&count, supportedLayers.data());
+
+      // Store desired layer if they are available
+      bool supported{ false };
+      for (const auto& currDesiredLayer : desiredLayers)
+      {
+        supported = false;
+        for (const auto& currSupportedLayer : supportedLayers)
+        {
+          // If the names are the same the layer is supported so we can stop searching
+          if (strcmp(currDesiredLayer, currSupportedLayer.layerName) == 0)
+          {
+            supported = true;
+            break;
+          }
+        }
+        
+        // Act according to if the current desired layer is supported or not
+        if (supported)
+        {
+          enabledLayers.push_back(currDesiredLayer);
+        }
+        else
+        {
+          EEPRINT("Instance Layer: %s was requested but is not supported!\n", currDesiredLayer);
+        }
+      }
+    }
+
+    // EXTENSIONS
+    {
+      // Store supported extensions
+      vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+      supportedExtensions.resize(count);
+      vkEnumerateInstanceExtensionProperties(nullptr, &count, supportedExtensions.data());
+
+      // Store desired extensions if they are available
+      bool supported{ false };
+      for (const auto& currDesiredExtension : desiredExtensions)
+      {
+        supported = false;
+        for (const auto& currSupportedExtension : supportedExtensions)
+        {
+          // If the strings are the same the current desired extension is supported so stop searching
+          if (strcmp(currDesiredExtension, currSupportedExtension.extensionName) == 0)
+          {
+            supported = true;
+            break;
+          }
+        }
+
+        // Act according to if the current desired extension is supported or not
+        if (supported)
+        {
+          enabledExtensions.push_back(currDesiredExtension);
+        }
+        else
+        {
+          EEPRINT("Instance Extension: %s was requested but is not supported!\n", currDesiredExtension);
+        }
+      }
+
+      // Add required extensions from the window (checked at window creation)
+      auto windowExts = window->instanceExtensions();
+      enabledExtensions.insert(enabledExtensions.end(), windowExts.begin(), windowExts.end());
+    }
+
+  }
+
+  VulkanInstance::~VulkanInstance()
+  {
+    if (instance) vkDestroyInstance(instance, pAllocator);
+
+    // Free memory
+    supportedLayers.~vector();
+    enabledLayers.~vector();
+    supportedExtensions.~vector();
+    enabledExtensions.~vector();
+  }
+
+  VkResult VulkanInstance::Create(const VkAllocationCallbacks* pAllocator)
   {
     this->pAllocator = pAllocator;
-    settings.validation = enableValidation;
 
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -22,26 +111,6 @@ namespace vk
     appInfo.pEngineName = name;
     appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
-
-    // LAYERS
-    if (settings.validation)
-    {
-      enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-    }
-
-    // EXTENSIONS
-    uint32_t glfwExtensionCount = 0u;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-    for (uint32_t i = 0u; i < glfwExtensionCount; i++)
-    {
-      enabledExtensions.push_back(glfwExtensions[i]);
-    }
-
-    if (settings.validation)
-    {
-      enabledExtensions.push_back("VK_EXT_debug_report");
-    }
 
     VkInstanceCreateInfo instanceCInfo;
     instanceCInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -53,15 +122,7 @@ namespace vk
     instanceCInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
     instanceCInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-    VK_CHECK(vkCreateInstance(&instanceCInfo, pAllocator, &instance));
+    return vkCreateInstance(&instanceCInfo, pAllocator, &instance);
   }
 
-  void VulkanInstance::Release()
-  {
-    vkDestroyInstance(instance, pAllocator);
-
-    // Free memory
-    enabledLayers.~vector();
-    enabledExtensions.~vector();
-  }
 }

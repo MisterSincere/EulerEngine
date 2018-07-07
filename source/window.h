@@ -8,6 +8,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include <vector>
+
 #include "eedefs.h"
 
 namespace eewindow
@@ -62,11 +64,16 @@ namespace eewindow
     /* @brief User data to get for glfw callbacks */
     UserData userData;
 
+    /* @brief The surface for this window */
+    VkSurfaceKHR surface;
+    const VkAllocationCallbacks* pAllocator;
+
     // The title of the window shown
     const char* title;
 
     /**
      * Creates a window with glfw according to the passed in informations.
+     * Also checks if the extensions needed to draw to such a window a supported.
      *
      * @param winOut      A pointer to the window structure to be filled out
      * @param windowCInfo A pointer to the structure defining the different options for the window
@@ -80,10 +87,35 @@ namespace eewindow
       void* pUserData);
 
     /**
-     * @brief Returns the VkSurfaceKHR to this window
-     * @note Needs to be destroyed manually
+     * Creates the surface for this window
+     * @note Needs to be destroyed by calling VkSurfaceKHR
      **/
-    VkSurfaceKHR createSurface(VkInstance instance, const VkAllocationCallbacks* pAllocator);
+    void createSurface(VkInstance instance, const VkAllocationCallbacks* pAllocator);
+
+    /**
+     * Returns the required instance extensions for this window
+     *
+     * @return Vector containing the names of the required instance extensions
+     **/
+    std::vector<const char*> instanceExtensions();
+
+    /**
+     * Returns the required device extensions for this window
+     *
+     * @return Vector containing the required device extensions
+     **/
+    std::vector<const char*> deviceExtensions();
+
+    /*
+     * Checks if the device compatible with the surface
+     *
+     * @param physicalDevice    The device that should be checked
+     **/
+    bool isAdequate(VkPhysicalDevice physicalDevice);
+
+
+    /* @brief Release the surface */
+    void ReleaseSurface(VkInstance instance);
 
     /* @brief Call to free memory and destroy the window */
     void Release();

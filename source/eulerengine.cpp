@@ -19,8 +19,6 @@ struct EulerComponents
 
   vk::VulkanInstance* pInstance;
 
-  VkSurfaceKHR surface;
-
   vk::VulkanDevice* pDevice;
 
   struct {
@@ -40,26 +38,67 @@ struct EulerComponents
 ///////////////////////////////////////////////////////////////////////////////
 // VULKAN FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
+void vk_instance(EulerComponents* comp)
+{
+  // LAYERS
+  std::vector<const char*> instanceLayer;
+  {
+    // If validation is enabled active the lunarg validation layer
+    if (comp->settings.validation)
+    {
+      instanceLayer.push_back("VK_LAYER_LUNARG_standard_validation");
+    }
+  }
+
+  // EXTENSIONS
+  std::vector<const char*> instanceExtensions;
+  {
+    // If validation is enabled activate debug report extension
+    if (comp->settings.validation)
+    {
+      instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+    }
+  }
+
+  comp->pInstance = new vk::VulkanInstance(comp->window, instanceLayer, instanceExtensions);
+
+  VK_CHECK(comp->pInstance->Create(comp->pAllocator));
+}
+
+void vk_device(EulerComponents* comp)
+{
+
+  std::vector<const char*> extensions(0);
+  std::vector<const char*> layers(0);
+
+  VkPhysicalDeviceFeatures enabledFeatures{0};
+
+  // Create the device handle
+  comp->pDevice = new vk::VulkanDevice(comp->pInstance, comp->window, comp->pAllocator);
+
+  VK_CHECK(comp->pDevice->Create(enabledFeatures, layers, extensions));
+}
+
+void vk_swapChain(EulerComponents* comp)
+{
+  
+}
+
 void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphicsCInfo)
 {
   // INSTANCE
-  comp->pInstance = new vk::VulkanInstance;
-  comp->pInstance->CreateInstance(comp->settings.validation, comp->pAllocator);
+  vk_instance(comp);
 
-  // In debug mode we want to have the debug layers used
-#if defined(_DEBUG) | defined(EE_DEBUG)
-  vk::debug::setupDebug(comp->pInstance->instance, comp->pAllocator, 0, VK_NULL_HANDLE);
-#endif
+  if (comp->settings.validation)
+  {
+    vk::debug::setupDebug(comp->pInstance->instance, comp->pAllocator, 0, VK_NULL_HANDLE);
+  }
 
-  // Acquire surface
-  comp->surface = comp->window->createSurface(comp->pInstance->instance, comp->pAllocator);
+  // DEVICE
+  vk_device(comp);
 
-  // Device
-  comp->pDevice = new vk::VulkanDevice(comp->pInstance->instance, comp->surface, comp->pAllocator);
-  VkPhysicalDeviceFeatures enabledFeatures{};
-  VK_CHECK(comp->pDevice->createLogicalDevice(enabledFeatures));
-
-  // Swapchain
+  // SWAPCHAIN
+  vk_swapChain(comp);
 }
 
 void vk_resize(GLFWwindow* window, int width, int height, void* pUserData)
@@ -118,16 +157,13 @@ void eeReleaseApplication(EEApplication* app)
     // DEVICE
     delete comp->pDevice;
 
-    // SURFACE
-    vkDestroySurfaceKHR(comp->pInstance->instance, comp->surface, comp->pAllocator);
-
     // DEBUG
-#if defined(_DEBUG) | defined(EE_DEBUG)
-    vk::debug::freeDebugCallback(comp->pInstance->instance, comp->pAllocator);
-#endif
+    if (comp->settings.validation)
+    {
+      vk::debug::freeDebugCallback(comp->pInstance->instance, comp->pAllocator);
+    }
 
     // INSTANCE
-    comp->pInstance->Release();
     delete comp->pInstance;
 
     // WINDOW

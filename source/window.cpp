@@ -8,6 +8,7 @@
 #include "vulkanDefs.h"
 
 #include <assert.h>
+#include <cstring>
 
 
 namespace eewindow
@@ -49,6 +50,27 @@ namespace eewindow
 
   bool Window::CreateWindow(EEWindow* window, const EEWindowCreateInfo* windowCInfo, fpEEwindowResize resizeCallback, void* pUserData)
   {
+    // Check if the required instance extensions are available
+    // required device extensions will be a criterion for the picked physical device
+    auto requiredExtensions = instanceExtensions();
+    uint32_t count;
+    vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+    VkExtensionProperties* extensions = new VkExtensionProperties[count];
+    vkEnumerateInstanceExtensionProperties(nullptr, &count, extensions);
+    for (const auto& reqExtension : requiredExtensions)
+    {
+      for (uint32_t i = 0u; i < count; i++)
+      {
+        if (strcmp(reqExtension, extensions[i].extensionName) != 0)
+        {
+          EEPRINT("Failed to create the window: you do not support the required extension %s !\n", reqExtension);
+          vk::tools::exitFatal("Failed to create the window. Required extensions not supported!");
+        }
+      }
+    }
+    delete extensions;
+
+
     // Initialize the input values
     input.keysPressed = new bool[GLFW_KEY_LAST];
     input.keysHit = new bool[GLFW_KEY_LAST];
@@ -77,14 +99,90 @@ namespace eewindow
     return true;
   }
 
-  VkSurfaceKHR Window::createSurface(VkInstance instance, const VkAllocationCallbacks* pAllocator)
+  void Window::createSurface(VkInstance instance, const VkAllocationCallbacks* pAllocator)
   {
     assert(instance != VK_NULL_HANDLE);
+    this->pAllocator = pAllocator;
 
-    VkSurfaceKHR surface;
     VK_CHECK(glfwCreateWindowSurface(instance, this->window, pAllocator, &surface));
+  }
 
-    return surface;
+  std::vector<const char*> Window::instanceExtensions()
+  {
+    uint32_t glfwExtensionCount;
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+    return extensions;
+  }
+
+  std::vector<const char*> Window::deviceExtensions()
+  {
+    return { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+  }
+
+  bool Window::isAdequate(VkPhysicalDevice physicalDevice)
+  {
+    if (surface == VK_NULL_HANDLE)
+    {
+      EEPRINT("Call createSurface before checking if a physical device supports it!\n");
+      throw std::runtime_error("Call createSurface before checking if a physical device supports it!\n");
+    }
+
+    // EXTENSIONS
+    bool extensionSupport{ false };
+    {
+      // Get the supported extensions
+      uint32_t count;
+      vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, nullptr);
+      if (count <= 0) return false;
+      std::vector<VkExtensionProperties> extensions(count);
+      vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, extensions.data());
+
+      // Check if the required deviceExtensions are supported
+      std::vector<const char*> reqExts = deviceExtensions();
+      for (const auto& reqExtension : reqExts)
+      {
+        extensionSupport = false;
+        for (const auto& extension : extensions)
+        {
+          // We found the extension so break here
+          if (strcmp(reqExtension, extension.extensionName) == 0)
+          {
+            extensionSupport = true;
+            break;
+          }
+        }
+        // We checked all available extensions and did not find the required one
+        if (!extensionSupport) break;
+      }
+    }
+
+    // SURFACE SUPPORT
+    bool surfaceSupport{ false };
+    {
+      if (extensionSupport)
+      {
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+
+        uint32_t presentModesCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModesCount, nullptr);
+
+        surfaceSupport = formatCount && presentModesCount;
+      }
+    }
+
+
+    return surfaceSupport && extensionSupport;
+  }
+
+  void Window::ReleaseSurface(VkInstance instance)
+  {
+    assert(instance != VK_NULL_HANDLE);
+    if(surface)
+      vkDestroySurfaceKHR(instance, surface, pAllocator);
   }
 
   void Window::Release()

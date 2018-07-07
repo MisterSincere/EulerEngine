@@ -6,6 +6,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <assert.h>
 
 #include "vulkanInitializers.h" //< includes vulkan.h
 
@@ -20,6 +21,7 @@
   VkResult res = f;\
   if(res != VK_SUCCESS) {\
     printf_s("VK_CHECK: VkResult is \"%s\" at line %d in %s\n", vk::tools::vkResultToStr(res), __LINE__, __FILE__);\
+    assert(res == VK_SUCCESS);\
   }\
 }
 
