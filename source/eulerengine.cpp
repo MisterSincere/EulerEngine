@@ -15,6 +15,7 @@ struct EulerComponents
 {
   eewindow::Window* window;
   vk::VulkanInstance* instance;
+  vk::debug::Debug* debug;
   vk::VulkanDevice* device;
   vk::VulkanSwapchain* swapchain;
   vk::VulkanRenderer* renderer;
@@ -101,7 +102,8 @@ void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphi
 
   if (comp->settings.validation)
   {
-    vk::debug::setupDebug(comp->instance->instance, comp->pAllocator, 0, VK_NULL_HANDLE);
+    comp->debug = new vk::debug::Debug(comp->instance->instance, comp->pAllocator);
+    comp->debug->setupDebug();
   }
 
   // DEVICE
@@ -179,7 +181,7 @@ void eeReleaseApplication(EEApplication* app)
     // DEBUG
     if (comp->settings.validation)
     {
-      vk::debug::freeDebugCallback(comp->instance->instance, comp->pAllocator);
+      delete comp->debug;
     }
 
     // INSTANCE

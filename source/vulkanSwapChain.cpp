@@ -136,6 +136,7 @@ namespace vk
 
   VulkanSwapchain::~VulkanSwapchain()
   {
+
     if (swapchain != VK_NULL_HANDLE)
     {
       fpDestroySwapchainKHR(device->logicalDevice, swapchain, device->pAllocator);

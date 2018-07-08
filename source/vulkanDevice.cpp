@@ -519,7 +519,7 @@ namespace vk
     if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
     {
       imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-      if (vk::tools::isStencilFormat(format)) imageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+      if (vk::tools::isStencilFormat(format)) imageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
     }
     else
     {

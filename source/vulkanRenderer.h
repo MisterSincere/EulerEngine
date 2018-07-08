@@ -12,14 +12,24 @@ namespace vk
 {
   struct VulkanRenderer
   {
+    struct RenderBuffer
+    {
+      VkCommandBuffer cmdBuffer;
+      VkFramebuffer framebuffer;
+    };
+
     /* @brief Struct to encapsulate the swapchain data */
     vk::VulkanSwapchain* swapchain;
+
+    /* @brief Struct representing the depth image */
+    vk::intern::DepthImage* depthImage;
 
     /* @brief Handle of the render pass */
     VkRenderPass renderPass{ VK_NULL_HANDLE };
 
-    /**/
-    vk::intern::DepthImage* depthImage;
+    /* @brief List of render buffers per image in swapchain passed in */
+    std::vector<RenderBuffer> buffers;
+
 
     /**
      * Default constructor

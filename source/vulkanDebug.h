@@ -13,31 +13,38 @@ namespace vk
 {
   namespace debug
   {
-    // Default validation layers
-    extern int validationLayerCount;
-    extern const char* validationLayerNames[];
+    struct Debug
+    {
+      /* @brief The instance of the application */
+      VkInstance instance;
+      /* @brief Pointer to the allocation callbacks that will be used */
+      const VkAllocationCallbacks* pAllocator;
 
-    // Default debug callback
-    VKAPI_ATTR VkBool32 VKAPI_CALL messageCallback(
-      VkDebugReportFlagsEXT flags,
-      VkDebugReportObjectTypeEXT objType,
-      uint64_t srcObject,
-      size_t location,
-      int32_t msgCode,
-      const char* pLayerPrefix,
-      const char* pMsg,
-      void* pUserData);
+      /* @brief Function to create the debug callback handle */
+      PFN_vkCreateDebugReportCallbackEXT fpCreateDebugReportCallbackEXT;
+      /* @brief Function to destroy the debug callback handle */
+      PFN_vkDestroyDebugReportCallbackEXT fpDestroyDebugReportCallbackEXT;
 
-    // Load debug function pointer and set debug callback
-    // uf callback is null, default message callback will be used
-    void setupDebug(
-      VkInstance instance,
-      const VkAllocationCallbacks* pAllocator,
-      VkDebugReportFlagsEXT flags,
-      VkDebugReportCallbackEXT callback);
-    // Clear debug callback
-    void freeDebugCallback(
-      VkInstance instance,
-      const VkAllocationCallbacks* pAllocator);
+      /* @brief Handle for the debug report extension */
+      VkDebugReportCallbackEXT debugReport{ VK_NULL_HANDLE };
+
+      /**
+       * Default constructor
+       *
+       * @param instance    The instance the debug tools will be created for
+       * @param pAllocator  Pointer to the allocation callbacks
+       **/
+      Debug::Debug(VkInstance instance, const VkAllocationCallbacks* pAllocator);
+
+      /**
+       * Default destructor
+       **/
+      Debug::~Debug();
+
+      /**
+       * Creates the debug handle
+       **/
+      void setupDebug();
+    };
   }
 }
