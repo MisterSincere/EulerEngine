@@ -5,10 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "eulerengine.h"
 
-#include "window.h"
-#include "vulkanInstance.h"
-#include "vulkanDevice.h"
-#include "vulkanSwapChain.h"
+#include "vulkanRenderer.h"
 
 #pragma comment(lib, "vulkan-1.lib")
 #pragma comment(lib, "glfw3.lib")
@@ -20,6 +17,7 @@ struct EulerComponents
   vk::VulkanInstance* instance;
   vk::VulkanDevice* device;
   vk::VulkanSwapchain* swapchain;
+  vk::VulkanRenderer* renderer;
 
   struct {
 #if defined(_DEBUG) | defined(EE_DEBUG)
@@ -85,6 +83,13 @@ void vk_swapChain(EulerComponents* comp)
   comp->swapchain->Create();
 }
 
+void vk_renderer(EulerComponents* comp)
+{
+  comp->renderer = new vk::VulkanRenderer(comp->swapchain);
+
+  comp->renderer->Create();
+}
+
 void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphicsCInfo)
 {
   // INSTANCE
@@ -104,6 +109,9 @@ void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphi
 
   // SWAPCHAIN
   vk_swapChain(comp);
+
+  // RENDERER
+  vk_renderer(comp);
 }
 
 void vk_resize(GLFWwindow* window, int width, int height, void* pUserData)
@@ -158,6 +166,9 @@ void eeReleaseApplication(EEApplication* app)
   {
     // Acquire right memory interpretation
     EulerComponents* comp = reinterpret_cast<EulerComponents*>(app->graphics->comp);
+
+    // RENDERER
+    delete comp->renderer;
 
     // SWAPCHAIN
     delete comp->swapchain;

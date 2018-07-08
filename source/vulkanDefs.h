@@ -37,8 +37,10 @@
 // Default fence timeout in nanoseconds
 #define DEFAULT_FENCE_TIMEOUT 100000000000
 
+/* @brief Gets the function pointer of name and calls it with the variadic arguments passed in */
 #define VK_FUNCTION_CALL(instance, name, ...) (reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name)))(__VA_ARGS__);
 
+/* @brief Just gets the function with the name passed in */
 #define VK_FUNCTION(instance, name) reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name));
 
 namespace vk
@@ -52,6 +54,8 @@ namespace vk
 
   namespace tools
   {
+    extern bool isStencilFormat(VkFormat format);
+
     extern void exitFatal(const char* msg);
 
     extern const char* vkResultToStr(VkResult);

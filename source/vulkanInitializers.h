@@ -64,12 +64,13 @@ namespace vk
       return info;
     }
     
-    inline VkCommandBufferBeginInfo commandBufferBeginInfo()
+    inline VkCommandBufferBeginInfo commandBufferBeginInfo(
+      VkCommandBufferUsageFlags flags)
     {
       VkCommandBufferBeginInfo info;
       info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
       info.pNext = nullptr;
-      info.flags = 0;
+      info.flags = flags;
       info.pInheritanceInfo = nullptr;
       return info;
     }

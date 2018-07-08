@@ -370,7 +370,7 @@ namespace vk
     FlushCommandBuffer(copyCmd, queue);
   }
 
-  VkCommandBuffer VulkanDevice::CreateCommandBuffer(VkCommandBufferLevel level, bool begin)
+  VkCommandBuffer VulkanDevice::CreateCommandBuffer(VkCommandBufferLevel level, bool begin, bool ss)
   {
     VkCommandBufferAllocateInfo cmdBufferAllocInfo = vk::initializers::commandBufferAllocateInfo(cmdGraphicsPool, level, 1);
 
@@ -380,7 +380,7 @@ namespace vk
     // If requested, also open the command buffer for recording
     if (begin)
     {
-      VkCommandBufferBeginInfo beginInfo = vk::initializers::commandBufferBeginInfo();
+      VkCommandBufferBeginInfo beginInfo = vk::initializers::commandBufferBeginInfo((ss) ? VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT : 0);
       VK_CHECK(vkBeginCommandBuffer(cmdBuffer, &beginInfo));
     }
 
@@ -413,6 +413,145 @@ namespace vk
     }
   }
 
+  void VulkanDevice::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags memoryProperties,
+    VkImage* image, VkDeviceMemory* imageMemory)
+  {
+    VkImageCreateInfo imageCInfo;
+    imageCInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCInfo.pNext = nullptr;
+    imageCInfo.flags = 0;
+    imageCInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageCInfo.format = format;
+    imageCInfo.extent = { width, height, 1 };
+    imageCInfo.mipLevels = 1u;
+    imageCInfo.arrayLayers = 1u;
+    imageCInfo.samples = sampleCount;
+    imageCInfo.tiling = tiling;
+    imageCInfo.usage = usageFlags;
+    imageCInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageCInfo.queueFamilyIndexCount = 0u;
+    imageCInfo.pQueueFamilyIndices = nullptr;
+    imageCInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+
+    VK_CHECK(vkCreateImage(logicalDevice, &imageCInfo, pAllocator, image));
+
+    VkMemoryRequirements memReqs;
+    vkGetImageMemoryRequirements(logicalDevice, *image, &memReqs);
+
+    VkMemoryAllocateInfo allocInfo = vk::initializers::memoryAllocateInfo();;
+    allocInfo.allocationSize = memReqs.size;
+    allocInfo.memoryTypeIndex = GetMemoryType(memReqs.memoryTypeBits, memoryProperties);
+
+    VK_CHECK(vkAllocateMemory(logicalDevice, &allocInfo, pAllocator, imageMemory));
+
+    vkBindImageMemory(logicalDevice, *image, *imageMemory, 0);
+  }
+
+  VkResult VulkanDevice::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView)
+  {
+    VkImageViewCreateInfo imageViewCInfo;
+    imageViewCInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    imageViewCInfo.pNext = nullptr;
+    imageViewCInfo.flags = 0;
+    imageViewCInfo.image = image;
+    imageViewCInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageViewCInfo.format = format;
+    imageViewCInfo.components = {
+      VK_COMPONENT_SWIZZLE_R,
+      VK_COMPONENT_SWIZZLE_G,
+      VK_COMPONENT_SWIZZLE_B,
+      VK_COMPONENT_SWIZZLE_A
+    };
+    imageViewCInfo.subresourceRange.aspectMask = aspectFlags;
+    imageViewCInfo.subresourceRange.baseMipLevel = 0u;
+    imageViewCInfo.subresourceRange.levelCount = 1u;
+    imageViewCInfo.subresourceRange.baseArrayLayer = 0u;
+    imageViewCInfo.subresourceRange.layerCount = 1u;
+
+    return vkCreateImageView(logicalDevice, &imageViewCInfo, pAllocator, imageView);
+  }
+
+  void VulkanDevice::ChangeImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+  {
+    // Start recording with single time commit command buffer
+    VkCommandBuffer cmdBuffer = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+
+    // Record an image barrier
+    VkImageMemoryBarrier imageMemoryBarrier;
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = nullptr;
+
+    VkPipelineStageFlags srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags dstStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+    if (oldLayout == VK_IMAGE_LAYOUT_PREINITIALIZED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+      imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+      imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+      srcStage = VK_PIPELINE_STAGE_HOST_BIT;
+      dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    {
+      imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+      imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+      srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+      dstStage = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+    }
+    else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+    {
+      imageMemoryBarrier.srcAccessMask = 0;
+      imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+      dstStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    }
+    else
+    {
+      EEPRINT("Layout transition not yet supported!");
+      vk::tools::exitFatal("Layout transition not yet supported!");
+    }
+
+    imageMemoryBarrier.oldLayout = oldLayout;
+    imageMemoryBarrier.newLayout = newLayout;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.image = image;
+
+    if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+    {
+      imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+      if (vk::tools::isStencilFormat(format)) imageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+    }
+    else
+    {
+      imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+
+    imageMemoryBarrier.subresourceRange.baseMipLevel = 0u;
+    imageMemoryBarrier.subresourceRange.levelCount = 1u;
+    imageMemoryBarrier.subresourceRange.baseArrayLayer = 0u;
+    imageMemoryBarrier.subresourceRange.layerCount = 1u;
+
+    vkCmdPipelineBarrier(cmdBuffer, srcStage, dstStage, 0, 0u, nullptr, 0u, nullptr, 1u, &imageMemoryBarrier);
+
+    FlushCommandBuffer(cmdBuffer, GetQueue(VK_QUEUE_GRAPHICS_BIT));
+  }
+
+  bool VulkanDevice::isFormatSupported(VkFormat format, VkImageTiling tiling, VkFormatFeatureFlags flags)
+  {
+    VkFormatProperties properties;
+    vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &properties);
+
+    if (tiling == VK_IMAGE_TILING_LINEAR && (properties.linearTilingFeatures & flags) == flags)
+    {
+      return true;
+    }
+    else if (tiling == VK_IMAGE_TILING_OPTIMAL && (properties.optimalTilingFeatures & flags) == flags)
+    {
+      return true;
+    }
+
+    return false;
+  }
 
 
   VkCommandPool VulkanDevice::createCommandPool(uint32_t queueFamilyIndex, VkCommandPoolResetFlags createFlags)

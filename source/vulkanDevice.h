@@ -48,6 +48,9 @@ namespace vk
     /* @brief List of the extension the device uses */
     std::vector<const char*> enabledExtensions;
 
+    /* @brief Amount of samples per pixel */
+    VkSampleCountFlagBits sampleCount{ VK_SAMPLE_COUNT_1_BIT };
+
     /* @brief The default command pool for graphic queues */
     VkCommandPool cmdGraphicsPool{ VK_NULL_HANDLE };
 
@@ -171,14 +174,16 @@ namespace vk
     /**
      * Allocate a command buffer from the command pool
      *
-     * @param level     Level of the command buffer (primary or secondary)
-     * @param begin     If true the command buffer will already begin recording (defaults to false)
+     * @param level       Level of the command buffer (primary or secondary)
+     * @param begin       If true the command buffer will already begin recording (defaults to false)
+     * @param singleTime  Indicates if the created command buffer will only submitted once
      *
      * @return A handle to the allocated command buffer
      **/
     VkCommandBuffer CreateCommandBuffer(
-      VkCommandBufferLevel level,
-      bool                 begin = false);
+      VkCommandBufferLevel  level,
+      bool                  begin = false,
+      bool                  singleTime = false);
 
     /**
      * Finish command buffer recording and submit it to a queue.
@@ -194,6 +199,48 @@ namespace vk
       VkCommandBuffer cmdBuffer,
       VkQueue         queue,
       bool            free = true);
+
+    /**
+     * Creates an image with the memory backing it up.
+     *
+     * @param width             The width of the image
+     * @param height            The height of the image
+     * @param format            Format of the image
+     * @param usageFlags        Usage of the image (i.e. color attachment, depth/stencil attachmen)
+     * @param memoryProperties  Location and properties of the memory
+     * @param pImageOut         Pointer to image to create
+     * @param pImageMemoryOut   Pointer to image's memory to create
+     **/
+    void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags memoryProperties,
+      VkImage* pImageOut, VkDeviceMemory* pImageMemoryOut);
+
+    /**
+     * Creates a view to the image passed in
+     *
+     * @param image         Image handle you wanna create the view to
+     * @param format        Format of the image view
+     * @param aspectFlags   Bitmask describing which aspects are included in the view
+     * @param ImageViewOut  Pointer to the imageview to create
+     *
+     * @return VkResult of the image view creation call
+     **/
+    VkResult CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* pImageViewOut);
+
+    /**
+     *
+     **/
+    void ChangeImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+    /**
+     * Check if a format is supported on this device.
+     *
+     * @param format    The format to check
+     * @param 
+     * @param
+     *
+     * @return Is true if the format is supported
+     **/
+    bool isFormatSupported(VkFormat format, VkImageTiling tiling, VkFormatFeatureFlags featureFlags);
 
     /**
      * Get the index of the memory type that has all the requested property flags.
