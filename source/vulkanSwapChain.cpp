@@ -136,6 +136,10 @@ namespace vk
 
   VulkanSwapchain::~VulkanSwapchain()
   {
+    for (size_t i = 0; i < buffers.size(); i++)
+    {
+      vkDestroyImageView(device->logicalDevice, buffers[i].imageView, device->pAllocator);
+    }
 
     if (swapchain != VK_NULL_HANDLE)
     {
