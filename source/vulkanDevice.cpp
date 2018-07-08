@@ -124,8 +124,27 @@ namespace vk
     {
       queueFamilyIndices.compute = queueFamilyIndices.graphics;
     }
-
     queueFamilyIndices.computeCount = queueFamilyProperties[queueFamilyIndices.compute].queueCount;
+
+    // Present queue
+    {
+      VkBool32 presentSupported{ VK_FALSE };
+      for (size_t i = 0; i < queueFamilyProperties.size(); i++)
+      {
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, static_cast<uint32_t>(i), window->surface, &presentSupported);
+        if (presentSupported)
+        {
+          queueFamilyIndices.present = static_cast<uint32_t>(i);
+          queueFamilyIndices.presentCount = queueFamilyProperties[i].queueCount;
+          break;
+        }
+      }
+      if (!presentSupported)
+      {
+        EEPRINT("No queue for presenting detacted!\n");
+        vk::tools::exitFatal("No queue for presenting detacted!");
+      }
+    }
 
     // Dedicated transfer queue
     if (requestedQueueTypes & VK_QUEUE_TRANSFER_BIT)
@@ -232,6 +251,27 @@ namespace vk
     VkQueue queue;
     vkGetDeviceQueue(logicalDevice, index, 0u, &queue);
     return queue;
+  }
+
+  SurfaceDetails VulkanDevice::GetSurfaceDetails()
+  {
+    SurfaceDetails details;
+    uint32_t count{ 0u };
+
+    // Get capabilities
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, window->surface, &details.capabilities));
+
+    // Get the available surface formats
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, window->surface, &count, nullptr));
+    details.formats.resize(count);
+    VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, window->surface, &count, details.formats.data()));
+
+    // Get the available present modes to this surface
+    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, window->surface, &count, nullptr));
+    details.presentModes.resize(count);
+    VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, window->surface, &count, details.presentModes.data()));
+
+    return details;
   }
 
   VkResult VulkanDevice::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memPropertyFlags, VkDeviceSize size, VkBuffer* buffer, VkDeviceMemory* memory, void* data)

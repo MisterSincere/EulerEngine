@@ -60,6 +60,8 @@ namespace vk
       uint32_t computeCount;
       uint32_t transfer;
       uint32_t transferCount;
+      uint32_t present;
+      uint32_t presentCount;
     } queueFamilyIndices;
 
     /* @brief Typecast to VkDevice */
@@ -104,6 +106,13 @@ namespace vk
      * @note Just pass in one type, hence no bitwise or
      **/
     VkQueue GetQueue(VkQueueFlags requestedQueueType);
+
+    /**
+     * Get the supported formats, present modes and capabilities of the surface that is used for the window
+     *
+     * @return The struct describing the details of the used surface
+     **/
+    SurfaceDetails GetSurfaceDetails();
 
     /**
      * Create a buffer on the device

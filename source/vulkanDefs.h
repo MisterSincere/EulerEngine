@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Filename: vulkanDefs.h
+// Filename: vulkanTools.h
 //
 // (C) Copyright 2018 Madness Studio. All Rights Reserved
 /////////////////////////////////////////////////////////////////////
@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <vector>
 
 #include "vulkanInitializers.h" //< includes vulkan.h
 
@@ -36,9 +37,19 @@
 // Default fence timeout in nanoseconds
 #define DEFAULT_FENCE_TIMEOUT 100000000000
 
+#define VK_FUNCTION_CALL(instance, name, ...) (reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name)))(__VA_ARGS__);
+
+#define VK_FUNCTION(instance, name) reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name));
 
 namespace vk
 {
+  struct SurfaceDetails
+  {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+  };
+
   namespace tools
   {
     extern void exitFatal(const char* msg);

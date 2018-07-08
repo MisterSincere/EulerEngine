@@ -11,8 +11,10 @@ namespace vk
   VulkanInstance::VulkanInstance(eewindow::Window* window, std::vector<const char*> desiredLayers, std::vector<const char*> desiredExtensions)
   {
     assert(window);
-
     uint32_t count;
+
+    // API VERSION
+    VK_FUNCTION_CALL(nullptr, vkEnumerateInstanceVersion, &maxApiVersion);
 
     // LAYERS
     {

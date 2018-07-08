@@ -5,9 +5,10 @@
 /////////////////////////////////////////////////////////////////////
 #include "eulerengine.h"
 
-#include "vulkanInstance.h"
 #include "window.h"
+#include "vulkanInstance.h"
 #include "vulkanDevice.h"
+#include "vulkanSwapChain.h"
 
 #pragma comment(lib, "vulkan-1.lib")
 #pragma comment(lib, "glfw3.lib")
@@ -16,10 +17,9 @@
 struct EulerComponents
 {
   eewindow::Window* window;
-
-  vk::VulkanInstance* pInstance;
-
-  vk::VulkanDevice* pDevice;
+  vk::VulkanInstance* instance;
+  vk::VulkanDevice* device;
+  vk::VulkanSwapchain* swapchain;
 
   struct {
 #if defined(_DEBUG) | defined(EE_DEBUG)
@@ -60,28 +60,29 @@ void vk_instance(EulerComponents* comp)
     }
   }
 
-  comp->pInstance = new vk::VulkanInstance(comp->window, instanceLayer, instanceExtensions);
+  comp->instance = new vk::VulkanInstance(comp->window, instanceLayer, instanceExtensions);
 
-  VK_CHECK(comp->pInstance->Create(comp->pAllocator));
+  VK_CHECK(comp->instance->Create(comp->pAllocator));
 }
 
 void vk_device(EulerComponents* comp)
 {
-
   std::vector<const char*> extensions(0);
   std::vector<const char*> layers(0);
 
   VkPhysicalDeviceFeatures enabledFeatures{0};
 
   // Create the device handle
-  comp->pDevice = new vk::VulkanDevice(comp->pInstance, comp->window, comp->pAllocator);
+  comp->device = new vk::VulkanDevice(comp->instance, comp->window, comp->pAllocator);
 
-  VK_CHECK(comp->pDevice->Create(enabledFeatures, layers, extensions));
+  VK_CHECK(comp->device->Create(enabledFeatures, layers, extensions));
 }
 
 void vk_swapChain(EulerComponents* comp)
 {
-  
+  comp->swapchain = new vk::VulkanSwapchain(comp->device, comp->window);
+
+  comp->swapchain->Create();
 }
 
 void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphicsCInfo)
@@ -89,9 +90,13 @@ void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphi
   // INSTANCE
   vk_instance(comp);
 
+  printf("Max API Version: %d.%d.%d\n", VK_VERSION_MAJOR(comp->instance->maxApiVersion), VK_VERSION_MINOR(comp->instance->maxApiVersion), VK_VERSION_PATCH(comp->instance->maxApiVersion));
+  printf("Used API Version: %d.%d.%d\n", VK_VERSION_MAJOR(comp->instance->apiVersion), VK_VERSION_MINOR(comp->instance->apiVersion), VK_VERSION_PATCH(comp->instance->apiVersion));
+
+
   if (comp->settings.validation)
   {
-    vk::debug::setupDebug(comp->pInstance->instance, comp->pAllocator, 0, VK_NULL_HANDLE);
+    vk::debug::setupDebug(comp->instance->instance, comp->pAllocator, 0, VK_NULL_HANDLE);
   }
 
   // DEVICE
@@ -154,17 +159,20 @@ void eeReleaseApplication(EEApplication* app)
     // Acquire right memory interpretation
     EulerComponents* comp = reinterpret_cast<EulerComponents*>(app->graphics->comp);
 
+    // SWAPCHAIN
+    delete comp->swapchain;
+
     // DEVICE
-    delete comp->pDevice;
+    delete comp->device;
 
     // DEBUG
     if (comp->settings.validation)
     {
-      vk::debug::freeDebugCallback(comp->pInstance->instance, comp->pAllocator);
+      vk::debug::freeDebugCallback(comp->instance->instance, comp->pAllocator);
     }
 
     // INSTANCE
-    delete comp->pInstance;
+    delete comp->instance;
 
     // WINDOW
     comp->window->Release();

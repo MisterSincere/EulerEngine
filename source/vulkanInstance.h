@@ -36,6 +36,11 @@ namespace vk
 
     const char* name{ "MS:EulerEngine" };
 
+    /* @brief Max supported api version */
+    uint32_t maxApiVersion;
+    /* @brief Used api version */
+    uint32_t apiVersion{ VK_API_VERSION_1_0 };
+
     /* @brief Typecast to VkInstance */
     operator VkInstance() { return instance; }
 

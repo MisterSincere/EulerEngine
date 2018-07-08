@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Filename: vulkanDefs.cpp
+// Filename: vulkanTools.cpp
 //
 // (C) Copyright 2018 Madness Studio. All Rights Reserved
 /////////////////////////////////////////////////////////////////////
@@ -40,6 +40,15 @@ namespace vk
       default:
         return "UNKNOWN ERROR";
       }
+    }
+  }
+
+  namespace functions
+  {
+    VkResult EnumerateInstanceVersion(uint32_t* pApiVersion)
+    {
+      PFN_vkEnumerateInstanceVersion func = reinterpret_cast<PFN_vkEnumerateInstanceVersion>(vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion"));
+      return func(pApiVersion);
     }
   }
 }
