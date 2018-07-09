@@ -385,7 +385,7 @@ namespace vk
        * @param descriptorSetOut  The DescriptorSetDetails that will be filled out by the method
        * @param textures          List of all created textures that can be set for a uniform sampler
        **/
-      void CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vk::intern::Texture>& textures);
+      void CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vk::intern::Texture*>& textures);
 
       /**
        * Records this shader into the passed in command buffer
@@ -402,18 +402,59 @@ namespace vk
     //---------------------------------------------------------------------------------------
     struct Object
     {
+      /* @brief The renderer this object will use */
+      vk::VulkanRenderer* renderer;
+
+      /* @brief Pointer to the mesh this object uses */
       vk::intern::Mesh* mesh;
+      /* @brief Pointer to the shader this object uses */
       vk::intern::Shader* shader;
 
+      /* @brief Struct containing the ubo details to update them */
+      vk::intern::Shader::DescriptorSetDetails descriptorSetDetails;
+
+      /* @brief Indicates at which splitscreen field this object will be renderer */
+      EESplitscreen splitscreen;
+
+      /* @brief Indicates wether this object is created or not */
+      bool isCreated{ false };
+
       /**
-       * Default constructor
+       * Default constructor (only storing)
+       *
+       * @param renderer    Pointer to the renderer this object will use
+       * @param mesh        Pointer to the mesh this object should use
+       * @param shader      Pointer to the shader this object should use
+       * @param splitscreen Field on the splitscreen this object should be renderer to (undefined if splitscreen is disabled)
        **/
-      Object(vk::intern::Mesh* mesh, vk::intern::Shader* shader);
+      Object(vk::VulkanRenderer* renderer, vk::intern::Mesh* mesh, vk::intern::Shader* shader, EESplitscreen splitscreen);
 
       /**
        * Default desctructor
        **/
       ~Object();
+
+      /**
+       * Creates the object
+       * 
+       * @param textures  List of the current textures to use for possible uniform samplers
+       **/
+      void Create(const std::vector<vk::intern::Texture*>& textures);
+
+      /**
+       * Record the object into the passed in command buffer
+       *
+       * @param cmdBuffer The command buffer the objects data will be recorded to
+       **/
+      void Record(VkCommandBuffer cmdBuffer);
+
+      /**
+       * Updates an uniform buffer.
+       *
+       * @param data    Pointer to the new data
+       * @param binding Binding of the uniform buffer to update to (optional; will just update first one)
+       **/
+      void UpdateUniformBuffer(void* data, int binding = 0);
     };
   }
 }

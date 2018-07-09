@@ -3,7 +3,7 @@ project (EulerEngine)
 
 # Source Files
 set(VULKAN source/vulkanRenderer.h source/vulkanRenderer.cpp source/vulkanSwapChain.h source/vulkanSwapChain.cpp source/vulkanBuffer.h source/vulkanInitializers.h source/vulkanDevice.h source/vulkanDevice.cpp source/vulkanInstance.h source/vulkanInstance.cpp source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanDefs.h source/vulkanDefs.cpp)
-set(INTERNS source/eeInternMesh.cpp source/eeInternTexture.cpp source/eeInternShader.cpp source/eeInternVertex.cpp source/eeInternDepthImage.cpp source/eeInternPipeline.cpp source/eeIntern.h )
+set(INTERNS source/eeInternObject.cpp source/eeInternMesh.cpp source/eeInternTexture.cpp source/eeInternShader.cpp source/eeInternVertex.cpp source/eeInternDepthImage.cpp source/eeInternPipeline.cpp source/eeIntern.h )
 
 set(EXTERNS source/tiny_obj_loader.h source/stb_image.h)
 

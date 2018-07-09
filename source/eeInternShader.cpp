@@ -167,7 +167,7 @@ namespace vk
       return ubo->buffer;
     }
 
-    void Shader::CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vk::intern::Texture>& textures)
+    void Shader::CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vk::intern::Texture*>& textures)
     {
       if (currentAmountDescriptorSets == shaderInfo.amountObjects)
       {
