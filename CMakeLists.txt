@@ -3,7 +3,9 @@ project (EulerEngine)
 
 # Source Files
 set(VULKAN source/vulkanRenderer.h source/vulkanRenderer.cpp source/vulkanSwapChain.h source/vulkanSwapChain.cpp source/vulkanBuffer.h source/vulkanInitializers.h source/vulkanDevice.h source/vulkanDevice.cpp source/vulkanInstance.h source/vulkanInstance.cpp source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanDefs.h source/vulkanDefs.cpp)
-set(INTERNS source/eeInternDepthImage.cpp source/eeInternPipeline.cpp source/eeIntern.h )
+set(INTERNS source/eeInternTexture.cpp source/eeInternShader.cpp source/eeInternVertex.cpp source/eeInternDepthImage.cpp source/eeInternPipeline.cpp source/eeIntern.h )
+
+set(EXTERNS source/stb_image.h)
 
 set(WINDOW source/window.h source/window.cpp)
 
@@ -12,6 +14,7 @@ set(EULERTEST source/main.cpp source/systemClass.h source/systemClass.cpp)
 
 #FILTER
 source_group ("EULERENGINE" FILES ${EULERENGINE})
+source_group ("EULERENGINE\\EXTERNALS" FILES ${EXTERNS})
 source_group ("EULERENGINE\\WINDOW" FILES ${WINDOW})
 source_group ("EULERENGINE\\VULKAN" FILES ${VULKAN})
 source_group ("EULERENGINE\\VULKAN\\INTERNS" FILES ${INTERNS})
@@ -29,4 +32,4 @@ include_directories (
 	)
 
 # Add files
-add_executable (EulerEngine ${EULERTEST} ${EULERENGINE} ${WINDOW} ${VULKAN} ${INTERNS})
+add_executable (EulerEngine ${EULERTEST} ${EULERENGINE} ${WINDOW} ${VULKAN} ${INTERNS} ${EXTERNS})

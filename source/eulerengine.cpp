@@ -5,10 +5,13 @@
 /////////////////////////////////////////////////////////////////////
 #include "eulerengine.h"
 
-#include "vulkanRenderer.h"
+#include "eeIntern.h"
 
 #pragma comment(lib, "vulkan-1.lib")
 #pragma comment(lib, "glfw3.lib")
+
+#define GET_COMP(app) EulerComponents* comp = reinterpret_cast<EulerComponents*>(app.graphics->comp);
+
 
 
 struct EulerComponents
@@ -19,6 +22,15 @@ struct EulerComponents
   vk::VulkanDevice* device;
   vk::VulkanSwapchain* swapchain;
   vk::VulkanRenderer* renderer;
+
+  std::vector<vk::intern::Object*> currentObjects;
+  std::vector<uint32_t*> iCurrentObjects;
+  std::vector<vk::intern::Shader*> currentShader;
+  std::vector<uint32_t*> iCurrentShader;
+  std::vector<vk::intern::Texture*> currentTextures;
+  std::vector<uint32_t*> iCurrentTextures;
+  std::vector<vk::intern::Mesh*> currentMeshes;
+  std::vector<uint32_t*> iCurrentMeshes;
 
   struct {
 #if defined(_DEBUG) | defined(EE_DEBUG)
@@ -146,6 +158,59 @@ bool eeCreateApplication(EEApplication& appOut, const EEWindowCreateInfo* window
   vk_baseInitialize(comp, graphicsCInfo);
 
   return true;
+}
+
+EETexture eeiCreateTexture(EEApplication& app, const char* file)
+{
+  GET_COMP(app);
+
+  EEInvariant(comp->currentTextures.size() == comp->iCurrentTextures.size());
+
+  // Push back new texture handle
+  comp->currentTextures.push_back(new vk::intern::Texture(comp->renderer, file));
+  comp->currentTextures[comp->currentTextures.size() - 1]->Upload();
+
+  // Push back address of index to the new textures
+  comp->iCurrentTextures.push_back(new uint32_t(static_cast<uint32_t>(comp->currentTextures.size() - 1)));
+
+  EEInvariant(comp->currentTextures.size() == comp->iCurrentTextures.size());
+
+  return { comp->iCurrentTextures[comp->iCurrentTextures.size() - 1] };
+}
+
+EEShader eeiCreateShader(EEApplication& app, const EEShaderCreateInfo& shaderCInfo)
+{
+  GET_COMP(app);
+
+  EEInvariant(comp->currentShader.size() == comp->iCurrentShader.size());
+
+  // Push back shader
+  comp->currentShader.push_back(new vk::intern::Shader(comp->renderer, shaderCInfo));
+  comp->currentShader[comp->currentShader.size() - 1]->Create();
+
+  // Push back address of index to the new shader
+  comp->iCurrentShader.push_back(new uint32_t(static_cast<uint32_t>(comp->currentShader.size() - 1)));
+
+  EEInvariant(comp->currentShader.size() == comp->iCurrentShader.size());
+
+  return { comp->iCurrentShader[comp->iCurrentShader.size() - 1] };
+}
+
+EEObject eeiCreateObject(EEApplication& app, EEShader shader, EEMesh mesh, EESplitscreen ss)
+{
+  GET_COMP(app);
+
+  EEInvariant(comp->currentObjects.size() == comp->iCurrentObjects.size());
+
+  // Push back object
+  comp->currentObjects.push_back(new vk::intern::Object(comp->currentMeshes[*mesh], comp->currentShader[*shader]));
+
+  // Push back address of index to the new object
+  comp->iCurrentObjects.push_back(new uint32_t(static_cast<uint32_t>(comp->currentObjects.size() - 1)));
+
+  EEInvariant(comp->currentObjects.size() == comp->iCurrentObjects.size());
+
+  return { comp->iCurrentObjects[comp->iCurrentObjects.size() - 1] };
 }
 
 

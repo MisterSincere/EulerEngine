@@ -370,6 +370,26 @@ namespace vk
     FlushCommandBuffer(copyCmd, queue);
   }
 
+  void VulkanDevice::CopyBufferToImage(VkBuffer srcBuffer, VkImage& dstImage, uint32_t width, uint32_t height)
+  {
+    VkCommandBuffer copyBuffer = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+
+    VkBufferImageCopy copy;
+    copy.bufferOffset = 0;
+    copy.bufferRowLength = 0;
+    copy.bufferImageHeight = 0;
+    copy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copy.imageSubresource.mipLevel = 0u;
+    copy.imageSubresource.baseArrayLayer= 0u;
+    copy.imageSubresource.layerCount = 1u;
+    copy.imageOffset = { 0u, 0u, 0u };
+    copy.imageExtent = { width, height };
+
+    vkCmdCopyBufferToImage(copyBuffer, srcBuffer, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1u, &copy);
+
+    FlushCommandBuffer(copyBuffer, GetQueue(VK_QUEUE_GRAPHICS_BIT));
+  }
+
   VkCommandBuffer VulkanDevice::CreateCommandBuffer(VkCommandBufferLevel level, bool begin, bool ss)
   {
     VkCommandBufferAllocateInfo cmdBufferAllocInfo = vk::initializers::commandBufferAllocateInfo(cmdGraphicsPool, level, 1);

@@ -102,5 +102,54 @@ namespace vk
       return info;
     }
 
+    inline VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCInfo()
+    {
+      VkPipelineInputAssemblyStateCreateInfo info;
+      info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+      info.pNext = nullptr;
+      info.flags = 0;
+      info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+      info.primitiveRestartEnable = false;
+      return info;
+    }
+
+    inline VkViewport viewport(
+      uint32_t width,
+      uint32_t height)
+    {
+      VkViewport vp;
+      vp.x = 0.0f;
+      vp.y = 0.0f;
+      vp.width = static_cast<float>(width);
+      vp.height = static_cast<float>(height);
+      vp.minDepth = 0.0f;
+      vp.maxDepth = 1.0f;
+      return vp;
+    }
+
+    inline VkDescriptorSetLayoutBinding descriptorSetLayoutBinding(
+      VkDescriptorType type,
+      VkShaderStageFlags stageFlags,
+      uint32_t binding,
+      uint32_t descriptorCount = 1u)
+    {
+      VkDescriptorSetLayoutBinding setLayoutBinding;
+      setLayoutBinding.binding = binding;
+      setLayoutBinding.descriptorType = type;
+      setLayoutBinding.descriptorCount = descriptorCount;
+      setLayoutBinding.stageFlags = stageFlags;
+      setLayoutBinding.pImmutableSamplers = nullptr;
+      return setLayoutBinding;
+    }
+
+    inline VkDescriptorPoolSize descriptorPoolSize(
+      VkDescriptorType type,
+      uint32_t descriptorCount)
+    {
+      VkDescriptorPoolSize info;
+      info.type = type;
+      info.descriptorCount = descriptorCount;
+      return info;
+    }
   }
 }

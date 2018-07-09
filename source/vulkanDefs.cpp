@@ -5,21 +5,43 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanDefs.h"
 
+#include "eedefs.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <assert.h>
 
+#include <fstream>
 
 
 namespace vk
 {
   namespace tools
   {
+    std::vector<char> readFile(const char* fileName)
+    {
+      std::ifstream file;
+      file.open(fileName, std::ios::binary | std::ios::ate);
+      if (file.is_open())
+      {
+        size_t size = static_cast<size_t>(file.tellg());
+        std::vector<char> fileBuffer(size);
+        file.seekg(0);
+        file.read(fileBuffer.data(), size);
+        file.close();
+        return fileBuffer;
+      }
+      else
+      {
+        EEPRINT("Failed to open file %s!\n", fileName);
+        exitFatal("Failed to open shader file!\n");
+      }
+    }
+
     bool isStencilFormat(VkFormat format)
     {
       return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D16_UNORM_S8_UINT;
     }
-
 
     void exitFatal(const char* msg)
     {

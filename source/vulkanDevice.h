@@ -171,6 +171,22 @@ namespace vk
       VkQueue       queue,
       VkBufferCopy* copyRegion = nullptr);
 
+    /** 
+     * Copies the data from the buffer to the image
+     *
+     * @note src buffer needs to have transfer src and and dst iamge transfer dst flag
+     *
+     * @param srcBuffer Buffer to copy the data from
+     * @param dstImage  Image to copy the buffer data to
+     * @param width     Width of the image
+     * @param height    Height of the image
+     **/
+    void CopyBufferToImage(
+      VkBuffer srcBuffer,
+      VkImage& dstImage,
+      uint32_t width,
+      uint32_t height);
+
     /**
      * Allocate a command buffer from the command pool
      *

@@ -4,6 +4,7 @@
 // (C) Copyright 2018 Madness Studio. All Rights Reserved
 /////////////////////////////////////////////////////////////////////
 #include "vulkanRenderer.h"
+  
 
 namespace vk
 {
@@ -12,6 +13,82 @@ namespace vk
     : swapchain(swapchain)
   {
     assert(swapchain);
+
+    // INPUT ASSEMBLY
+    {
+      inputAssemblyState = vk::initializers::inputAssemblyStateCInfo();
+    }
+
+    // VIEWPORT STATE
+    {
+      VkViewport vp;
+      vp.x = 0.0f;
+      vp.y = 0.0f;
+      vp.width = static_cast<float>(swapchain->extent.width);
+      vp.height = static_cast<float>(swapchain->extent.height);
+      vp.minDepth = 0.0f;
+      vp.maxDepth = 1.0f;
+
+      VkRect2D scissor;
+      scissor.offset = { 0u, 0u };
+      scissor.extent = { swapchain->extent.width , swapchain->extent.height };
+
+      viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+      viewportState.pNext = nullptr;
+      viewportState.flags = 0;
+      viewportState.viewportCount = 1u;
+      viewportState.pViewports = &vp;
+      viewportState.scissorCount = 1u;
+      viewportState.pScissors = &scissor;
+    }
+
+    // MULTISAMPLE STATE
+    {
+      multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+      multisampleState.pNext = nullptr;
+      multisampleState.flags = 0;
+      multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+      multisampleState.sampleShadingEnable = VK_FALSE;
+      multisampleState.minSampleShading = 1.0f;
+      multisampleState.pSampleMask = nullptr;
+      multisampleState.alphaToCoverageEnable = VK_FALSE;
+      multisampleState.alphaToOneEnable = VK_FALSE;
+    }
+
+    // BLEND STATE
+    {
+      /**
+      * if(blendEnable) {
+      *     realColor.rgb = (srcColorBlendFactor * currentColor.rgb) [[[colorBlendOp]]] (dstColorBlendFactor * previousColor.rgb);
+      *     realColor.a   = (srcAlphaBlendFactor * currentColor.a)   [[[colorBlendOp]]] (dstAlphaBlendFactor * previousColor.a);
+      * } else {
+      *      realColor = currentColor;
+      * }
+      * COMMON realColor.rgb = currentColor.a * currentColor.rgb + (1 - currentColor.a) * previousColor.rgb
+      **/
+      VkPipelineColorBlendAttachmentState colorBlendAttachment;
+      colorBlendAttachment.blendEnable = VK_TRUE;
+      colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+      colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+      colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+      colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+      colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+      colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+      colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+
+      // VkPipelineColorBlendStateCreateInfo
+      blendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+      blendState.pNext = nullptr;
+      blendState.flags = 0;
+      blendState.logicOpEnable = VK_FALSE;
+      blendState.logicOp = VK_LOGIC_OP_NO_OP;
+      blendState.attachmentCount = 1;
+      blendState.pAttachments = &colorBlendAttachment;
+      blendState.blendConstants[0] = 0.0f;
+      blendState.blendConstants[1] = 0.0f;
+      blendState.blendConstants[2] = 0.0f;
+      blendState.blendConstants[3] = 0.0f;
+    }
   }
 
   VulkanRenderer::~VulkanRenderer()
@@ -139,5 +216,20 @@ namespace vk
       }
     }
 
+  }
+
+  void VulkanRenderer::CreateShaderModule(const char* file, VkShaderModule& shaderModule)
+  {
+    // Read file code in
+    std::vector<char> code = vk::tools::readFile(file);
+
+    VkShaderModuleCreateInfo cinfo;
+    cinfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    cinfo.pNext = nullptr;
+    cinfo.flags = 0;
+    cinfo.codeSize = code.size();
+    cinfo.pCode = (uint32_t*)code.data();
+
+    VK_CHECK(vkCreateShaderModule(swapchain->device->logicalDevice, &cinfo, swapchain->device->pAllocator, &shaderModule));
   }
 }

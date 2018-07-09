@@ -54,6 +54,8 @@ namespace vk
 
   namespace tools
   {
+    extern std::vector<char> readFile(const char* file);
+
     extern bool isStencilFormat(VkFormat format);
 
     extern void exitFatal(const char* msg);
