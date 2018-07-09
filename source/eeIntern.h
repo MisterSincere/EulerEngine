@@ -118,7 +118,72 @@ namespace vk
     //---------------------------------------------------------------------------------------
     struct Mesh
     {
+      /* @brief The renderer this mesh is created/destroyed with */
+      vk::VulkanRenderer* renderer;
 
+      /* @brief Encapsulates informations about the vertex buffer and the buffer itself */
+      struct {
+        VkDeviceSize maxBufferSize;
+        VkBuffer buffer;
+        VkDeviceMemory memory;
+      } vertexBuffer;
+
+
+      /* @brief Encapsulates informations about the index buffer and the buffer itself */
+      struct {
+        uint32_t count;
+        VkDeviceSize maxBufferSize;
+        VkBuffer buffer;
+        VkDeviceMemory memory;
+      } indexBuffer;
+
+      /* @brief Indicates wether the mesh is already created or not */
+      bool isCreated{ false };
+
+      /**
+       * Default constructor
+       *
+       * @param renderer  The renderer this mesh should use
+       **/
+      Mesh(vk::VulkanRenderer* renderer);
+
+      /**
+       * Default destructor
+       **/
+      ~Mesh();
+
+      /**
+       * Creates the mesh from an obj wavefront file
+       *
+       * @param objFile   Valid destination of an obj file
+       **/
+      void Create(const char* objFile);
+
+      /**
+       * Creates the mesh from the vertex and index data passed in.
+       * Vertex type is predefined by the EEVertex struct
+       *
+       * @param vertices    List of EEVertex-type vertices
+       * @param indices     List of indices (always have to be uint32_t)
+       **/
+      void Create(const std::vector<EEVertex>& vertices, const std::vector<uint32_t>& indices);
+
+      /**
+       * Creates a mesh from the void data and indices passed in
+       *
+       * @param data        Pointer to the vertex data
+       * @param bufferSize  Size of the vertex data in bytes
+       * @param indices     List of indices (always have to be uint32_t)
+       **/
+      void Create(void* data, size_t bufferSize, std::vector<uint32_t>& indices);
+
+      /**
+       * Call to record this mesh data into the passed in command buffer
+       *
+       * @param cmdBuffer   The command buffer that this mesh will be bound to
+       **/
+      void Record(VkCommandBuffer cmdBuffer);
+      
     };
 
     //---------------------------------------------------------------------------------------
@@ -321,6 +386,14 @@ namespace vk
        * @param textures          List of all created textures that can be set for a uniform sampler
        **/
       void CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vk::intern::Texture>& textures);
+
+      /**
+       * Records this shader into the passed in command buffer
+       * 
+       * @param cmdBuffer     The command buffer this shader will be recorded to
+       * @param descriptorSet Desciptor set that will be recordered
+       **/
+      void Record(VkCommandBuffer cmdBuffer, VkDescriptorSet descriptorSet);
     };
 
 

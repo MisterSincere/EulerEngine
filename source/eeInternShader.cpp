@@ -239,5 +239,17 @@ namespace vk
         vkUpdateDescriptorSets(renderer->swapchain->device->logicalDevice, infoAmount, writeDescriptorSets, 0u, nullptr);
       }
     }
+
+    void Shader::Record(VkCommandBuffer cmdBuffer, VkDescriptorSet descriptorSet)
+    {
+      vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline);
+
+      if (pushConstant.data)
+      {
+        vkCmdPushConstants(cmdBuffer, pipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0u, pushConstant.size, pushConstant.data);
+      }
+
+      vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipelineLayout, 0u, 1u, &descriptorSet, 0u, nullptr);
+    }
   }
 }

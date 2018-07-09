@@ -348,6 +348,26 @@ namespace vk
     return buffer->bind();
   }
 
+  void VulkanDevice::CreateAndUploadBuffer(void* data, VkDeviceSize bufferSize, VkBufferUsageFlags usageFlags, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut)
+  {
+    // STAGING BUFFER
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, bufferSize,
+      &stagingBuffer, &stagingBufferMemory, data);
+
+    // BUFFER
+    CreateBuffer(usageFlags | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, bufferSize,
+      pBufferOut, pBufferMemoryOut);
+
+    // COPY DATA TO THE DEVICE LOCAL BUFFER
+    CopyBuffer(stagingBuffer, *pBufferOut, bufferSize);
+
+    // DESTROY STAGING BUFFER
+    vkFreeMemory(logicalDevice, stagingBufferMemory, pAllocator);
+    vkDestroyBuffer(logicalDevice, stagingBuffer, pAllocator);
+  }
+
   void VulkanDevice::CopyBuffer(vk::Buffer* src, vk::Buffer* dst, VkQueue queue, VkBufferCopy* copyRegion)
   {
     assert(dst->size <= src->size);
@@ -368,6 +388,20 @@ namespace vk
     vkCmdCopyBuffer(copyCmd, src->buffer, dst->buffer, 1u, &bufferCopy);
 
     FlushCommandBuffer(copyCmd, queue);
+  }
+
+  void VulkanDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize bufferSize)
+  {
+    VkCommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+
+    VkBufferCopy copy;
+    copy.srcOffset = 0;
+    copy.dstOffset = 0;
+    copy.size = bufferSize;
+
+    vkCmdCopyBuffer(copyCmd, srcBuffer, dstBuffer, 1u, &copy);
+
+    FlushCommandBuffer(copyCmd, GetQueue(VK_QUEUE_GRAPHICS_BIT));
   }
 
   void VulkanDevice::CopyBufferToImage(VkBuffer srcBuffer, VkImage& dstImage, uint32_t width, uint32_t height)

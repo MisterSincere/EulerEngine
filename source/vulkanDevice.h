@@ -156,6 +156,22 @@ namespace vk
       void*                 data = nullptr);
 
     /**
+     * Creates a device local buffer and uploads the data to it via staging buffer
+     * 
+     * @param data              Pointer to the data to upload into the buffer
+     * @param bufferSize        Size in bytes of the data
+     * @param usageFlags        Future usage of the buffer
+     * @param pBufferOut        Pointer to the buffer to create and upload to
+     * @param pBufferMemoryOut  Pointer to the device memory backing up the buffer
+     **/
+    void CreateAndUploadBuffer(
+      void*               data,
+      VkDeviceSize        bufferSize,
+      VkBufferUsageFlags  usageFlags,
+      VkBuffer*           pBufferOut,
+      VkDeviceMemory*     pBufferMemoryOut);
+
+    /**
      * Copy buffer data from src to dst using vkCmdCopyBuffer
      *
      * @param src         Pointer to the source buffer to copy from
@@ -170,6 +186,18 @@ namespace vk
       vk::Buffer*   dst,
       VkQueue       queue,
       VkBufferCopy* copyRegion = nullptr);
+
+    /**
+     * Copies data from the dst buffer to the src buffer.
+     *
+     * @param srcBuffer   The buffer to copy from
+     * @param dstBuffer   The buffer to copy to
+     * @param bufferSize  Size in bytes to copy
+     **/
+    void CopyBuffer(
+      VkBuffer srcBuffer,
+      VkBuffer dstBuffer,
+      VkDeviceSize bufferSize);
 
     /** 
      * Copies the data from the buffer to the image
