@@ -339,7 +339,6 @@ namespace vk
       /* @brief Shader modules for vertex and fragment shader (geometry is optional) */
       VkShaderModule vertexShaderModule;
       VkShaderModule fragmentShaderModule;
-      VkShaderModule geometryShaderModule{ VK_NULL_HANDLE };
       /* @brief Descriptor set layout of this shader */
       VkDescriptorSetLayout descriptorSetLayout;
       /* @brief Vulkan handle of the descriptor pool that provides memory for all descriptor sets */

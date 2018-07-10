@@ -105,10 +105,11 @@ namespace vk
      * Returns a queue of the family passed in.
      *
      * @param requestedQueueType  The type of the queue to return
+     * @param present             If true the queue type will be ignored and the present queue returned
      *
      * @note Just pass in one type, hence no bitwise or
      **/
-    VkQueue GetQueue(VkQueueFlags requestedQueueType);
+    VkQueue GetQueue(VkQueueFlags requestedQueueType, bool present = false);
 
     /**
      * Get the supported formats, present modes and capabilities of the surface that is used for the window

@@ -66,6 +66,12 @@ extern EEObject eeiCreateObject(
   EEMesh          mesh,
   EESplitscreen   splitscreen = EE_SPLITSCREEN_UNDEFINED);
 
+/**
+ * Finishes up application creation. Every eei function called before this method will now be recorded and hence be rendered.
+ * @param app         The application created with eeCreateApplication
+ **/
+extern void eeFinishCreation(const EEApplication& app);
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // UPDATE FUNCTIONS
@@ -78,6 +84,25 @@ extern EEObject eeiCreateObject(
  * @return Is true if an exit message was send
  **/
 extern bool eePollMessages(const EEApplication& appliction);
+
+/**
+ * Update the uniform buffer of the specified object to the data passed in (pretty simple isn't it ;)
+ * @param app     The application detail struct
+ * @param object  The object of which you wanna update the uniform buffer
+ * @param data    The new data that will be set to the objects uniform buffer
+ * @param binding Optional, if you have multiple uniform buffers pass in its binding (0 will use just the first ubo)
+ **/
+extern void eeUpdateUniformBuffer(
+  const EEApplication&  app,
+  EEObject              object,
+  void*                 data,
+  int                   binding = 0);
+
+/**
+* Finishes up the frame and draws everything. If you wanna see something, call this method.
+* @param app     The application you wanna draw the frame to
+**/
+extern void eeDrawFrame(const EEApplication& app);
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -240,7 +240,7 @@ namespace vk
     }
   }
 
-  VkResult VulkanSwapchain::acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex)
+  VkResult VulkanSwapchain::AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex)
   {
     return fpAcquireNextImageKHR(device->logicalDevice, swapchain, UINT64_MAX, presentCompleteSemaphore, VK_NULL_HANDLE, imageIndex);
   }

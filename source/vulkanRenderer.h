@@ -28,6 +28,12 @@ namespace vk
     /* @brief Handle of the render pass */
     VkRenderPass renderPass{ VK_NULL_HANDLE };
 
+    /* @brief Encapsulates the needed semaphores for snychronizing the draw method */
+    struct {
+      VkSemaphore imageAvailable;
+      VkSemaphore imageRendered;
+    } semaphores;
+
     /* @brief List of render buffers per image in swapchain passed in */
     std::vector<RenderBuffer> buffers;
 
@@ -37,13 +43,16 @@ namespace vk
     VkPipelineMultisampleStateCreateInfo multisampleState;
     VkPipelineColorBlendStateCreateInfo blendState;
 
+    /* @brief The splitscreen mode */
+    EESplitscreenMode splitscreenMode;
 
     /**
      * Default constructor
      *
      * @param swapchain   The swapchain struct you wanna render to
+     * @param splitscreen The desired splitscreen mode
      **/
-    VulkanRenderer(vk::VulkanSwapchain* swapchain);
+    VulkanRenderer(vk::VulkanSwapchain* swapchain, EESplitscreenMode splitscreen);
 
     /**
      * Default destructor
@@ -63,6 +72,20 @@ namespace vk
      * @param shaderModuleOut Handle of the shader module that is created in here
      **/
     void CreateShaderModule(const char* fileName, VkShaderModule& shaderModuleOut);
+
+    /**
+     * Records the current objects passed in to the command buffers to the swapchain images
+     *
+     * @param objectsToDraw   List of the objects that will be recorded to the command buffers
+     **/
+    void RecordSwapchainCommands(const std::vector<vk::intern::Object*>& objectsToDraw);
+
+    /**
+     * Draws the next available image and presents it
+     *
+     *
+     **/
+    void Draw();
 
     /**
      * Method to get the all valid input assembly state info.

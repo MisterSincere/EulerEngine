@@ -233,7 +233,7 @@ namespace vk
     return result;
   }
 
-  VkQueue VulkanDevice::GetQueue(VkQueueFlags queueFlag)
+  VkQueue VulkanDevice::GetQueue(VkQueueFlags queueFlag, bool present)
   {
     uint32_t index;
     if ((queueFlag & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT)
@@ -246,6 +246,10 @@ namespace vk
     {
       EEPRINT("Invalid queue type!\n");
       vk::tools::exitFatal("Invalid queue type!");
+    }
+
+    if (present) {
+      index = queueFamilyIndices.present;
     }
 
     VkQueue queue;

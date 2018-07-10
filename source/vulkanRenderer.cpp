@@ -9,8 +9,8 @@
 namespace vk
 {
 
-  VulkanRenderer::VulkanRenderer(vk::VulkanSwapchain* swapchain)
-    : swapchain(swapchain)
+  VulkanRenderer::VulkanRenderer(vk::VulkanSwapchain* swapchain, EESplitscreenMode splitscreen)
+    : swapchain(swapchain), splitscreenMode(splitscreen)
   {
     assert(swapchain);
 
@@ -97,6 +97,9 @@ namespace vk
     {
       vkDestroyRenderPass(swapchain->device->logicalDevice, renderPass, swapchain->device->pAllocator);
       renderPass = VK_NULL_HANDLE;
+
+      vkDestroySemaphore(swapchain->device->logicalDevice, semaphores.imageAvailable, swapchain->device->pAllocator);
+      vkDestroySemaphore(swapchain->device->logicalDevice, semaphores.imageRendered, swapchain->device->pAllocator);
     }
     for (size_t i = 0u; i < buffers.size(); i++)
     {
@@ -216,6 +219,17 @@ namespace vk
       }
     }
 
+    // SEMAPHORES
+    {
+      VkSemaphoreCreateInfo semaphoreCInfo;
+      semaphoreCInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+      semaphoreCInfo.pNext = nullptr;
+      semaphoreCInfo.flags = 0;
+
+      VK_CHECK(vkCreateSemaphore(swapchain->device->logicalDevice, &semaphoreCInfo, swapchain->device->pAllocator, &semaphores.imageAvailable));
+      VK_CHECK(vkCreateSemaphore(swapchain->device->logicalDevice, &semaphoreCInfo, swapchain->device->pAllocator, &semaphores.imageRendered));
+    }
+
   }
 
   void VulkanRenderer::CreateShaderModule(const char* file, VkShaderModule& shaderModule)
@@ -232,4 +246,124 @@ namespace vk
 
     VK_CHECK(vkCreateShaderModule(swapchain->device->logicalDevice, &cinfo, swapchain->device->pAllocator, &shaderModule));
   }
+
+  void VulkanRenderer::RecordSwapchainCommands(const std::vector<vk::intern::Object*>& objects)
+  {
+    VkCommandBufferBeginInfo beginInfo;
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.pNext = nullptr;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+    beginInfo.pInheritanceInfo = nullptr;
+
+    // Clear values are the same for all buffers
+    VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+    VkClearValue depthClearValue = { 1.0f, 0 }; // Depth, Stencil
+    VkClearValue clearValues[] = { clearColor, depthClearValue };
+
+    for (size_t i = 0; i < buffers.size(); i++)
+    {
+      VK_CHECK(vkBeginCommandBuffer(buffers[i].cmdBuffer, &beginInfo));
+
+      VkRenderPassBeginInfo renderPassBeginInfo;
+      renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+      renderPassBeginInfo.pNext = nullptr;
+      renderPassBeginInfo.renderPass = renderPass;
+      renderPassBeginInfo.framebuffer = buffers[i].framebuffer;
+      renderPassBeginInfo.renderArea.offset = { 0, 0 };
+      renderPassBeginInfo.renderArea.extent = { swapchain->extent.width, swapchain->extent.height };
+      renderPassBeginInfo.clearValueCount = 2u;
+      renderPassBeginInfo.pClearValues = clearValues;
+
+      vkCmdBeginRenderPass(buffers[i].cmdBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+
+
+
+
+      // Scissor
+      VkRect2D scissor;
+      scissor.offset = { 0, 0 };
+      scissor.extent = { swapchain->extent.width, swapchain->extent.height };
+      vkCmdSetScissor(buffers[i].cmdBuffer, 0u, 1u, &scissor);
+
+      // Default viewport
+      VkViewport vp;
+      vp.x = 0.0f;
+      vp.y = 0.0f;
+      vp.width = static_cast<float>(swapchain->extent.width);
+      vp.height = static_cast<float>(swapchain->extent.height);
+      vp.minDepth = 0.0f;
+      vp.maxDepth = 1.0f;
+
+
+      // Change viewport size according to splitscreen mode
+      if (splitscreenMode & EE_SPLITSCREEN_MODE_VERTICAL) {
+        vp.width = static_cast<float>(swapchain->extent.width / 2.0f);
+      }
+      if (splitscreenMode & EE_SPLITSCREEN_MODE_HORIZONTAL) {
+        vp.height = static_cast<float>(swapchain->extent.height / 2.0f);
+      }
+
+      // Record each object with its position defined by the EESplitscreen parameter of the objects
+      if (splitscreenMode != EE_SPLITSCREEN_MODE_NONE)
+      {
+
+        for (size_t j = 0; j < objects.size(); j++) {
+          vp.x = (objects[j]->splitscreen & EE_SPLITSCREEN_RIGHT) ? static_cast<float>(swapchain->extent.width / 2.0f) : 0.0f;
+          vp.y = (objects[j]->splitscreen & EE_SPLITSCREEN_BOTTOM) ? static_cast<float>(swapchain->extent.height / 2.0f) : 0.0f;
+          vkCmdSetViewport(buffers[i].cmdBuffer, 0u, 1u, &vp);
+
+          objects[j]->Record(buffers[i].cmdBuffer);
+        }
+
+      }
+      else  //< No splitscreen
+      {
+        vkCmdSetViewport(buffers[i].cmdBuffer, 0u, 1u, &vp);
+
+        for (size_t j = 0; j < objects.size(); j++) {
+          objects[j]->Record(buffers[i].cmdBuffer);
+        }
+      }
+
+
+
+
+      vkCmdEndRenderPass(buffers[i].cmdBuffer);
+      VK_CHECK(vkEndCommandBuffer(buffers[i].cmdBuffer));
+    }
+  }
+
+  void VulkanRenderer::Draw()
+  {
+    uint32_t imageIndex;
+    swapchain->AcquireNextImage(semaphores.imageAvailable, &imageIndex);
+
+    VkSubmitInfo submitInfo;
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.waitSemaphoreCount = 1u;
+    submitInfo.pWaitSemaphores = &(semaphores.imageAvailable);
+    VkPipelineStageFlags waitStageMask[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    submitInfo.pWaitDstStageMask = waitStageMask;
+    submitInfo.commandBufferCount = 1u;
+    submitInfo.pCommandBuffers = &(buffers[imageIndex].cmdBuffer);
+    submitInfo.signalSemaphoreCount = 1u;
+    submitInfo.pSignalSemaphores = &(semaphores.imageRendered);
+
+    VK_CHECK(vkQueueSubmit(swapchain->device->GetQueue(VK_QUEUE_GRAPHICS_BIT), 1u, &submitInfo, VK_NULL_HANDLE));
+
+    VkPresentInfoKHR presentInfo;
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
+    presentInfo.waitSemaphoreCount = 1u;
+    presentInfo.pWaitSemaphores = &(semaphores.imageRendered);
+    presentInfo.swapchainCount = 1u;
+    presentInfo.pSwapchains = &(swapchain->swapchain);
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr;
+
+    vkQueuePresentKHR(swapchain->device->GetQueue(VK_QUEUE_GRAPHICS_BIT, true), &presentInfo);
+  }
+
 }

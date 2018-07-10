@@ -84,7 +84,7 @@ namespace vk
      *
      * @return VkResult of the image acquisition call
      **/
-    VkResult acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex);
+    VkResult AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex);
 
     /**
      * Queue an image for presentation.

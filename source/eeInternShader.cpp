@@ -47,7 +47,6 @@ namespace vk
         // SHADER MODULES
         vkDestroyShaderModule(renderer->swapchain->device->logicalDevice, vertexShaderModule, renderer->swapchain->device->pAllocator);
         vkDestroyShaderModule(renderer->swapchain->device->logicalDevice, fragmentShaderModule, renderer->swapchain->device->pAllocator);
-        if(geometryShaderModule) vkDestroyShaderModule(renderer->swapchain->device->logicalDevice, geometryShaderModule, renderer->swapchain->device->pAllocator);
 
         // Free memory
         delete writeDescriptorSets;
@@ -197,8 +196,8 @@ namespace vk
           // SAMPLER
           } else if (shaderInfo.pUniformDescs[i].uniformType == EE_UNIFORM_TYPE_SAMPLER) {
             imageInfos.push_back({
-              /*sampler    */ textures[*(shaderInfo.pUniformDescs[i].texture)].sampler,
-              /*imageView  */ textures[*(shaderInfo.pUniformDescs[i].texture)].imageView,
+              /*sampler    */ textures[*(shaderInfo.pUniformDescs[i].texture)]->sampler,
+              /*imageView  */ textures[*(shaderInfo.pUniformDescs[i].texture)]->imageView,
               /*imageLayout*/ VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
             });
           }

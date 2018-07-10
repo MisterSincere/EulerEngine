@@ -41,6 +41,9 @@ struct EulerComponents
   } settings;
 
   VkAllocationCallbacks* pAllocator{ nullptr };
+
+  /* @brief Is true if eei create method was called but not the finish method yet */
+  bool eeiFinished{ false };
 };
 
 
@@ -96,9 +99,9 @@ void vk_swapChain(EulerComponents* comp)
   comp->swapchain->Create();
 }
 
-void vk_renderer(EulerComponents* comp)
+void vk_renderer(EulerComponents* comp, EESplitscreenMode splitscreen)
 {
-  comp->renderer = new vk::VulkanRenderer(comp->swapchain);
+  comp->renderer = new vk::VulkanRenderer(comp->swapchain, splitscreen);
 
   comp->renderer->Create();
 }
@@ -125,7 +128,7 @@ void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphi
   vk_swapChain(comp);
 
   // RENDERER
-  vk_renderer(comp);
+  vk_renderer(comp, graphicsCInfo->splitscreen);
 }
 
 void vk_resize(GLFWwindow* window, int width, int height, void* pUserData)
@@ -213,6 +216,13 @@ EEObject eeiCreateObject(EEApplication& app, EEShader shader, EEMesh mesh, EESpl
   return { comp->iCurrentObjects[comp->iCurrentObjects.size() - 1] };
 }
 
+void eeFinishCreation(const EEApplication& app)
+{
+  GET_COMP(app);
+  comp->renderer->RecordSwapchainCommands(comp->currentObjects);
+  comp->eeiFinished = true;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // EE UDPATE FUNCTIONS
@@ -220,6 +230,30 @@ EEObject eeiCreateObject(EEApplication& app, EEShader shader, EEMesh mesh, EESpl
 bool eePollMessages(const EEApplication& app)
 {
   return (reinterpret_cast<EulerComponents*>(app.graphics->comp))->window->PollEvents();
+}
+
+void eeUpdateUniformBuffer(const EEApplication& app, EEObject object, void* data, int binding)
+{
+  EulerComponents* comp = (EulerComponents*)app.graphics->comp;
+
+  comp->currentObjects[*object]->UpdateUniformBuffer(data, binding);
+}
+
+void eeDrawFrame(const EEApplication& app)
+{
+  if (!app.graphics || !app.graphics->comp)
+  {
+    EEPRINT("Application struct invalid. No draw call possible!\n");
+    vk::tools::exitFatal("Application struct invalid. No draw call possible!\n");
+  }
+  GET_COMP(app);
+  if (!comp->eeiFinished)
+  {
+    EEPRINT("Object creation calls were not finished yet. Please call eeFinishCreation to fix this!\n");
+    vk::tools::exitFatal("Object creation calls were not finished yet. Please call eeFinishCreation to fix this!\n");
+  }
+
+  comp->renderer->Draw();
 }
 
 
