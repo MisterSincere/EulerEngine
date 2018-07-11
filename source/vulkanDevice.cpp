@@ -716,7 +716,14 @@ VkPhysicalDevice VulkanDevice::pickPhysicalDevice(VkInstance instance)
 {
   assert(instance != VK_NULL_HANDLE);
 
+
+  uint32_t deviceCount;
+  vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+  VkPhysicalDevice* physicalDevices = new VkPhysicalDevice[deviceCount];
+  vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices);
+
   // Acquire all physical devices
+  /*
   uint32_t deviceCount = 0u;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
   if (deviceCount == 0u) {
@@ -727,11 +734,11 @@ VkPhysicalDevice VulkanDevice::pickPhysicalDevice(VkInstance instance)
   vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
   VkPhysicalDevice pickedDevice{ VK_NULL_HANDLE };
-  for (const auto& device : devices)
+  for (uint32_t i = 0u; i < deviceCount; i++)
   {
-    if (window->isAdequate(device))
+    if (window->isAdequate(devices[i]))
     {
-      pickedDevice = device;
+      pickedDevice = devices[i];
       break;
     }
   }
@@ -740,7 +747,7 @@ VkPhysicalDevice VulkanDevice::pickPhysicalDevice(VkInstance instance)
   {
     EEPRINT("Vulkan Error: Failed to find a suitable GPU!\n");
     throw std::runtime_error("Vulkan Error: Failed to find a suitable GPU!");
-  }
+  }*/
 
-  return pickedDevice;
+  return physicalDevices[0];
 }
