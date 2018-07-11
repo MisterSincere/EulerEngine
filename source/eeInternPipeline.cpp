@@ -5,11 +5,11 @@
 /////////////////////////////////////////////////////////////////////
 #include "eeIntern.h"
 
-using namespace vk;
+using namespace vkee;
 
 
 
-InternPipeline::InternPipeline(vk::VulkanRenderer* renderer, VkShaderModule vertShader, VkShaderModule fragShader)
+InternPipeline::InternPipeline(vkee::VulkanRenderer* renderer, VkShaderModule vertShader, VkShaderModule fragShader)
   : renderer(renderer)
 {
   assert(renderer);

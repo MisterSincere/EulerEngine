@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <cstring>
 
-namespace vk
+namespace vkee
 {
   /**
    * @brief Encapsulates access to a vulkan buffer backed up by device memory

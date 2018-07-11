@@ -64,7 +64,7 @@ namespace eewindow
         if (strcmp(reqExtension, extensions[i].extensionName) != 0)
         {
           EEPRINT("Failed to create the window: you do not support the required extension %s !\n", reqExtension);
-          vk::tools::exitFatal("Failed to create the window. Required extensions not supported!");
+          vkee::tools::exitFatal("Failed to create the window. Required extensions not supported!");
         }
       }
     }

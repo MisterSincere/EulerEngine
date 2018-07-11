@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-namespace vk
+namespace vkee
 {
 
   VkSurfaceFormatKHR chooseSwapChainSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
@@ -91,7 +91,7 @@ namespace vk
   }
 
 
-  VulkanSwapchain::VulkanSwapchain(vk::VulkanDevice* device, eewindow::Window* window, bool vsync)
+  VulkanSwapchain::VulkanSwapchain(vkee::VulkanDevice* device, eewindow::Window* window, bool vsync)
     : device(device), window(window)
   {
     assert(device && window);

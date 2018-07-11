@@ -14,11 +14,11 @@
 #include <vector>
 #include <set>
 
-namespace vk
+namespace vkee
 {
   struct VulkanDevice
   {
-    vk::VulkanInstance* instance;
+    vkee::VulkanInstance* instance;
     eewindow::Window* window;
 
     /* @brief The representation of the picked physical device (gpu) */
@@ -79,7 +79,7 @@ namespace vk
      * @param window      The window the device needs to be compatible with
      * @param pAllocator  The allocation callbacks (can be nullptr to use lazy alloc)
      **/
-    VulkanDevice(vk::VulkanInstance* instance, eewindow::Window* window, const VkAllocationCallbacks* pAllocator);
+    VulkanDevice(vkee::VulkanInstance* instance, eewindow::Window* window, const VkAllocationCallbacks* pAllocator);
 
     /**
      * Default destructor
@@ -143,7 +143,7 @@ namespace vk
      *
      * @param usageFlags            The usage flags for the buffer (i.e. index, vertex, uniform buffer)
      * @param memoryPropertyFlags   Memory properties for this buffer (i.e. device local, host visible, coherent)
-     * @param buffer                Pointer to a vk::Buffer object
+     * @param buffer                Pointer to a vkee::Buffer object
      * @param size                  Size of the buffer in bytes
      * @param data                  Pointer to the data that should be copied to the buffer after creation (optional)
      *
@@ -152,7 +152,7 @@ namespace vk
     VkResult CreateBuffer(
       VkBufferUsageFlags    usageFlags,
       VkMemoryPropertyFlags memoryPropertyFlags,
-      vk::Buffer*           buffer,
+      vkee::Buffer*           buffer,
       VkDeviceSize          size,
       void*                 data = nullptr);
 
@@ -183,8 +183,8 @@ namespace vk
      * @note Source and destination buffer must have appropriate transfer usage flags set (TRANSFER_SRC / TRANSFER_DST)
      **/
     void CopyBuffer(
-      vk::Buffer*   src,
-      vk::Buffer*   dst,
+      vkee::Buffer*   src,
+      vkee::Buffer*   dst,
       VkQueue       queue,
       VkBufferCopy* copyRegion = nullptr);
 

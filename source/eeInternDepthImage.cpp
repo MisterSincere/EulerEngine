@@ -5,10 +5,10 @@
 /////////////////////////////////////////////////////////////////////
 #include "eeIntern.h"
 
-using namespace vk;
+using namespace vkee;
 
 
-InternDepthImage::InternDepthImage(vk::VulkanSwapchain* swapchain)
+InternDepthImage::InternDepthImage(vkee::VulkanSwapchain* swapchain)
   : swapchain(swapchain)
 {
   assert(swapchain);

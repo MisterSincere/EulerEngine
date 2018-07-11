@@ -9,11 +9,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-using namespace vk;
+using namespace vkee;
 
 
 
-InternTexture::InternTexture(vk::VulkanRenderer* renderer, const char* filename)
+InternTexture::InternTexture(vkee::VulkanRenderer* renderer, const char* filename)
   :renderer(renderer)
 {
   assert(renderer);
@@ -23,7 +23,7 @@ InternTexture::InternTexture(vk::VulkanRenderer* renderer, const char* filename)
   if (!data.pixels)
   {
     EEPRINT("Image not found: %s\n", filename);
-    vk::tools::exitFatal("Failed to read image!");
+    vkee::tools::exitFatal("Failed to read image!");
   }
 }
 

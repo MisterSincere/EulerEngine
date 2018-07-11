@@ -10,7 +10,7 @@
 
 #include <vector>
 
-namespace vk
+namespace vkee
 {
   struct VulkanSwapchain
   {
@@ -22,7 +22,7 @@ namespace vk
     };
 
     /* @brief Representation of the device that will be used */
-    vk::VulkanDevice* device;
+    vkee::VulkanDevice* device;
     /* @brief Representation of the window we will present on */
     eewindow::Window* window;
 
@@ -62,7 +62,7 @@ namespace vk
      * @param 
      * @param 
      **/
-    VulkanSwapchain(vk::VulkanDevice* device, eewindow::Window* window, bool vsync = false);
+    VulkanSwapchain(vkee::VulkanDevice* device, eewindow::Window* window, bool vsync = false);
 
     /**
      * Default destructor

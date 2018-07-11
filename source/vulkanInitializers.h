@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace vk
+namespace vkee
 {
   namespace initializers
   {

@@ -9,7 +9,7 @@
 
 
 
-namespace vk
+namespace vkee
 {
   namespace debug
   {

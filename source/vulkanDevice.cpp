@@ -5,10 +5,10 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanDevice.h"
 
-using namespace vk;
+using namespace vkee;
 
 
-VulkanDevice::VulkanDevice(vk::VulkanInstance* instance, eewindow::Window* window, const VkAllocationCallbacks* pAllocator)
+VulkanDevice::VulkanDevice(vkee::VulkanInstance* instance, eewindow::Window* window, const VkAllocationCallbacks* pAllocator)
 {
   assert(instance && window);
 
@@ -142,7 +142,7 @@ VkResult VulkanDevice::Create(const VkPhysicalDeviceFeatures& desiredFeatures, s
     if (!presentSupported)
     {
       EEPRINT("No queue for presenting detacted!\n");
-      vk::tools::exitFatal("No queue for presenting detacted!");
+      vkee::tools::exitFatal("No queue for presenting detacted!");
     }
   }
 
@@ -245,7 +245,7 @@ VkQueue VulkanDevice::GetQueue(VkQueueFlags queueFlag, bool present)
   else
   {
     EEPRINT("Invalid queue type!\n");
-    vk::tools::exitFatal("Invalid queue type!");
+    vkee::tools::exitFatal("Invalid queue type!");
   }
 
   if (present) {
@@ -281,12 +281,12 @@ SurfaceDetails VulkanDevice::GetSurfaceDetails()
 VkResult VulkanDevice::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memPropertyFlags, VkDeviceSize size, VkBuffer* buffer, VkDeviceMemory* memory, void* data)
 {
   // Create the buffer handle
-  VkBufferCreateInfo bufferCInfo = vk::initializers::bufferCreateInfo(usageFlags, size);
+  VkBufferCreateInfo bufferCInfo = vkee::initializers::bufferCreateInfo(usageFlags, size);
   VK_CHECK(vkCreateBuffer(logicalDevice, &bufferCInfo, pAllocator, buffer));
 
   // Create the memory backing up the buffer handle
   VkMemoryRequirements memReqs;
-  VkMemoryAllocateInfo memAlloc = vk::initializers::memoryAllocateInfo();
+  VkMemoryAllocateInfo memAlloc = vkee::initializers::memoryAllocateInfo();
   vkGetBufferMemoryRequirements(logicalDevice, *buffer, &memReqs);
   memAlloc.allocationSize = memReqs.size;
   // Find a memory type index that fits the properties of this buffer
@@ -296,13 +296,13 @@ VkResult VulkanDevice::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPrope
   // If a pointer to buffer data has been passed in, map the buffer and copy over the data
   if (data)
   {
-    void* mapped;
+    void* mapped{ nullptr };
     VK_CHECK(vkMapMemory(logicalDevice, *memory, 0, size, 0, &mapped));
     memcpy(mapped, data, size);
     // If host coherency hasn't been requested, do a manual flush to make writes visible
     if ((memPropertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
     {
-      VkMappedMemoryRange mappedRange = vk::initializers::mappedMemoryRange(*memory, size);
+      VkMappedMemoryRange mappedRange = vkee::initializers::mappedMemoryRange(*memory, size);
       vkFlushMappedMemoryRanges(logicalDevice, 1u, &mappedRange);
     }
     vkUnmapMemory(logicalDevice, *memory);
@@ -314,18 +314,18 @@ VkResult VulkanDevice::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPrope
   return VK_SUCCESS;
 }
 
-VkResult VulkanDevice::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, vk::Buffer* buffer, VkDeviceSize size, void* data)
+VkResult VulkanDevice::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, vkee::Buffer* buffer, VkDeviceSize size, void* data)
 {
   buffer->device = logicalDevice;
   buffer->pAllocator = pAllocator;
 
   // Create the buffer handle
-  VkBufferCreateInfo bufferCInfo = vk::initializers::bufferCreateInfo(usageFlags, size);
+  VkBufferCreateInfo bufferCInfo = vkee::initializers::bufferCreateInfo(usageFlags, size);
   VK_CHECK(vkCreateBuffer(logicalDevice, &bufferCInfo, pAllocator, &buffer->buffer));
 
   // Create the memory to back up the buffer handle
   VkMemoryRequirements memReqs;
-  VkMemoryAllocateInfo memAllocInfo = vk::initializers::memoryAllocateInfo();
+  VkMemoryAllocateInfo memAllocInfo = vkee::initializers::memoryAllocateInfo();
   vkGetBufferMemoryRequirements(logicalDevice, buffer->buffer, &memReqs);
   memAllocInfo.allocationSize = memReqs.size;
   // Find a memory type index that fits the properties of this buffer
@@ -372,7 +372,7 @@ void VulkanDevice::CreateAndUploadBuffer(void* data, VkDeviceSize bufferSize, Vk
   vkDestroyBuffer(logicalDevice, stagingBuffer, pAllocator);
 }
 
-void VulkanDevice::CopyBuffer(vk::Buffer* src, vk::Buffer* dst, VkQueue queue, VkBufferCopy* copyRegion)
+void VulkanDevice::CopyBuffer(vkee::Buffer* src, vkee::Buffer* dst, VkQueue queue, VkBufferCopy* copyRegion)
 {
   assert(dst->size <= src->size);
   assert(src->buffer);
@@ -430,7 +430,7 @@ void VulkanDevice::CopyBufferToImage(VkBuffer srcBuffer, VkImage& dstImage, uint
 
 VkCommandBuffer VulkanDevice::CreateCommandBuffer(VkCommandBufferLevel level, bool begin, bool ss)
 {
-  VkCommandBufferAllocateInfo cmdBufferAllocInfo = vk::initializers::commandBufferAllocateInfo(cmdGraphicsPool, level, 1);
+  VkCommandBufferAllocateInfo cmdBufferAllocInfo = vkee::initializers::commandBufferAllocateInfo(cmdGraphicsPool, level, 1);
 
   VkCommandBuffer cmdBuffer;
   VK_CHECK(vkAllocateCommandBuffers(logicalDevice, &cmdBufferAllocInfo, &cmdBuffer));
@@ -438,7 +438,7 @@ VkCommandBuffer VulkanDevice::CreateCommandBuffer(VkCommandBufferLevel level, bo
   // If requested, also open the command buffer for recording
   if (begin)
   {
-    VkCommandBufferBeginInfo beginInfo = vk::initializers::commandBufferBeginInfo((ss) ? VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT : 0);
+    VkCommandBufferBeginInfo beginInfo = vkee::initializers::commandBufferBeginInfo((ss) ? VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT : 0);
     VK_CHECK(vkBeginCommandBuffer(cmdBuffer, &beginInfo));
   }
 
@@ -451,10 +451,10 @@ void VulkanDevice::FlushCommandBuffer(VkCommandBuffer cmdBuffer, VkQueue queue, 
 
   VK_CHECK(vkEndCommandBuffer(cmdBuffer));
 
-  VkSubmitInfo submitInfo = vk::initializers::submitInfo(&cmdBuffer, 1u);
+  VkSubmitInfo submitInfo = vkee::initializers::submitInfo(&cmdBuffer, 1u);
 
   // Create the fence to ensure that the command buffer has finished execution
-  VkFenceCreateInfo fenceCInfo = vk::initializers::bufferCreateInfo(VK_FLAGS_NONE);
+  VkFenceCreateInfo fenceCInfo = vkee::initializers::bufferCreateInfo(VK_FLAGS_NONE);
   VkFence fence;
   VK_CHECK(vkCreateFence(logicalDevice, &fenceCInfo, pAllocator, &fence));
 
@@ -496,7 +496,7 @@ void VulkanDevice::CreateImage(uint32_t width, uint32_t height, VkFormat format,
   VkMemoryRequirements memReqs;
   vkGetImageMemoryRequirements(logicalDevice, *image, &memReqs);
 
-  VkMemoryAllocateInfo allocInfo = vk::initializers::memoryAllocateInfo();;
+  VkMemoryAllocateInfo allocInfo = vkee::initializers::memoryAllocateInfo();;
   allocInfo.allocationSize = memReqs.size;
   allocInfo.memoryTypeIndex = GetMemoryType(memReqs.memoryTypeBits, memoryProperties);
 
@@ -565,7 +565,7 @@ void VulkanDevice::ChangeImageLayout(VkImage image, VkFormat format, VkImageLayo
   else
   {
     EEPRINT("Layout transition not yet supported!");
-    vk::tools::exitFatal("Layout transition not yet supported!");
+    vkee::tools::exitFatal("Layout transition not yet supported!");
   }
 
   imageMemoryBarrier.oldLayout = oldLayout;
@@ -577,7 +577,7 @@ void VulkanDevice::ChangeImageLayout(VkImage image, VkFormat format, VkImageLayo
   if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
   {
     imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-    if (vk::tools::isStencilFormat(format)) imageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    if (vkee::tools::isStencilFormat(format)) imageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
   }
   else
   {
@@ -717,8 +717,12 @@ VkPhysicalDevice VulkanDevice::pickPhysicalDevice(VkInstance instance)
   assert(instance != VK_NULL_HANDLE);
 
   // Acquire all physical devices
-  uint32_t deviceCount{ 0 };
+  uint32_t deviceCount = 0u;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+  if (deviceCount == 0u) {
+    EEPRINT("Vulkan Error: Failed to find a GPU with vulkan support!");
+    return false;
+  }
   std::vector<VkPhysicalDevice> devices(deviceCount);
   vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 

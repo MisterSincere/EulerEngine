@@ -7,10 +7,10 @@
 
 #include <map>
 
-using namespace vk;
+using namespace vkee;
 
 
-InternShader::InternShader(vk::VulkanRenderer* renderer, const EEShaderCreateInfo& shaderCInfo)
+InternShader::InternShader(vkee::VulkanRenderer* renderer, const EEShaderCreateInfo& shaderCInfo)
   : renderer(renderer), shaderInfo(shaderCInfo)
 {
   assert(renderer);
@@ -75,7 +75,7 @@ void InternShader::Create()
       type = (shaderInfo.pUniformDescs[i].uniformType == EE_UNIFORM_TYPE_BUFFER) ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER : VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       stageFlags = (shaderInfo.pUniformDescs[i].shaderStage == EE_SHADER_STAGE_VERTEX) ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT;
 
-      descriptorSetLayoutBindings[i] = vk::initializers::descriptorSetLayoutBinding(type, stageFlags, shaderInfo.pUniformDescs[i].binding);
+      descriptorSetLayoutBindings[i] = vkee::initializers::descriptorSetLayoutBinding(type, stageFlags, shaderInfo.pUniformDescs[i].binding);
     }
 
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCInfo;
@@ -104,11 +104,11 @@ void InternShader::Create()
     std::vector<VkDescriptorPoolSize> poolSizes;
     if (amountPerDescriptorType[EE_UNIFORM_TYPE_SAMPLER])
     {
-      poolSizes.push_back(vk::initializers::descriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, amountPerDescriptorType[EE_UNIFORM_TYPE_SAMPLER]));
+      poolSizes.push_back(vkee::initializers::descriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, amountPerDescriptorType[EE_UNIFORM_TYPE_SAMPLER]));
     }
     if (amountPerDescriptorType[EE_UNIFORM_TYPE_BUFFER])
     {
-      poolSizes.push_back(vk::initializers::descriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, amountPerDescriptorType[EE_UNIFORM_TYPE_SAMPLER]));
+      poolSizes.push_back(vkee::initializers::descriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, amountPerDescriptorType[EE_UNIFORM_TYPE_SAMPLER]));
     }
 
     VkDescriptorPoolCreateInfo descriptorPoolCInfo;
@@ -140,7 +140,7 @@ void InternShader::Create()
 
 
     // Create the pipeline with the created descriptor set layout and shader module
-    pipeline = new vk::InternPipeline(renderer, vertexShaderModule, fragmentShaderModule);
+    pipeline = new vkee::InternPipeline(renderer, vertexShaderModule, fragmentShaderModule);
     pipeline->Ini(shaderInfo);
     pipeline->Create(descriptorSetLayout);
   }
@@ -150,9 +150,9 @@ void InternShader::Create()
   isCreated = true;
 }
 
-VkBuffer pushNewUniformBuffer(vk::VulkanDevice* device, const EEUniformDesc& uniformDesc, std::vector<vk::InternShader::UniformBufferDetails*>& uniformBuffers)
+VkBuffer pushNewUniformBuffer(vkee::VulkanDevice* device, const EEUniformDesc& uniformDesc, std::vector<vkee::InternShader::UniformBufferDetails*>& uniformBuffers)
 {
-  vk::InternShader::UniformBufferDetails* ubo = new vk::InternShader::UniformBufferDetails;
+  vkee::InternShader::UniformBufferDetails* ubo = new vkee::InternShader::UniformBufferDetails;
   ubo->size = uniformDesc.bufferSize;
   ubo->binding = uniformDesc.binding;
   device->CreateBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, ubo->size,
@@ -163,7 +163,7 @@ VkBuffer pushNewUniformBuffer(vk::VulkanDevice* device, const EEUniformDesc& uni
   return ubo->buffer;
 }
 
-void InternShader::CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vk::InternTexture*>& textures)
+void InternShader::CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vkee::InternTexture*>& textures)
 {
   if (currentAmountDescriptorSets == shaderInfo.amountObjects)
   {

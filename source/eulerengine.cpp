@@ -17,19 +17,19 @@
 struct EulerComponents
 {
   eewindow::Window* window;
-  vk::VulkanInstance* instance;
-  vk::debug::Debug* debug;
-  vk::VulkanDevice* device;
-  vk::VulkanSwapchain* swapchain;
-  vk::VulkanRenderer* renderer;
+  vkee::VulkanInstance* instance;
+  vkee::debug::Debug* debug;
+  vkee::VulkanDevice* device;
+  vkee::VulkanSwapchain* swapchain;
+  vkee::VulkanRenderer* renderer;
 
-  std::vector<vk::InternObject*> currentObjects;
+  std::vector<vkee::InternObject*> currentObjects;
   std::vector<uint32_t*> iCurrentObjects;
-  std::vector<vk::InternShader*> currentShader;
+  std::vector<vkee::InternShader*> currentShader;
   std::vector<uint32_t*> iCurrentShader;
-  std::vector<vk::InternTexture*> currentTextures;
+  std::vector<vkee::InternTexture*> currentTextures;
   std::vector<uint32_t*> iCurrentTextures;
-  std::vector<vk::InternMesh*> currentMeshes;
+  std::vector<vkee::InternMesh*> currentMeshes;
   std::vector<uint32_t*> iCurrentMeshes;
 
   struct {
@@ -74,7 +74,7 @@ void vk_instance(EulerComponents* comp)
     }
   }
 
-  comp->instance = new vk::VulkanInstance(comp->window, instanceLayer, instanceExtensions);
+  comp->instance = new vkee::VulkanInstance(comp->window, instanceLayer, instanceExtensions);
 
   VK_CHECK(comp->instance->Create(comp->pAllocator));
 }
@@ -87,21 +87,21 @@ void vk_device(EulerComponents* comp)
   VkPhysicalDeviceFeatures enabledFeatures{0};
   
   // Create the device handle
-  comp->device = new vk::VulkanDevice(comp->instance, comp->window, comp->pAllocator);
+  comp->device = new vkee::VulkanDevice(comp->instance, comp->window, comp->pAllocator);
 
   VK_CHECK(comp->device->Create(enabledFeatures, layers, extensions));
 }
 
 void vk_swapChain(EulerComponents* comp)
 {
-  comp->swapchain = new vk::VulkanSwapchain(comp->device, comp->window);
+  comp->swapchain = new vkee::VulkanSwapchain(comp->device, comp->window);
 
   comp->swapchain->Create();
 }
 
 void vk_renderer(EulerComponents* comp, EESplitscreenMode splitscreen)
 {
-  comp->renderer = new vk::VulkanRenderer(comp->swapchain, splitscreen);
+  comp->renderer = new vkee::VulkanRenderer(comp->swapchain, splitscreen);
 
   comp->renderer->Create();
 }
@@ -117,7 +117,7 @@ void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphi
   
   if (comp->settings.validation)
   {
-    comp->debug = new vk::debug::Debug(comp->instance->instance, comp->pAllocator);
+    comp->debug = new vkee::debug::Debug(comp->instance->instance, comp->pAllocator);
     comp->debug->setupDebug();
   }
   
@@ -171,7 +171,7 @@ EETexture eeiCreateTexture(EEApplication& app, const char* file)
   EEInvariant(comp->currentTextures.size() == comp->iCurrentTextures.size());
 
   // Push back new texture handle
-  comp->currentTextures.push_back(new vk::InternTexture(comp->renderer, file));
+  comp->currentTextures.push_back(new vkee::InternTexture(comp->renderer, file));
   comp->currentTextures[comp->currentTextures.size() - 1]->Upload();
 
   // Push back address of index to the new textures
@@ -189,7 +189,7 @@ EEShader eeiCreateShader(EEApplication& app, const EEShaderCreateInfo& shaderCIn
   EEInvariant(comp->currentShader.size() == comp->iCurrentShader.size());
 
   // Push back shader
-  comp->currentShader.push_back(new vk::InternShader(comp->renderer, shaderCInfo));
+  comp->currentShader.push_back(new vkee::InternShader(comp->renderer, shaderCInfo));
   comp->currentShader[comp->currentShader.size() - 1]->Create();
 
   // Push back address of index to the new shader
@@ -207,7 +207,7 @@ EEObject eeiCreateObject(EEApplication& app, EEShader shader, EEMesh mesh, EESpl
   EEInvariant(comp->currentObjects.size() == comp->iCurrentObjects.size());
 
   // Push back object
-  comp->currentObjects.push_back(new vk::InternObject(comp->renderer, comp->currentMeshes[*mesh], comp->currentShader[*shader], ss));
+  comp->currentObjects.push_back(new vkee::InternObject(comp->renderer, comp->currentMeshes[*mesh], comp->currentShader[*shader], ss));
 
   // Push back address of index to the new object
   comp->iCurrentObjects.push_back(new uint32_t(static_cast<uint32_t>(comp->currentObjects.size() - 1)));
@@ -245,13 +245,13 @@ void eeDrawFrame(const EEApplication& app)
   if (!app.graphics || !app.graphics->comp)
   {
     EEPRINT("Application struct invalid. No draw call possible!\n");
-    vk::tools::exitFatal("Application struct invalid. No draw call possible!\n");
+    vkee::tools::exitFatal("Application struct invalid. No draw call possible!\n");
   }
   GET_COMP(app);
   if (!comp->eeiFinished)
   {
     EEPRINT("Object creation calls were not finished yet. Please call eeFinishCreation to fix this!\n");
-    vk::tools::exitFatal("Object creation calls were not finished yet. Please call eeFinishCreation to fix this!\n");
+    vkee::tools::exitFatal("Object creation calls were not finished yet. Please call eeFinishCreation to fix this!\n");
   }
 
   comp->renderer->Draw();

@@ -14,7 +14,7 @@
 #include <fstream>
 
 
-namespace vk
+namespace vkee
 {
   namespace tools
   {

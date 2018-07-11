@@ -8,17 +8,17 @@
 #include "eeIntern.h"
 
 
-using namespace vk;
+using namespace vkee;
 
 
-VulkanRenderer::VulkanRenderer(vk::VulkanSwapchain* swapchain, EESplitscreenMode splitscreen)
+VulkanRenderer::VulkanRenderer(vkee::VulkanSwapchain* swapchain, EESplitscreenMode splitscreen)
   : swapchain(swapchain), splitscreenMode(splitscreen)
 {
   assert(swapchain);
 
   // INPUT ASSEMBLY
   {
-    inputAssemblyState = vk::initializers::inputAssemblyStateCInfo();
+    inputAssemblyState = vkee::initializers::inputAssemblyStateCInfo();
   }
 
   // VIEWPORT STATE
@@ -119,7 +119,7 @@ void VulkanRenderer::Create()
 {
   // DEPTH IMAGE
   {
-    depthImage = new vk::InternDepthImage(swapchain);
+    depthImage = new vkee::InternDepthImage(swapchain);
     depthImage->Create();
   }
 
@@ -237,7 +237,7 @@ void VulkanRenderer::Create()
 void VulkanRenderer::CreateShaderModule(const char* file, VkShaderModule& shaderModule)
 {
   // Read file code in
-  std::vector<char> code = vk::tools::readFile(file);
+  std::vector<char> code = vkee::tools::readFile(file);
 
   VkShaderModuleCreateInfo cinfo;
   cinfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -249,7 +249,7 @@ void VulkanRenderer::CreateShaderModule(const char* file, VkShaderModule& shader
   VK_CHECK(vkCreateShaderModule(swapchain->device->logicalDevice, &cinfo, swapchain->device->pAllocator, &shaderModule));
 }
 
-void VulkanRenderer::RecordSwapchainCommands(const std::vector<vk::InternObject*>& objects)
+void VulkanRenderer::RecordSwapchainCommands(const std::vector<vkee::InternObject*>& objects)
 {
   VkCommandBufferBeginInfo beginInfo;
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

@@ -51,7 +51,7 @@ namespace std
 }
 
 
-namespace vk
+namespace vkee
 {
 
   //---------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ namespace vk
   struct InternDepthImage
   {
     /* @brief Encapsulates the swapchain this depth image is for */
-    vk::VulkanSwapchain* swapchain;
+    vkee::VulkanSwapchain* swapchain;
 
     /* @brief The image buffer */
     VkImage image;
@@ -80,7 +80,7 @@ namespace vk
       *
       * @param swapchain   The swapchain the depth image is created for
       **/
-    InternDepthImage(vk::VulkanSwapchain* swapchain);
+    InternDepthImage(vkee::VulkanSwapchain* swapchain);
 
     /**
       * Default constructor just calls the release method.
@@ -116,7 +116,7 @@ namespace vk
   struct InternMesh
   {
     /* @brief The renderer this mesh is created/destroyed with */
-    vk::VulkanRenderer* renderer;
+    vkee::VulkanRenderer* renderer;
 
     /* @brief Encapsulates informations about the vertex buffer and the buffer itself */
     struct {
@@ -142,7 +142,7 @@ namespace vk
       *
       * @param renderer  The renderer this mesh should use
       **/
-    InternMesh(vk::VulkanRenderer* renderer);
+    InternMesh(vkee::VulkanRenderer* renderer);
 
     /**
       * Default destructor
@@ -190,7 +190,7 @@ namespace vk
   struct InternTexture
   {
     /* @brief The renderer this texture is created/destroyed with */
-    vk::VulkanRenderer* renderer;
+    vkee::VulkanRenderer* renderer;
 
     /* @brief Vulkan handle for the image */
     VkImage image;
@@ -218,7 +218,7 @@ namespace vk
       * @param renderer  Pointer to the renderer this texture is created with
       * @param filename  Destination of the file to load
       **/
-    InternTexture(vk::VulkanRenderer* renderer, const char* filename);
+    InternTexture(vkee::VulkanRenderer* renderer, const char* filename);
 
     /**
       * Default destructor
@@ -238,7 +238,7 @@ namespace vk
   struct InternPipeline
   {
     /* @brief Renderer this pipeline is created for */
-    vk::VulkanRenderer* renderer;
+    vkee::VulkanRenderer* renderer;
 
     /* @brief Vertex stage definition */
     VkPipelineShaderStageCreateInfo vertexShaderStageCInfo;
@@ -285,7 +285,7 @@ namespace vk
       * @param vertShader  Vertex shader module
       * @param fragShader  Fragment shader module
       **/
-    InternPipeline(vk::VulkanRenderer* renderer, VkShaderModule vertShader, VkShaderModule fragShader);
+    InternPipeline(vkee::VulkanRenderer* renderer, VkShaderModule vertShader, VkShaderModule fragShader);
 
     /**
       * Default desctructor
@@ -329,12 +329,12 @@ namespace vk
     };
 
     /* @brief The renderer this shader will use */
-    vk::VulkanRenderer* renderer;
+    vkee::VulkanRenderer* renderer;
     /* @brief Struct encapsulating information about this shader */
     EEShaderCreateInfo shaderInfo;
 
     /* @brief The pipeline this shader creates according to the shader properties */
-    vk::InternPipeline* pipeline;
+    vkee::InternPipeline* pipeline;
 
     /* @brief Shader modules for vertex and fragment shader (geometry is optional) */
     VkShaderModule vertexShaderModule;
@@ -366,7 +366,7 @@ namespace vk
       * @param renderer    The renderer this shader will use
       * @param shaderCInfo Informations about the shader to create
       **/
-    InternShader(vk::VulkanRenderer* renderer, const EEShaderCreateInfo& shaderCInfo);
+    InternShader(vkee::VulkanRenderer* renderer, const EEShaderCreateInfo& shaderCInfo);
 
     /**
       * Standard desctructor
@@ -384,7 +384,7 @@ namespace vk
       * @param descriptorSetOut  The DescriptorSetDetails that will be filled out by the method
       * @param textures          List of all created textures that can be set for a uniform sampler
       **/
-    void CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vk::InternTexture*>& textures);
+    void CreateDescriptorSet(DescriptorSetDetails& descriptorSetOut, const std::vector<vkee::InternTexture*>& textures);
 
     /**
       * Records this shader into the passed in command buffer
@@ -402,15 +402,15 @@ namespace vk
   struct InternObject
   {
     /* @brief The renderer this object will use */
-    vk::VulkanRenderer* renderer;
+    vkee::VulkanRenderer* renderer;
 
     /* @brief Pointer to the mesh this object uses */
-    vk::InternMesh* mesh;
+    vkee::InternMesh* mesh;
     /* @brief Pointer to the shader this object uses */
-    vk::InternShader* shader;
+    vkee::InternShader* shader;
 
     /* @brief Struct containing the ubo details to update them */
-    vk::InternShader::DescriptorSetDetails descriptorSetDetails;
+    vkee::InternShader::DescriptorSetDetails descriptorSetDetails;
 
     /* @brief Indicates at which splitscreen field this object will be renderer */
     EESplitscreen splitscreen;
@@ -426,7 +426,7 @@ namespace vk
       * @param shader      Pointer to the shader this object should use
       * @param splitscreen Field on the splitscreen this object should be renderer to (undefined if splitscreen is disabled)
       **/
-    InternObject(vk::VulkanRenderer* renderer, vk::InternMesh* mesh, vk::InternShader* shader, EESplitscreen splitscreen);
+    InternObject(vkee::VulkanRenderer* renderer, vkee::InternMesh* mesh, vkee::InternShader* shader, EESplitscreen splitscreen);
 
     /**
       * Default desctructor
@@ -438,7 +438,7 @@ namespace vk
       * 
       * @param textures  List of the current textures to use for possible uniform samplers
       **/
-    void Create(const std::vector<vk::InternTexture*>& textures);
+    void Create(const std::vector<vkee::InternTexture*>& textures);
 
     /**
       * Record the object into the passed in command buffer

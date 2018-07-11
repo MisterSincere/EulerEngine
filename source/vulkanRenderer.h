@@ -9,7 +9,7 @@
 
 
 
-namespace vk
+namespace vkee
 {
   ///////////////////////////
   // FOREWARD DECLARATIONS //
@@ -84,7 +84,7 @@ namespace vk
      *
      * @param objectsToDraw   List of the objects that will be recorded to the command buffers
      **/
-    void RecordSwapchainCommands(const std::vector<vk::InternObject*>& objectsToDraw);
+    void RecordSwapchainCommands(const std::vector<vkee::InternObject*>& objectsToDraw);
 
     /**
      * Draws the next available image and presents it

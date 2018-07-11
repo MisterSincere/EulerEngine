@@ -21,7 +21,7 @@
 {\
   VkResult res = f;\
   if(res != VK_SUCCESS) {\
-    printf_s("VK_CHECK: VkResult is \"%s\" at line %d in %s\n", vk::tools::vkResultToStr(res), __LINE__, __FILE__);\
+    printf_s("VK_CHECK: VkResult is \"%s\" at line %d in %s\n", vkee::tools::vkResultToStr(res), __LINE__, __FILE__);\
     assert(res == VK_SUCCESS);\
   }\
 }
@@ -43,7 +43,7 @@
 /* @brief Just gets the function with the name passed in */
 #define VK_FUNCTION(instance, name) reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name));
 
-namespace vk
+namespace vkee
 {
   struct SurfaceDetails
   {

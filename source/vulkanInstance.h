@@ -15,7 +15,7 @@
 
 
 
-namespace vk
+namespace vkee
 {
   struct VulkanInstance
   {

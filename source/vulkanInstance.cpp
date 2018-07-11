@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanInstance.h"
 
-namespace vk
+namespace vkee
 {
 
   VulkanInstance::VulkanInstance(eewindow::Window* window, std::vector<const char*> desiredLayers, std::vector<const char*> desiredExtensions)

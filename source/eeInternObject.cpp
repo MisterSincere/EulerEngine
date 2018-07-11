@@ -5,11 +5,11 @@
 /////////////////////////////////////////////////////////////////////
 #include "eeIntern.h"
 
-using namespace vk;
+using namespace vkee;
 
 
 
-InternObject::InternObject(vk::VulkanRenderer* renderer, vk::InternMesh* mesh, vk::InternShader* shader, EESplitscreen splitscreen)
+InternObject::InternObject(vkee::VulkanRenderer* renderer, vkee::InternMesh* mesh, vkee::InternShader* shader, EESplitscreen splitscreen)
   : renderer(renderer), mesh(mesh), shader(shader), splitscreen(splitscreen)
 {
   assert(renderer && mesh && shader);
@@ -35,7 +35,7 @@ InternObject::~InternObject()
   }
 }
 
-void InternObject::Create(const std::vector<vk::InternTexture*>& textures)
+void InternObject::Create(const std::vector<vkee::InternTexture*>& textures)
 {
   if (isCreated)
   {

@@ -11,11 +11,11 @@
 #include "tiny_obj_loader.h"
 
 
-using namespace vk;
+using namespace vkee;
 
 
 
-InternMesh::InternMesh(vk::VulkanRenderer* renderer)
+InternMesh::InternMesh(vkee::VulkanRenderer* renderer)
   : renderer(renderer)
 {
   assert(renderer);

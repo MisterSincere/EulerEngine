@@ -10,7 +10,7 @@
 #include <sstream>
 
 
-namespace vk
+namespace vkee
 {
   namespace debug
   {
