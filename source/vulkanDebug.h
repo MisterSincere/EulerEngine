@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "vulkanDefs.h" //< includes vulkan.h
+#include "vulkanTools.h" //< includes vulkan.h
 
 
 

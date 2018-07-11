@@ -64,7 +64,7 @@ int System::GameLoop()
 
 void System::Release()
 {
-
+  eeReleaseApplication(&m_application);
 }
 
 void System::ProcessInput()

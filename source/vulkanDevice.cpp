@@ -720,8 +720,8 @@ VkPhysicalDevice VulkanDevice::pickPhysicalDevice(VkInstance instance)
   uint32_t deviceCount = 0u;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
   if (deviceCount == 0u) {
-    EEPRINT("Vulkan Error: Failed to find a GPU with vulkan support!");
-    return false;
+    EEPRINT("Vulkan Error: Failed to find a GPU with vulkan support!\n");
+    vkee::tools::exitFatal("Vulkan Error: Failed to find a GPU with vulkan support!");
   }
   std::vector<VkPhysicalDevice> devices(deviceCount);
   vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
@@ -738,7 +738,7 @@ VkPhysicalDevice VulkanDevice::pickPhysicalDevice(VkInstance instance)
 
   if (physicalDevice == VK_NULL_HANDLE)
   {
-    EEPRINT("Vulkan Error: Failed to find a suitable GPU!");
+    EEPRINT("Vulkan Error: Failed to find a suitable GPU!\n");
     throw std::runtime_error("Vulkan Error: Failed to find a suitable GPU!");
   }
 

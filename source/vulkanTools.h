@@ -28,7 +28,14 @@
 
 #else
 
-#define VK_CHECK(f)
+#define VK_CHECK(f) \
+{\
+  VkResult res = f;\
+  if(res != VK_SUCCESS) {\
+    printf_s("VK_CHECK: VkResult is \"%s\" at line %d in %s\n", vkee::tools::vkResultToStr(res), __LINE__, __FILE__);\
+    assert(res == VK_SUCCESS);\
+  }\
+}
 
 #endif
 

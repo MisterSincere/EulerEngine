@@ -36,7 +36,7 @@ struct EulerComponents
 #if defined(_DEBUG) | defined(EE_DEBUG)
     bool validation{ true };
 #else
-    bool validation{ false };
+    bool validation{ true };
 #endif
   } settings;
 
@@ -267,7 +267,7 @@ void eeReleaseApplication(EEApplication* app)
   if (app->graphics->comp)
   {
     // Acquire right memory interpretation
-    EulerComponents* comp = reinterpret_cast<EulerComponents*>(app->graphics->comp);
+    GET_COMP((*app));
 
     // RENDERER
     delete comp->renderer;
@@ -292,7 +292,7 @@ void eeReleaseApplication(EEApplication* app)
     delete comp->window;
 
     // Free memory
-    delete app->graphics->comp;
+    delete comp;
     delete app->graphics;
   }
 

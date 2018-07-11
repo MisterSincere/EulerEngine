@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "window.h"
 
-#include "vulkanDefs.h"
+#include "vulkanTools.h"
 
 #include <assert.h>
 #include <cstring>
