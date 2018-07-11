@@ -37,7 +37,7 @@ namespace vkee
     const char* name{ "MS:EulerEngine" };
 
     /* @brief Max supported api version */
-    uint32_t maxApiVersion;
+    uint32_t maxApiVersion{ VK_API_VERSION_1_0 };
     /* @brief Used api version */
     uint32_t apiVersion{ VK_API_VERSION_1_0 };
 

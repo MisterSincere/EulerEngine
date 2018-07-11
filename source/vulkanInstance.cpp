@@ -13,9 +13,6 @@ namespace vkee
     assert(window);
     uint32_t count;
 
-    // API VERSION
-    VK_FUNCTION_CALL(nullptr, vkEnumerateInstanceVersion, &maxApiVersion);
-
     // LAYERS
     {
       // Store supported layers
