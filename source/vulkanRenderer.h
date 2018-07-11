@@ -5,12 +5,18 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "eeIntern.h"
 #include "vulkanSwapChain.h"
+
 
 
 namespace vk
 {
+  ///////////////////////////
+  // FOREWARD DECLARATIONS //
+  ///////////////////////////
+  struct InternDepthImage;
+  struct InternObject;
+
   struct VulkanRenderer
   {
     struct RenderBuffer
@@ -20,10 +26,10 @@ namespace vk
     };
 
     /* @brief Struct to encapsulate the swapchain data */
-    vk::VulkanSwapchain* swapchain;
+    VulkanSwapchain* swapchain;
 
     /* @brief Struct representing the depth image */
-    vk::intern::DepthImage* depthImage;
+    InternDepthImage* depthImage;
 
     /* @brief Handle of the render pass */
     VkRenderPass renderPass{ VK_NULL_HANDLE };
@@ -52,7 +58,7 @@ namespace vk
      * @param swapchain   The swapchain struct you wanna render to
      * @param splitscreen The desired splitscreen mode
      **/
-    VulkanRenderer(vk::VulkanSwapchain* swapchain, EESplitscreenMode splitscreen);
+    VulkanRenderer(VulkanSwapchain* swapchain, EESplitscreenMode splitscreen);
 
     /**
      * Default destructor
@@ -78,7 +84,7 @@ namespace vk
      *
      * @param objectsToDraw   List of the objects that will be recorded to the command buffers
      **/
-    void RecordSwapchainCommands(const std::vector<vk::intern::Object*>& objectsToDraw);
+    void RecordSwapchainCommands(const std::vector<vk::InternObject*>& objectsToDraw);
 
     /**
      * Draws the next available image and presents it

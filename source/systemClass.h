@@ -8,7 +8,6 @@
 #include "eulerengine.h"
 
 
-
 class System
 {
 public:

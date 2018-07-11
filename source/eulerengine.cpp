@@ -23,13 +23,13 @@ struct EulerComponents
   vk::VulkanSwapchain* swapchain;
   vk::VulkanRenderer* renderer;
 
-  std::vector<vk::intern::Object*> currentObjects;
+  std::vector<vk::InternObject*> currentObjects;
   std::vector<uint32_t*> iCurrentObjects;
-  std::vector<vk::intern::Shader*> currentShader;
+  std::vector<vk::InternShader*> currentShader;
   std::vector<uint32_t*> iCurrentShader;
-  std::vector<vk::intern::Texture*> currentTextures;
+  std::vector<vk::InternTexture*> currentTextures;
   std::vector<uint32_t*> iCurrentTextures;
-  std::vector<vk::intern::Mesh*> currentMeshes;
+  std::vector<vk::InternMesh*> currentMeshes;
   std::vector<uint32_t*> iCurrentMeshes;
 
   struct {
@@ -85,7 +85,7 @@ void vk_device(EulerComponents* comp)
   std::vector<const char*> layers(0);
 
   VkPhysicalDeviceFeatures enabledFeatures{0};
-
+  
   // Create the device handle
   comp->device = new vk::VulkanDevice(comp->instance, comp->window, comp->pAllocator);
 
@@ -110,20 +110,20 @@ void vk_baseInitialize(EulerComponents* comp, const EEGraphicsCreateInfo* graphi
 {
   // INSTANCE
   vk_instance(comp);
-
+  
   printf("Max API Version: %d.%d.%d\n", VK_VERSION_MAJOR(comp->instance->maxApiVersion), VK_VERSION_MINOR(comp->instance->maxApiVersion), VK_VERSION_PATCH(comp->instance->maxApiVersion));
   printf("Used API Version: %d.%d.%d\n", VK_VERSION_MAJOR(comp->instance->apiVersion), VK_VERSION_MINOR(comp->instance->apiVersion), VK_VERSION_PATCH(comp->instance->apiVersion));
 
-
+  
   if (comp->settings.validation)
   {
     comp->debug = new vk::debug::Debug(comp->instance->instance, comp->pAllocator);
     comp->debug->setupDebug();
   }
-
+  
   // DEVICE
   vk_device(comp);
-
+  
   // SWAPCHAIN
   vk_swapChain(comp);
 
@@ -159,6 +159,7 @@ bool eeCreateApplication(EEApplication& appOut, const EEWindowCreateInfo* window
   
   // Initialize vulkan
   vk_baseInitialize(comp, graphicsCInfo);
+  
 
   return true;
 }
@@ -170,7 +171,7 @@ EETexture eeiCreateTexture(EEApplication& app, const char* file)
   EEInvariant(comp->currentTextures.size() == comp->iCurrentTextures.size());
 
   // Push back new texture handle
-  comp->currentTextures.push_back(new vk::intern::Texture(comp->renderer, file));
+  comp->currentTextures.push_back(new vk::InternTexture(comp->renderer, file));
   comp->currentTextures[comp->currentTextures.size() - 1]->Upload();
 
   // Push back address of index to the new textures
@@ -188,7 +189,7 @@ EEShader eeiCreateShader(EEApplication& app, const EEShaderCreateInfo& shaderCIn
   EEInvariant(comp->currentShader.size() == comp->iCurrentShader.size());
 
   // Push back shader
-  comp->currentShader.push_back(new vk::intern::Shader(comp->renderer, shaderCInfo));
+  comp->currentShader.push_back(new vk::InternShader(comp->renderer, shaderCInfo));
   comp->currentShader[comp->currentShader.size() - 1]->Create();
 
   // Push back address of index to the new shader
@@ -206,7 +207,7 @@ EEObject eeiCreateObject(EEApplication& app, EEShader shader, EEMesh mesh, EESpl
   EEInvariant(comp->currentObjects.size() == comp->iCurrentObjects.size());
 
   // Push back object
-  comp->currentObjects.push_back(new vk::intern::Object(comp->currentMeshes[*mesh], comp->currentShader[*shader]));
+  comp->currentObjects.push_back(new vk::InternObject(comp->renderer, comp->currentMeshes[*mesh], comp->currentShader[*shader], ss));
 
   // Push back address of index to the new object
   comp->iCurrentObjects.push_back(new uint32_t(static_cast<uint32_t>(comp->currentObjects.size() - 1)));

@@ -33,17 +33,15 @@ bool System::InitSystems()
   EEGraphicsCreateInfo gfx;
   gfx.splitscreen = EE_SPLITSCREEN_MODE_NONE;
 
-  if (!eeCreateApplication(m_application, &windowCInfo, &gfx))
-  {
-    printf_s("Application createion failed, check error messages!\n");
-    return false;
-  }
+  eeCreateApplication(m_application, &windowCInfo, &gfx);
 
   return true;
 }
 
 bool System::InitContent()
 {
+
+  //eeFinishCreation(m_application);
 
   return true;
 }
@@ -56,7 +54,6 @@ int System::GameLoop()
   {
     ProcessInput();
 
-
     Update();
   }
 
@@ -67,7 +64,7 @@ int System::GameLoop()
 
 void System::Release()
 {
-  eeReleaseApplication(&m_application);
+
 }
 
 void System::ProcessInput()
