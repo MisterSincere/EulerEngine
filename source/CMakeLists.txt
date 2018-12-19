@@ -1,16 +1,14 @@
-cmake_minimum_required (VERSION 3.0)
-project (EulerEngine)
 
 # Source Files
-set(VULKAN source/vulkanRenderer.h source/vulkanRenderer.cpp source/vulkanSwapChain.h source/vulkanSwapChain.cpp source/vulkanBuffer.h source/vulkanInitializers.h source/vulkanDevice.h source/vulkanDevice.cpp source/vulkanInstance.h source/vulkanInstance.cpp source/vulkanDebug.h source/vulkanDebug.cpp source/vulkanTools.h source/vulkanTools.cpp)
-set(INTERNS source/eeInternObject.cpp source/eeInternMesh.cpp source/eeInternTexture.cpp source/eeInternShader.cpp source/eeInternVertex.cpp source/eeInternDepthImage.cpp source/eeInternPipeline.cpp source/eeIntern.h )
+set(VULKAN vulkanRenderer.h vulkanRenderer.cpp vulkanSwapChain.h vulkanSwapChain.cpp vulkanBuffer.h vulkanInitializers.h vulkanDevice.h vulkanDevice.cpp vulkanInstance.h vulkanInstance.cpp vulkanDebug.h vulkanDebug.cpp vulkanTools.h vulkanTools.cpp)
+set(INTERNS eeInternObject.cpp eeInternMesh.cpp eeInternTexture.cpp eeInternShader.cpp eeInternVertex.cpp eeInternDepthImage.cpp eeInternPipeline.cpp eeIntern.h )
 
-set(EXTERNS source/tiny_obj_loader.h source/stb_image.h)
+set(EXTERNS tiny_obj_loader.h stb_image.h)
 
-set(WINDOW source/window.h source/window.cpp)
+set(WINDOW window.h window.cpp)
 
-set(EULERENGINE source/eulerengine.h source/eulerengine.cpp source/eedefs.h source/keycodes.h)
-set(EULERTEST source/main.cpp source/systemClass.h source/systemClass.cpp)
+set(EULERENGINE eulerengine.h eulerengine.cpp eedefs.h keycodes.h)
+set(EULERTEST main.cpp systemClass.h systemClass.cpp)
 
 #FILTER
 source_group ("EULERENGINE" FILES ${EULERENGINE})
@@ -29,6 +27,7 @@ include_directories (
 	$ENV{VKENGINE_GLM_PATH}
 	$ENV{VKENGINE_VULKAN}/Include
 	$ENV{VKENGINE_GLFW}/include
+	${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
 # Add files
