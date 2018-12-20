@@ -32,7 +32,7 @@ include_directories ($ENV{EE_GLFW_PATH}/include)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add target
-add_executable (EulerEngine ${EULERTEST} ${EULERENGINE} ${WINDOW} ${VULKAN} ${INTERNS} ${EXTERNS})
+add_library (EulerEngine ${EULERTEST} ${EULERENGINE} ${WINDOW} ${VULKAN} ${INTERNS} ${EXTERNS})
 
 # Vulkan and glfw library
 target_link_libraries (EulerEngine general vulkan-1.lib glfw3.lib)
