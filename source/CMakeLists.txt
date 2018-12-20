@@ -21,18 +21,6 @@ source_group ("EULERENGINE\\VULKAN" FILES ${VULKAN})
 source_group ("EULERENGINE\\VULKAN\\INTERNS" FILES ${INTERNS})
 source_group ("" FILES ${EULERTEST})
 
-# Library paths
-link_directories ($ENV{EE_VULKAN_PATH}/Lib)
-link_directories ($ENV{EE_GLFW_PATH}/lib-vc2015)
-
-# Include paths
-include_directories ($ENV{EE_GLM_PATH})
-include_directories ($ENV{EE_VULKAN_PATH}/Include)
-include_directories ($ENV{EE_GLFW_PATH}/include)
-include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-
 # Add target
 add_library (EulerEngine ${EULERTEST} ${EULERENGINE} ${WINDOW} ${VULKAN} ${INTERNS} ${EXTERNS})
 
-# Vulkan and glfw library
-target_link_libraries (EulerEngine general vulkan-1.lib glfw3.lib)
