@@ -7,8 +7,6 @@
 
 #include "eeIntern.h"
 
-#pragma comment(lib, "vulkan-1.lib")
-#pragma comment(lib, "glfw3.lib")
 
 #define GET_COMP(app) EulerComponents* comp = reinterpret_cast<EulerComponents*>(app.graphics->comp);
 
