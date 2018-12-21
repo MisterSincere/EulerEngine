@@ -76,7 +76,7 @@ Window::~Window()
 	glfwTerminate();
 }
 
-EEBool32 Window::CreateWindow(EEWindowCreateInfo const& windowCInfo, EE::fpEEWindowResize resizeMethod, void* pUserData)
+EEBool32 Window::Create(EEWindowCreateInfo const& windowCInfo, EE::fpEEWindowResize resizeMethod, void* pUserData)
 {
 	// Check if the required instance extensions are available
 	// required device extensions will be a criterion for the picked physical device

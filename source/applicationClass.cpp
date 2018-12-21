@@ -14,10 +14,12 @@
 // MY INCLUDES //
 /////////////////
 #include "windowClass.h"
+#include "graphicsClass.h"
 
 
 EE::Application::Application()
 	: m_pWindow(new EE::Window)
+	, m_pGraphics(new EE::Graphics)
 {
 
 }
@@ -30,7 +32,12 @@ EE::Application::~Application()
 EEBool32 EE::Application::Create(EEWindowCreateInfo const& windowCInfo)
 {
 	assert(m_pWindow);
-	if (m_pWindow->CreateWindow(windowCInfo, Resize, this)) {
+	if (m_pWindow->Create(windowCInfo, Resize, this)) {
+		return EE_FALSE;
+	}
+
+	assert(m_pGraphics);
+	if (!m_pGraphics->Create(m_pWindow)) {
 		return EE_FALSE;
 	}
 

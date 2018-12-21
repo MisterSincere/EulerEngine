@@ -11,7 +11,10 @@
 ///////////////////////////
 // FOREWARD DECLARATIONS //
 ///////////////////////////
-namespace EE { struct Window; }
+namespace EE {
+	struct Window;
+	class Graphics;
+}
 struct GLFWwindow;
 
 namespace EE {
@@ -31,7 +34,7 @@ namespace EE {
 
 	private:
 		Window* m_pWindow;
-
+		Graphics* m_pGraphics;
 	};
 
 }

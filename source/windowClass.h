@@ -99,7 +99,7 @@ namespace EE {
 		 *
 		 * @return Is true if the window creation was successfull
 		 **/
-		EEBool32 CreateWindow(
+		EEBool32 Create(
 			EEWindowCreateInfo const& windowCInfo,
 			fpEEWindowResize					resizeMethod,
 			void*											pUserData);
