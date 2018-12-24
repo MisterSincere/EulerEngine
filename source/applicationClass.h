@@ -13,7 +13,7 @@
 ///////////////////////////
 namespace EE {
 	struct Window;
-	class Graphics;
+	struct Graphics;
 }
 struct GLFWwindow;
 

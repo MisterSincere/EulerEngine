@@ -5,29 +5,11 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "vulkanInstance.h"
+#include "vulkanDevice.h"
 
 
 namespace EE {
 
-	namespace vulkan {
-		///////////////////////////
-		// FOREWARD DECLARATIONS //
-		///////////////////////////
-		struct VulkanDevice;
-
-		// The use of this struct wrapping around a simple command buffer is
-		// that the Vulkan Device will control which queue this command buffer is submitted to.
-		// The execution can be modified by passing in a pointer to a submit info.
-		// A nullptr will use a default submit info and wait for completed execution.
-		struct ExecBuffer {
-			VkCommandBuffer cmdBuffer;
-			VkQueue queue;
-			EE::vulkan::VulkanDevice* device;
-
-			void Execute(VkSubmitInfo* submitInfo = nullptr, bool wait = true, bool free = true);
-		};
-	}
 
 	struct Graphics
 	{
@@ -37,6 +19,8 @@ namespace EE {
 		VkAllocationCallbacks const* pAllocator{ nullptr };
 		/* @brief A struct that manages handling the vulkan instance */
 		vulkan::Instance* pInstance{ nullptr };
+		/* @brief Struct that manages physical and logical device and command buffer allocation (queues) */
+		vulkan::Device* pDevice{ nullptr };
 
 		/* @brief Holds settings for the vulkan handling */
 		struct {
@@ -72,7 +56,7 @@ namespace EE {
 
 
 		void vk_instance();
-
+		void vk_device();
 
 	};
 

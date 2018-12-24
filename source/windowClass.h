@@ -19,6 +19,13 @@
 
 namespace EE {
 
+	///////////////////////////
+	// FOREWARD DECLARATIONS //
+	///////////////////////////
+	namespace vulkan {
+		struct SurfaceDetails;
+	}
+
 	/**
    * The callback method for window resizing.
    *
@@ -75,6 +82,9 @@ namespace EE {
 		/* @brief User data that is needed in glfw callbacks */
 		UserData userData;
 
+		/* @brief The surface that is representing this window for vulkan */
+		VkSurfaceKHR surface{ VK_NULL_HANDLE };
+
 
 
 		/**
@@ -104,8 +114,42 @@ namespace EE {
 			fpEEWindowResize					resizeMethod,
 			void*											pUserData);
 
+
+		/**
+		 * Creates the surface for this window
+		 *
+		 * @note Needs to be destroyed manually by calling ReleaseSurface
+		 **/
+		void CreateSurface(VkInstance instance, VkAllocationCallbacks const* pAllocator);
+
+		/* @brief Releases the surface */
+		void ReleaseSurface(VkInstance instance, VkAllocationCallbacks const* pAllocator);
+
 		/* @brief Call to poll the events of the window */
 		bool PollEvents();
+
+		/**
+		 * Get the supported formats, present modes and other capabilities of the surface that is used
+		 * by this device alias was created for the window the this device uses
+		 *
+		 * @param physicalDevice	The gpu the surface details will be queried on
+		 *
+		 * @return	Struct describing the details of the used surface
+		 **/
+		vulkan::SurfaceDetails GetSurfaceDetails(VkPhysicalDevice physicalDevice);
+
+		/**
+		 * Checks if a gpu is compatible with the surface
+		 * 
+		 * @param physicalDevice	The device that will be checked
+		 *
+		 * @return Is true if the device is adequate
+		 *
+		 * @TODO:: Make the return value more modular -> not just a boolean but a number indicating the
+		 *				 amount of necessities that the passed in device does not support. So that 0 indicates
+		 *				 a perfect device and 1 a worse and 2 even worse and so on.
+		 **/
+		bool IsAdequate(VkPhysicalDevice physicalDevice);
 
 
 		/* @brief Helper method to create the glfw window */

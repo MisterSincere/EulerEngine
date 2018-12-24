@@ -32,7 +32,7 @@ EE::Application::~Application()
 EEBool32 EE::Application::Create(EEWindowCreateInfo const& windowCInfo)
 {
 	assert(m_pWindow);
-	if (m_pWindow->Create(windowCInfo, Resize, this)) {
+	if (!m_pWindow->Create(windowCInfo, Resize, this)) {
 		return EE_FALSE;
 	}
 

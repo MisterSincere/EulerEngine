@@ -124,6 +124,18 @@ EEBool32 Window::Create(EEWindowCreateInfo const& windowCInfo, EE::fpEEWindowRes
 	return EE_TRUE;
 }
 
+void Window::CreateSurface(VkInstance instance, VkAllocationCallbacks const * pAllocator)
+{
+	assert(instance != VK_NULL_HANDLE);
+	VK_CHECK(glfwCreateWindowSurface(instance, this->window, pAllocator, &surface));
+}
+
+void Window::ReleaseSurface(VkInstance instance, VkAllocationCallbacks const * pAllocator)
+{
+	assert(instance != VK_NULL_HANDLE);
+	if (surface) vkDestroySurfaceKHR(instance, surface, pAllocator);
+}
+
 bool Window::PollEvents()
 {
 	// Reset input values
@@ -133,6 +145,71 @@ bool Window::PollEvents()
 	glfwPollEvents();
 
 	return glfwWindowShouldClose(window);
+}
+
+vulkan::SurfaceDetails Window::GetSurfaceDetails(VkPhysicalDevice physicalDevice)
+{
+	vulkan::SurfaceDetails details;
+	uint32_t count{ 0u };
+
+	// Get the capabilities
+	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities));
+
+	// Get the available surface formats
+	VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &count, nullptr));
+	details.formats.resize(count);
+	VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &count, details.formats.data()));
+
+	// Get the available present modes to this surface
+	VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &count, nullptr));
+	details.presentModes.resize(count);
+	VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &count, details.presentModes.data()));
+
+	return details;
+}
+
+bool Window::IsAdequate(VkPhysicalDevice physicalDevice)
+{
+	if (surface == VK_NULL_HANDLE) {
+		EE_PRINT("Call CreateSurface to create a surface that can be checked against!\n");
+		throw std::runtime_error("Call CreateSurface to create a surface that can be check against!\n");
+	}
+	
+	// Extensions
+	bool extensionSupport{ false };
+	{
+		// Get the supported extensions
+		uint32_t count;
+		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, nullptr);
+		if (!count) return false;
+		VkExtensionProperties* extensions = new VkExtensionProperties[count];
+		vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &count, extensions);
+
+		// Check if the required device extensions are supported
+		for (char const* curReqExtension : requiredDeviceExtensions) {
+			extensionSupport = false;
+			for (uint32_t i = 0u; i < count; i++) {
+				// We found the extension so break here and set extensionSupport to true
+				if (strcmp(curReqExtension, extensions[i].extensionName) == 0) {
+					extensionSupport = true;
+					break;
+				}
+			}
+			// We checked all available extensions and did not find the required one
+			if (!extensionSupport) break;
+		}
+	}
+
+	// Surface support
+	bool surfaceSupport{ false };
+	{
+		if (extensionSupport) {
+			vulkan::SurfaceDetails details = GetSurfaceDetails(physicalDevice);
+			surfaceSupport = details.formats.size() && details.presentModes.size();
+		}
+	}
+
+	return extensionSupport && surfaceSupport;
 }
 
 bool Window::glfw_createWindow(EEWindowCreateInfo const& cinfo)
