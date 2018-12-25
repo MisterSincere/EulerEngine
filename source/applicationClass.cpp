@@ -47,6 +47,7 @@ EEBool32 EE::Application::Create(EEWindowCreateInfo const& windowCInfo)
 
 void EE::Application::Release()
 {
+	RELEASE_S(m_pGraphics);
 	RELEASE_S(m_pWindow);
 }
 

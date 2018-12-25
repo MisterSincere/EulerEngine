@@ -16,6 +16,9 @@ Graphics::Graphics()
 
 Graphics::~Graphics()
 {
+	RELEASE_S(pSwapchain);
+	RELEASE_S(pDevice);
+	RELEASE_S(pDebug);
 	RELEASE_S(pInstance);
 }
 
@@ -34,6 +37,9 @@ bool Graphics::Create(Window* pWindow)
 
 	// Physical and logical device setup
 	vk_device();
+
+	// Swapchain setup
+	vk_swapchain();
 
 
 	return true;
@@ -95,4 +101,10 @@ void Graphics::vk_device()
 	// Create the device handle
 	pDevice = new vulkan::Device(pInstance, pWindow, pAllocator);
 	VK_CHECK(pDevice->Create(enabledFeatures, layers, extensions));
+}
+
+void Graphics::vk_swapchain()
+{
+	pSwapchain = new vulkan::Swapchain(pDevice, pWindow);
+	pSwapchain->Create();
 }

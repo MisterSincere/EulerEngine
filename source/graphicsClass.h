@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "vulkanDevice.h"
+#include "vulkanSwapchain.h"
 
 
 namespace EE {
@@ -19,10 +19,12 @@ namespace EE {
 		VkAllocationCallbacks const* pAllocator{ nullptr };
 		/* @brief A struct that manages handling the vulkan instance */
 		vulkan::Instance* pInstance{ nullptr };
-		/* @brief Struct that manages physical and logical device and command buffer allocation (queues) */
-		vulkan::Device* pDevice{ nullptr };
 		/* @brief Implementation of the debug report extension */
 		vulkan::Debug* pDebug{ nullptr };
+		/* @brief Struct that manages physical and logical device and command buffer allocation (queues) */
+		vulkan::Device* pDevice{ nullptr };
+		/* @brief Swapchain handler */
+		vulkan::Swapchain* pSwapchain{ nullptr };
 
 		/* @brief Holds settings for the vulkan handling */
 		struct {
@@ -60,6 +62,7 @@ namespace EE {
 		void vk_instance();
 		void vk_device();
 		void vk_debug();
+		void vk_swapchain();
 
 	};
 

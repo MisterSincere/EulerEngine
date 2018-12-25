@@ -6,9 +6,16 @@
 
 
 # Source Files
-set(EXTERNS stb_image.h)
-set(VULKAN vulkanDebug.h vulkanDebug.cpp vulkanDevice.h vulkanDevice.cpp vulkanInstance.h vulkanInstance.cpp vulkanTools.h vulkanTools.cpp vulkanInitializers.h)
-set(EULERENGINE applicationClass.h applicationClass.cpp windowClass.h windowClass.cpp graphicsClass.h graphicsClass.cpp eedefs.h keycodes.h)
+set (EXTERNS stb_image.h)
+
+set (VULKAN	vulkanSwapchain.h vulkanSwapchain.cpp
+			vulkanDebug.h vulkanDebug.cpp
+			vulkanDevice.h vulkanDevice.cpp
+			vulkanInstance.h vulkanInstance.cpp
+			vulkanTools.h vulkanTools.cpp
+			vulkanInitializers.h)
+
+set (EULERENGINE applicationClass.h applicationClass.cpp windowClass.h windowClass.cpp graphicsClass.h graphicsClass.cpp eedefs.h keycodes.h)
 
 # Filter
 source_group ("EXTERNS" FILES ${EXTERNS})
