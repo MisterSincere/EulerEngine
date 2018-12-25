@@ -47,6 +47,13 @@ void glfw_cursorPos(GLFWwindow* window, double xpos, double ypos) {
 
 Window::Window()
 {
+	// Call glfw's init function and hint that we are going to use vulkan
+	if (!glfwInit()) {
+		EE_PRINT("GLFW Error: failed to initialize GLFW (internal error)!");
+		return;
+	}
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); //< Current convention for vulkan use
+
 	// Initialize required instance extensions
 	uint32_t glfwExtensionCount;
 	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -99,13 +106,6 @@ EEBool32 Window::Create(EEWindowCreateInfo const& windowCInfo, EE::fpEEWindowRes
 		}
 	}
 	delete[] availableExtensions;
-
-	// Call glfw's init function and hint that we are going to use vulkan
-	if (!glfwInit()) {
-		EE_PRINT("GLFW Error: failed to initialize GLFW (internal error)!");
-		return false;
-	}
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); //< Current convention for vulkan use
 
 	// Init window will setup the window according to the create info
 	if (!glfw_createWindow(windowCInfo)) return false;

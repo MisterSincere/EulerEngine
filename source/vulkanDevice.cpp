@@ -21,10 +21,10 @@ EE::vulkan::Device::Device(EE::vulkan::Instance* pInstance, EE::Window* pWindow,
 	this->pAllocator = pAllocator;
 
 	// Create a surface from the window
-	pWindow->CreateSurface(pInstance->instance, pAllocator);
+	pWindow->CreateSurface(*pInstance, pAllocator);
 
 	// Store picked physical device
-	physicalDevice = PickPhysicalDevice(pInstance->instance);
+	physicalDevice = PickPhysicalDevice(*pInstance);
 
 	// Store features, limits and properties of the picked physical device for later use
 	// Device properties also contain limits and sparse properties
@@ -67,7 +67,7 @@ EE::vulkan::Device::~Device()
 		vkDestroyDevice(logicalDevice, pAllocator);
 	}
 	if (pWindow) {
-		pWindow->ReleaseSurface(pInstance->instance, pAllocator);
+		pWindow->ReleaseSurface(*pInstance, pAllocator);
 	}
 }
 
@@ -401,7 +401,7 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free
 	if (wait)
 	{
 		VkFenceCreateInfo fenceCInfo = vkee::initializers::fenceCreateInfo(VK_FLAGS_NONE);
-		VK_CHECK(vkCreateFence(device->logicalDevice, &fenceCInfo, device->pAllocator, &fence));
+		VK_CHECK(vkCreateFence(*device, &fenceCInfo, device->pAllocator, &fence));
 	}
 
 	// Submit to the queue
@@ -410,12 +410,12 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free
 	// Wait for the fence to signal that the cmd buffer has finished execution and destroy afterwards (if desired)
 	if (fence != VK_NULL_HANDLE)
 	{
-		VK_CHECK(vkWaitForFences(device->logicalDevice, 1u, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
-		vkDestroyFence(device->logicalDevice, fence, device->pAllocator);
+		VK_CHECK(vkWaitForFences(*device, 1u, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
+		vkDestroyFence(*device, fence, device->pAllocator);
 	}
 
 	if (free)
 	{
-		vkFreeCommandBuffers(device->logicalDevice, device->cmdPoolGraphics, 1u, &cmdBuffer);
+		vkFreeCommandBuffers(*device, device->cmdPoolGraphics, 1u, &cmdBuffer);
 	}
 }

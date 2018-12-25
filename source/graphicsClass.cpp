@@ -40,7 +40,20 @@ void Graphics::vk_instance()
 	{
 		// If the validation is enabled the lunarg validation layer will be used
 		if (settings.validation) {
+
+			// The lunarg standard validation layer will load the following in the order listed:
+			//	- VK_LAYER_GOOGLE_thrading
+			//	- VK_LAYER_LUNARG_parameter_validation
+			//	- VK_LAYER_LUNARG_device_limits
+			//	- VK_LAYER_LUNARG_object_tracker
+			//	- VK_LAYER_LUNARG_image
+			//	- VK_LAYER_LUNARG_core_validation
+			//	- VK_LAYER_LUNARG_swapchain
+			//	- VK_LAYER_GOOGLE_swapchain
 			instanceLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+
+
+			//instanceLayers.push_back("VK_LAYER_RENDERDOC_Capture");
 		}
 	}
 
