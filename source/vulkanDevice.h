@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "vulkanInstance.h" //< vulkanDebug.h, vulkanTools.h, vulkanInitializers.h, vulkan.h
+#include "vulkanDebug.h" //< vulkanInstance.h vulkanTools.h, vulkanInitializers.h, vulkan.h
 
 namespace EE
 {

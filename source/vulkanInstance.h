@@ -65,6 +65,10 @@ namespace EE
 			 * @return VkResult of the vkCreateInstance call
 			 **/
 			VkResult Create(VkAllocationCallbacks const* pAllocator);
+
+
+			/*@brief Delete dangerous move/copy constructors etc. */
+			Instance(Instance const&) = delete;
 		};
 
 	}

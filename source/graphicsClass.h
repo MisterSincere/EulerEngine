@@ -21,6 +21,8 @@ namespace EE {
 		vulkan::Instance* pInstance{ nullptr };
 		/* @brief Struct that manages physical and logical device and command buffer allocation (queues) */
 		vulkan::Device* pDevice{ nullptr };
+		/* @brief Implementation of the debug report extension */
+		vulkan::Debug* pDebug{ nullptr };
 
 		/* @brief Holds settings for the vulkan handling */
 		struct {
@@ -57,6 +59,7 @@ namespace EE {
 
 		void vk_instance();
 		void vk_device();
+		void vk_debug();
 
 	};
 

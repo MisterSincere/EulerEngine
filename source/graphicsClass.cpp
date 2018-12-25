@@ -27,8 +27,14 @@ bool Graphics::Create(Window* pWindow)
 	// Vulkan Instance
 	vk_instance();
 
+	// Setup debug handler if we want validation
+	if (settings.validation) {
+		vk_debug();
+	}
+
 	// Physical and logical device setup
 	vk_device();
+
 
 	return true;
 }
@@ -57,7 +63,7 @@ void Graphics::vk_instance()
 		}
 	}
 
-	// EXTENSIOS
+	// EXTENSIONS
 	std::vector<char const*> instanceExtensions;
 	{
 		// If the validation is enabled the debug report extension will be used
@@ -69,6 +75,12 @@ void Graphics::vk_instance()
 	pInstance = new vulkan::Instance(*pWindow, instanceLayers, instanceExtensions);
 	assert(pInstance);
 	VK_CHECK(pInstance->Create(pAllocator));
+}
+
+void Graphics::vk_debug()
+{
+	pDebug = new vulkan::Debug(pInstance);
+	pDebug->Create();
 }
 
 void Graphics::vk_device()
