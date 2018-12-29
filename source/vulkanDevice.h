@@ -31,6 +31,8 @@ namespace EE
 			VkQueue queue;
 			Device* device;
 
+			operator VkCommandBuffer() { return cmdBuffer; }
+
 			void Execute(VkSubmitInfo* submitInfo = nullptr, bool wait = true, bool free = true);
 		};
 
@@ -65,9 +67,6 @@ namespace EE
 			std::vector<VkExtensionProperties> supportedExtensions;
 			/* @brief List of the names alias extensions that were enabled on this device */
 			std::vector<char const*> enabledExtensions;
-
-			/* @brief Amount of samples per pixels */
-			VkSampleCountFlagBits sampleCount{ VK_SAMPLE_COUNT_1_BIT };
 
 			/* @brief Default pool for commands executing on graphic queues */
 			VkCommandPool cmdPoolGraphics{ VK_NULL_HANDLE };
@@ -124,6 +123,18 @@ namespace EE
 				std::vector<char const*> const& additionalLayers,
 				std::vector<char const*> const& additionalExtensions,
 				VkQueueFlags requestedQueueTypes = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT);
+
+			/**
+			 * Allocates a command buffer from the command pool
+			 *
+			 * @param level				Primary or secondary command buffer
+			 * @param begin				If true the command buffer will already begin recording (defaults to false)
+			 * @param singleTime	Indicates if the created command buffer will only be submitted once
+			 **/
+			ExecBuffer CreateCommandBuffer(
+				VkCommandBufferLevel level,
+				bool								 begin = false,
+				bool								 singleTime = false);
 
 			/**
 			 * Creates a command pool to allocate command buffers from

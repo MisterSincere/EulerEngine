@@ -11,7 +11,7 @@ using namespace EE;
 
 
 
-EE::vulkan::Device::Device(EE::vulkan::Instance* pInstance, EE::Window* pWindow, VkAllocationCallbacks const* pAllocator)
+vulkan::Device::Device(EE::vulkan::Instance* pInstance, EE::Window* pWindow, VkAllocationCallbacks const* pAllocator)
 {
 	// instance and window need to be no nullptr
 	assert(pInstance && pWindow);
@@ -58,7 +58,7 @@ EE::vulkan::Device::Device(EE::vulkan::Instance* pInstance, EE::Window* pWindow,
 	}
 }
 
-EE::vulkan::Device::~Device()
+vulkan::Device::~Device()
 {
 	if (cmdPoolGraphics) {
 		vkDestroyCommandPool(logicalDevice, cmdPoolGraphics, pAllocator);
@@ -71,7 +71,7 @@ EE::vulkan::Device::~Device()
 	}
 }
 
-VkResult EE::vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures, std::vector<char const*> const & additionalLayers, std::vector<char const*> const & additionalExtensions, VkQueueFlags requestedQueueTypes)
+VkResult vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures, std::vector<char const*> const & additionalLayers, std::vector<char const*> const & additionalExtensions, VkQueueFlags requestedQueueTypes)
 {
 	// Queues that will be desired later need to be requested upon logical device creation
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -236,7 +236,27 @@ VkResult EE::vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatu
 	return VkResult();
 }
 
-VkCommandPool EE::vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
+vulkan::ExecBuffer vulkan::Device::CreateCommandBuffer(VkCommandBufferLevel level, bool begin, bool singleTime)
+{
+	VkCommandBufferAllocateInfo cmdBufferAllocInfo = initializers::commandBufferAllocateInfo(cmdPoolGraphics, level, 1u);
+
+	ExecBuffer execBuffer;
+	VK_CHECK(vkAllocateCommandBuffers(logicalDevice, &cmdBufferAllocInfo, &execBuffer.cmdBuffer));
+
+	// Open the buffer for recording if requested
+	if (begin) {
+		VkCommandBufferBeginInfo beginInfo = initializers::commandBufferBeginInfo((singleTime)
+																					 ? VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT : 0);
+		VK_CHECK(vkBeginCommandBuffer(execBuffer.cmdBuffer, &beginInfo));
+	}
+
+	execBuffer.queue = AcquireQueue(GRAPHICS_FAMILY);
+	execBuffer.device = this;
+
+	return execBuffer;
+}
+
+VkCommandPool vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
 {
 	VkCommandPoolCreateInfo cmdPoolCInfo;
 	cmdPoolCInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -248,7 +268,7 @@ VkCommandPool EE::vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, V
 	return cmdPool;
 }
 
-VkQueue EE::vulkan::Device::AcquireQueue(QueueTypeFlagBits requestedFamily)
+VkQueue vulkan::Device::AcquireQueue(QueueTypeFlagBits requestedFamily)
 {
 	uint32_t index;
 	if (requestedFamily & GRAPHICS_FAMILY) {
@@ -271,7 +291,7 @@ VkQueue EE::vulkan::Device::AcquireQueue(QueueTypeFlagBits requestedFamily)
 
 
 
-uint32_t EE::vulkan::Device::GetQueueFamilyIndex(VkQueueFlagBits queueFlags)
+uint32_t vulkan::Device::GetQueueFamilyIndex(VkQueueFlagBits queueFlags)
 {
 	// First check for a queue family that matches the desired type exactly
 	for (uint32_t i = 0u; i < uint32_t(queueFamilyProperties.size()); i++) {
@@ -292,7 +312,7 @@ uint32_t EE::vulkan::Device::GetQueueFamilyIndex(VkQueueFlagBits queueFlags)
 	throw std::runtime_error("Could not find a matching queue family index!\n");
 }
 
-uint32_t EE::vulkan::Device::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound)
+uint32_t vulkan::Device::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound)
 {
 	for (uint32_t i = 0u; i < memoryProperties.memoryTypeCount; i++) {
 		if ((typeBits & 1) == 1) {
@@ -314,7 +334,7 @@ uint32_t EE::vulkan::Device::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFl
 }
 
 
-bool EE::vulkan::Device::IsFormatSupported(VkFormat format, VkImageTiling tiling, VkFormatFeatureFlags featureFlags)
+bool vulkan::Device::IsFormatSupported(VkFormat format, VkImageTiling tiling, VkFormatFeatureFlags featureFlags)
 {
 	VkFormatProperties properties;
 	vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &properties);;
@@ -329,7 +349,7 @@ bool EE::vulkan::Device::IsFormatSupported(VkFormat format, VkImageTiling tiling
 	return false;
 }
 
-bool EE::vulkan::Device::LayerSupported(char const* layer)
+bool vulkan::Device::LayerSupported(char const* layer)
 {
 	for (size_t i = 0; i < supportedLayers.size(); i++) {
 		if (strcmp(supportedLayers[i].layerName, layer) == 0) {
@@ -339,7 +359,7 @@ bool EE::vulkan::Device::LayerSupported(char const* layer)
 	return false;
 }
 
-bool EE::vulkan::Device::ExtensionSupported(char const* extension)
+bool vulkan::Device::ExtensionSupported(char const* extension)
 {
 	for (size_t i = 0; i < supportedExtensions.size(); i++) {
 		if (strcmp(supportedExtensions[i].extensionName, extension) == 0) {
@@ -385,6 +405,7 @@ VkPhysicalDevice vulkan::Device::PickPhysicalDevice(VkInstance instance)
 	return pickedDevice;
 }
 
+
 void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free)
 {
 	assert(cmdBuffer);
@@ -394,13 +415,13 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free
 	// Submit info (passed in will be used if not nullptr)
 	VkSubmitInfo submitInfo;
 	if (_submitInfo) submitInfo = *_submitInfo;
-	else submitInfo = vkee::initializers::submitInfo(&cmdBuffer, 1u);
+	else submitInfo = initializers::submitInfo(&cmdBuffer, 1u);
 
 	// Create fence if we wanna wait
 	VkFence fence{ VK_NULL_HANDLE };
 	if (wait)
 	{
-		VkFenceCreateInfo fenceCInfo = vkee::initializers::fenceCreateInfo(VK_FLAGS_NONE);
+		VkFenceCreateInfo fenceCInfo = initializers::fenceCreateInfo(VK_FLAGS_NONE);
 		VK_CHECK(vkCreateFence(*device, &fenceCInfo, device->pAllocator, &fence));
 	}
 
@@ -419,3 +440,4 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free
 		vkFreeCommandBuffers(*device, device->cmdPoolGraphics, 1u, &cmdBuffer);
 	}
 }
+
