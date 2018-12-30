@@ -256,6 +256,40 @@ vulkan::ExecBuffer vulkan::Device::CreateCommandBuffer(VkCommandBufferLevel leve
 	return execBuffer;
 }
 
+VkResult vulkan::Device::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryProperties,
+	VkDeviceSize size, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut, void* pData) const
+{
+	// Create the buffer handle
+	VkBufferCreateInfo bufferCInfo = vulkan::initializers::bufferCreateInfo(usageFlags, size);
+	VK_CHECK(vkCreateBuffer(logicalDevice, &bufferCInfo, pAllocator, pBufferOut));
+
+	// Allocate the memory for the buffer
+	VkMemoryRequirements memReqs;
+	vkGetBufferMemoryRequirements(logicalDevice, *pBufferOut, &memReqs);
+	VkMemoryAllocateInfo allocInfo = vulkan::initializers::memoryAllocateInfo();
+	allocInfo.allocationSize = memReqs.size;
+	allocInfo.memoryTypeIndex = GetMemoryType(memReqs.memoryTypeBits, memoryProperties);
+	VK_CHECK(vkAllocateMemory(logicalDevice, &allocInfo, pAllocator, pBufferMemoryOut));
+
+	// If data has been passed in store this data in the buffer
+	if (pData) {
+		void* mapped{ nullptr };
+		VK_CHECK(vkMapMemory(logicalDevice, *pBufferMemoryOut, 0, size, 0, &mapped));
+		memcpy(mapped, pData, size);
+		// If host coherency hasnt been requested to a manually flush to make writes visible
+		if ((memoryProperties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0) {
+			VkMappedMemoryRange mappedRange = vulkan::initializers::mappedMemoryRange(*pBufferMemoryOut, size);
+			vkFlushMappedMemoryRanges(logicalDevice, 1u, &mappedRange);
+		}
+		vkUnmapMemory(logicalDevice, *pBufferMemoryOut);
+	}
+
+	// Attach the memory to the buffer
+	VK_CHECK(vkBindBufferMemory(logicalDevice, *pBufferOut, *pBufferMemoryOut, 0));
+
+	return VK_SUCCESS;
+}
+
 VkCommandPool vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
 {
 	VkCommandPoolCreateInfo cmdPoolCInfo;
@@ -312,7 +346,7 @@ uint32_t vulkan::Device::GetQueueFamilyIndex(VkQueueFlagBits queueFlags)
 	throw std::runtime_error("Could not find a matching queue family index!\n");
 }
 
-uint32_t vulkan::Device::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound)
+uint32_t vulkan::Device::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound) const
 {
 	for (uint32_t i = 0u; i < memoryProperties.memoryTypeCount; i++) {
 		if ((typeBits & 1) == 1) {

@@ -17,19 +17,19 @@
 #include "graphicsClass.h"
 
 
-EE::Application::Application()
+EEApplication::EEApplication()
 	: m_pWindow(new EE::Window)
 	, m_pGraphics(new EE::Graphics)
 {
 
 }
 
-EE::Application::~Application()
+EEApplication::~EEApplication()
 {
 	Release();
 }
 
-EEBool32 EE::Application::Create(EEWindowCreateInfo const& windowCInfo)
+EEBool32 EEApplication::Create(EEApplicationCreateInfo const& windowCInfo)
 {
 	assert(m_pWindow);
 	if (!m_pWindow->Create(windowCInfo, Resize, this)) {
@@ -45,19 +45,19 @@ EEBool32 EE::Application::Create(EEWindowCreateInfo const& windowCInfo)
 	return EE_TRUE;
 }
 
-void EE::Application::Release()
+void EEApplication::Release()
 {
 	RELEASE_S(m_pGraphics);
 	RELEASE_S(m_pWindow);
 }
 
-bool EE::Application::PollEvent()
+bool EEApplication::PollEvent()
 {
 	return m_pWindow->PollEvents();
 }
 
 
-void EE::Application::Resize(GLFWwindow* window, int w, int h, void* userData)
+void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)
 {
 
 }

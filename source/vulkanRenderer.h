@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "vulkanSwapchain.h" //& vulkanDevice.h vulkanDebug.h vulkanInstance.h vulkanTools.h vulkanInitializers.h vulkan.h
+#include "vulkanSwapchain.h" //& vulkanDevice vulkanDebug vulkanInstance vulkanTools vulkanInitializers vulkan
 
 
 namespace EE
@@ -13,7 +13,7 @@ namespace EE
 	//////////////////////////
 	// FORWARD DECLARATIONS //
 	//////////////////////////
-	class Object;
+	struct Object;
 
 	namespace vulkan
 	{
@@ -37,6 +37,8 @@ namespace EE
 
 			/* @brief Description of this image as a depth attachment */
 			VkAttachmentDescription depthAttachmentDescription;
+			/* @brief Depth stencil state description valid for all depth images */
+			static VkPipelineDepthStencilStateCreateInfo depthStencilStateCInfo;
 
 			DepthImage(Swapchain const* pSwapchain);
 			~DepthImage();
@@ -96,9 +98,9 @@ namespace EE
 			 * Default constructor
 			 *
 			 * @param pSwapchain		The swapchain that is used for presenting
-			 * @param settings			Graphic settings needed on render instance level
+			 * @param settings			Settings of this application
 			 */
-			Renderer(Swapchain* pSwapchain, EEGraphicsCreateInfo const& settings);
+			Renderer(Swapchain* pSwapchain, EEApplicationCreateInfo const& settings);
 
 			/**
 			 * Destructor
@@ -132,7 +134,7 @@ namespace EE
 			 * @param fileName					Destination of the shader file
 			 * @param shaderModuleOut		Handle of the shader module that was created
 			 **/
-			void CreateShaderModule(char const* fileName, VkShaderModule& shaderModuleOut);
+			void CreateShaderModule(char const* fileName, VkShaderModule& shaderModuleOut) const;
 
 			/**
 			 * Records the draw calls of the passed in objects in the command buffers.

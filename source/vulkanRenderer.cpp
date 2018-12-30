@@ -7,7 +7,7 @@
 
 #include <cassert>
 
-#include "eeObject.h"
+#include "vulkanObject.h"
 
 using namespace EE;
 
@@ -19,6 +19,21 @@ using namespace EE;
 //-------------------------------------------------------------------
 // DepthImage
 //-------------------------------------------------------------------
+VkPipelineDepthStencilStateCreateInfo vulkan::DepthImage::depthStencilStateCInfo = {
+	/*sType*/									VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+	/*pNext*/									nullptr,
+	/*flags*/									0,
+	/*depthTestEnable*/				VK_TRUE,
+	/*depthWriteEnable*/			VK_TRUE,
+	/*depthCompareOp*/				VK_COMPARE_OP_LESS, //< Less is nearer
+	/*depthBoundsTestEnable*/ VK_FALSE,
+	/*stencilTestEnable*/			VK_FALSE,
+	/*front*/									{},
+	/*back*/									{},
+	/*minDepthBounds*/				0.0f,
+	/*maxDepthBounds*/				1.0f
+};
+
 vulkan::DepthImage::DepthImage(Swapchain const* pSwapchain)
 	: pSwapchain(pSwapchain)
 {
@@ -147,7 +162,7 @@ void vulkan::DepthImage::Release()
 //-------------------------------------------------------------------
 // Renderer
 //-------------------------------------------------------------------
-vulkan::Renderer::Renderer(Swapchain* pSwapchain, EEGraphicsCreateInfo const& settings)
+vulkan::Renderer::Renderer(Swapchain* pSwapchain, EEApplicationCreateInfo const& settings)
 	: pSwapchain(pSwapchain)
 {
 	assert(pSwapchain);
@@ -553,7 +568,7 @@ void vulkan::Renderer::Resize(std::vector<Object*> const& objectsToDraw)
 	}
 }
 
-void vulkan::Renderer::CreateShaderModule(char const* fileName, VkShaderModule& shaderModuleOut)
+void vulkan::Renderer::CreateShaderModule(char const* fileName, VkShaderModule& shaderModuleOut) const
 {
 	// Read the file code in
 	std::vector<char> code = EE::tools::readFile(fileName);
@@ -575,11 +590,6 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	VkClearValue depthClearValue = { 1.0f, 0 }; // Depth, stencil
 	VkClearValue clearValues[] = { clearColor, depthClearValue };
-
-	// Scissor same for 3d and 2d
-	VkRect2D scissor;
-	scissor.offset = { 0, 0 };
-	scissor.extent = pSwapchain->settings.extent;
 
 	// Are set to the same size in the constructor
 	assert(buffers3D.size() == buffers2D.size());
@@ -609,10 +619,6 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 			vkCmdBeginRenderPass(buffers2D[i].execBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 		}
 
-		// Set default scissor
-		if(isCreated3D) vkCmdSetScissor(buffers3D[i].execBuffer, 0u, 1u, &scissor);
-		if(isCreated2D) vkCmdSetScissor(buffers2D[i].execBuffer, 0u, 1u, &scissor);
-
 		// Default viewport
 		VkViewport vp;
 		vp.x = 0.0f;
@@ -635,15 +641,15 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 			// Iterate through all objects
 			for (size_t j = 0u; j < objects.size(); j++) {
 				// Compute viewport position for the current object
-				vp.x = (objects[j]->m_splitscreen & EE_SPLITSCREEN_RIGHT)
+				vp.x = (objects[j]->splitscreen & EE_SPLITSCREEN_RIGHT)
 					? float(pSwapchain->settings.extent.width / 2.0f)
 					: 0.0f;
-				vp.y = (objects[j]->m_splitscreen & EE_SPLITSCREEN_BOTTOM)
+				vp.y = (objects[j]->splitscreen & EE_SPLITSCREEN_BOTTOM)
 					? float(pSwapchain->settings.extent.height / 2.0f)
 					: 0.0f;
 
 				// 3D object
-				if(!objects[j]->m_is2DObject) {
+				if(!objects[j]->is2DObject) {
 					// 3D renderer requested but not created
 					if (!isCreated3D) {
 						EE_PRINT("[RENDERER] 3D object requested to be rendered, but no 3D renderer created!\n");
@@ -674,7 +680,7 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 			// Iterate through all objects
 			for (size_t j = 0u; j < objects.size(); j++) {
 				// 3D object
-				if (!objects[j]->m_is2DObject) {
+				if (!objects[j]->is2DObject) {
 					// 3D renderer requested but not created
 					if (!isCreated3D) {
 						EE_PRINT("[RENDERER] 3D object requested to be rendered, but no 3D renderer created!\n");

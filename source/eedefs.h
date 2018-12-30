@@ -6,6 +6,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <DirectXMath.h>
 
 #include "keycodes.h"
 
@@ -14,6 +15,8 @@
 //////////////////////
 #define EE_TRUE 1
 #define EE_FALSE 0
+
+#define EE_DEFINE_HANDLE(name) typedef uint32_t* name;
 
 #define EE_PRINT(val, ...) printf_s(val, __VA_ARGS__);
 
@@ -33,16 +36,37 @@ typedef uint32_t EEBool32;
 typedef char const* EEcstr;
 typedef char* EEstr;
 
+/////////////
+// HANDLES //
+/////////////
+EE_DEFINE_HANDLE(EEHandle) //< Generalization of a handle
+EE_DEFINE_HANDLE(EEShader);
+EE_DEFINE_HANDLE(EEMesh);
+EE_DEFINE_HANDLE(EEObject);
+EE_DEFINE_HANDLE(EETexture);
+EE_DEFINE_HANDLE(EEBuffer);
+
 ///////////
 // ENUMS //
 ///////////
-enum EEWindowFlagBits {
-	EE_WINDOW_FLAGS_NONE		= 0x00,
-	EE_WINDOW_FLAGS_CENTERX = 0x01,
-	EE_WINDOW_FLAGS_CENTERY = 0x02,
-	EE_WINDOW_FLAGS_CENTER	= 0x03
+enum EEDescriptorType {
+	EE_DESCRIPTOR_TYPE_SAMPLER,
+	EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER
 };
-typedef EEFlags EEWindowFlags;
+
+enum EEFormat {
+	EE_FORMAT_R32G32_SFLOAT,
+	EE_FORMAT_R32G32B32_SFLOAT,
+	EE_FORMAT_R8_UINT,
+	EE_FORMAT_R8_UNORM,
+	EE_FORMAT_R8G8B8A8_UINT,
+	EE_FORMAT_R8G8B8A8_UNORM,
+};
+
+enum EERenderType {
+	EE_RENDER_TYPE_2D = 0x01,
+	EE_RENDER_TYPE_3D = 0x02
+};
 
 enum EEScreenMode {
 	EE_SCREEN_MODE_WINDOWED				 = 0x01,
@@ -51,11 +75,14 @@ enum EEScreenMode {
 	EE_SCREEN_MODE_MAXIMIZED			 = 0x08
 };
 
-enum EESplitscreenMode {
-	EE_SPLITSCREEN_MODE_NONE			 = 0x00,
-	EE_SPLITSCREEN_MODE_VERTICAL	 = 0x01,
-	EE_SPLITSCREEN_MODE_HORIZONTAL = 0x02,
-	EE_SPLITSCREEN_MODE_RASTER		 = EE_SPLITSCREEN_MODE_HORIZONTAL | EE_SPLITSCREEN_MODE_VERTICAL,
+enum EEShaderInputType {
+	EE_SHADER_INPUT_TYPE_OBJ_MESH,
+	EE_SHADER_INPUT_TYPE_CUSTOM
+};
+
+enum EEShaderStage {
+	EE_SHADER_STAGE_VERTEX,
+	EE_SHADER_STAGE_FRAGMENT
 };
 
 enum EESplitscreen {
@@ -70,9 +97,18 @@ enum EESplitscreen {
 	EE_SPLITSCREEN_UNDEFINED		// Forbidden if splitscreen mode was enabled in EEGraphicsCreateInfo
 };
 
-enum RendererType {
-	EE_RENDERER_2D = 0x01,
-	EE_RENDERER_3D = 0x02
+enum EESplitscreenMode {
+	EE_SPLITSCREEN_MODE_NONE			 = 0x00,
+	EE_SPLITSCREEN_MODE_VERTICAL	 = 0x01,
+	EE_SPLITSCREEN_MODE_HORIZONTAL = 0x02,
+	EE_SPLITSCREEN_MODE_RASTER		 = EE_SPLITSCREEN_MODE_HORIZONTAL | EE_SPLITSCREEN_MODE_VERTICAL,
+};
+
+enum EEWindowFlags {
+	EE_WINDOW_FLAGS_NONE		= 0x00,
+	EE_WINDOW_FLAGS_CENTERX = 0x01,
+	EE_WINDOW_FLAGS_CENTERY = 0x02,
+	EE_WINDOW_FLAGS_CENTER	= 0x03
 };
 
 /////////////
@@ -95,17 +131,73 @@ struct EEPoint32 {
 	int32_t y;
 };
 
-struct EEWindowCreateInfo {
-	EEWindowFlags	flags;
-	EERect32U			clientSize;
-	EEPoint32			position;
-	EEScreenMode	screenMode;
-	char const*		title;
-	char const*		icon;						// @TODO Not used yet
-	EEBool32			mouseDisabled;
+struct EEShaderInputDesc {
+	uint32_t location;
+	EEFormat format;
+	uint32_t offset;
 };
 
-struct EEGraphicsCreateInfo {
+struct EEShaderInput {
+	uint32_t								 amountInputs;
+	EEShaderInputDesc const* pShaderInputs;
+	uint32_t								 inputStride;
+};
+
+struct EEDescriptorDesc {
+	EEDescriptorType type;
+	EEShaderStage		 shaderStage;
+	uint32_t				 binding;
+};
+
+struct EEPushConstantDesc {
+	EEShaderStage shaderStage;
+	uint32_t			size;
+	void*					pData;
+};
+
+struct EEObjectResourceBinding {
+	EEDescriptorType type;
+	uint32_t				 binding;
+	EEHandle				 resource;
+};
+
+struct EEPredefinedVertex {
+	DirectX::XMFLOAT3 position;
+	DirectX::XMFLOAT3 color;
+	DirectX::XMFLOAT2 uvCoord;
+	DirectX::XMFLOAT3 normal;
+};
+
+struct EEApplicationCreateInfo {
+	EEWindowFlags			flags;
+	EERect32U					clientSize;
+	EEPoint32					position;
+	EEScreenMode			screenMode;
+	char const*				title;
+	char const*				icon;						// @TODO Not used yet
+	EEBool32					mouseDisabled;
 	EESplitscreenMode splitscreen;
-	RendererType			rendererType;
+	EERenderType			rendererType;
+};
+
+struct EEShaderCreateInfo {
+	char const*								vertexFileName;
+	char const*								fragmentFileName;
+	uint32_t									amountObjects;		//< amount objects that will use this shader
+	EEShaderInputType					shaderInputType;	//< if not EE_SHADER_INPUT_TYPE_CUSTOM this shader should only be used for obj file read meshes
+	EEShaderInput const*			pShaderInput;
+	uint32_t									amountDescriptors;
+	EEDescriptorDesc const*		pDescriptors;
+	EEPushConstantDesc const* pPushConstant;
+	EEBool32									is2DShader;
+	EEBool32									wireframe;
+	EEBool32									clockwise;
+};
+
+struct EETextureCreateInfo {
+	unsigned char* pData;
+	EERect32U			 extent;
+	EEBool32			 unnormalizedCoordinates;
+	EEBool32			 enableMipMapping;
+	EEBool32			 format;
 };

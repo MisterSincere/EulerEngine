@@ -47,6 +47,12 @@
 /* @brief Just gets the function with the name passed in */
 #define VK_FUNCTION(instance, name) reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name));
 
+///////////////////////////
+// FOREWARD DECLARATIONS //
+///////////////////////////
+enum EEFormat;
+enum EEShaderStage;
+enum EEDescriptorType;
 
 namespace EE {
 
@@ -56,6 +62,10 @@ namespace EE {
 		extern void exitFatal(char const* msg);
 
 		extern void warning(char const* msg);
+
+		extern VkFormat eeToVk(EEFormat format);
+		extern VkShaderStageFlags eeToVk(EEShaderStage shaderStage);
+		extern VkDescriptorType eeToVk(EEDescriptorType descriptorType);
 	}
 
 	namespace vulkan {

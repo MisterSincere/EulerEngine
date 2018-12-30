@@ -137,6 +137,27 @@ namespace EE
 				bool								 singleTime = false);
 
 			/**
+			 * Creates a buffer on this device
+			 *
+			 * @param usageFlags					Usage of this buffer
+			 * @param memoryPropertyFlags	Memory properties
+			 * @param size								Desired size of this buffer
+			 * @param pBufferOut							Pointer to the buffer handle that is created
+			 * @param pBufferMemoryOut		Pointer to the buffer's memory handle that is allocated
+			 * @param pData								Pointer to the data that the buffer should be filled with
+			 *
+			 * @return A vk result, so on success VK_SUCCESS
+			 **/
+			VkResult CreateBuffer(
+				VkBufferUsageFlags		usageFlags,
+				VkMemoryPropertyFlags memoryProperties,
+				VkDeviceSize					size,
+				VkBuffer*							pBufferOut,
+				VkDeviceMemory*				pBufferMemoryOut,
+				void*									pData = nullptr) const;
+
+
+			/**
 			 * Creates a command pool to allocate command buffers from
 			 *
 			 * @param queueFamilyIndex		Family index of the queues the allocated buffers will execute on
@@ -185,7 +206,7 @@ namespace EE
 			uint32_t GetMemoryType(
 				uint32_t							typeBits,
 				VkMemoryPropertyFlags properties,
-				VkBool32*							memTypeFound = nullptr);
+				VkBool32*							memTypeFound = nullptr) const;
 
 			/**
 			 * Checks if the passed in format is supported with the additional configs on this device

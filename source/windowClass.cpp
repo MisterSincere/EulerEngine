@@ -83,7 +83,7 @@ Window::~Window()
 	glfwTerminate();
 }
 
-EEBool32 Window::Create(EEWindowCreateInfo const& windowCInfo, EE::fpEEWindowResize resizeMethod, void* pUserData)
+EEBool32 Window::Create(EEApplicationCreateInfo const& windowCInfo, EE::fpEEWindowResize resizeMethod, void* pUserData)
 {
 	// Check if the required instance extensions are available
 	// required device extensions will be a criterion for the picked physical device
@@ -212,7 +212,7 @@ bool Window::IsAdequate(VkPhysicalDevice physicalDevice)
 	return extensionSupport && surfaceSupport;
 }
 
-bool Window::glfw_createWindow(EEWindowCreateInfo const& cinfo)
+bool Window::glfw_createWindow(EEApplicationCreateInfo const& cinfo)
 {
 	// Store settings that are not going to be changed (not clientSize and position)
 	settings.title = cinfo.title;

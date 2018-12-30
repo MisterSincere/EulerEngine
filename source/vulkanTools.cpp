@@ -53,6 +53,44 @@ void tools::warning(char const* msg)
 #undef EE_STR_TEMP
 }
 
+VkFormat tools::eeToVk(EEFormat format)
+{
+#define FCASE(name) case EE_FORMAT_##name: return VK_FORMAT_##name;
+	switch (format)
+	{
+		FCASE(R32G32_SFLOAT);
+		FCASE(R32G32B32_SFLOAT);
+		FCASE(R8_UINT);
+		FCASE(R8_UNORM);
+		FCASE(R8G8B8A8_UINT);
+		FCASE(R8G8B8A8_UNORM);
+	default: return VK_FORMAT_UNDEFINED;
+	}
+#undef FCASE
+}
+
+VkShaderStageFlags tools::eeToVk(EEShaderStage shaderStage)
+{
+#define SCASE(name) case EE_SHADER_STAGE_##name: return VK_SHADER_STAGE_##name##_BIT;
+	switch (shaderStage)
+	{
+		SCASE(VERTEX);
+		SCASE(FRAGMENT);
+	default: return VK_SHADER_STAGE_ALL_GRAPHICS;
+	}
+#undef SCASE
+}
+
+VkDescriptorType tools::eeToVk(EEDescriptorType type)
+{
+	switch (type)
+	{
+	case EE_DESCRIPTOR_TYPE_SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	case EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	default: return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+	}
+}
+
 bool vulkan::tools::isStencilFormat(VkFormat format)
 {
 	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D16_UNORM_S8_UINT;

@@ -110,7 +110,7 @@ namespace EE {
 		 * @return Is true if the window creation was successfull
 		 **/
 		EEBool32 Create(
-			EEWindowCreateInfo const& windowCInfo,
+			EEApplicationCreateInfo const& windowCInfo,
 			fpEEWindowResize					resizeMethod,
 			void*											pUserData);
 
@@ -153,7 +153,7 @@ namespace EE {
 
 
 		/* @brief Helper method to create the glfw window */
-		bool glfw_createWindow(EEWindowCreateInfo const&);
+		bool glfw_createWindow(EEApplicationCreateInfo const&);
 	};
 
 }

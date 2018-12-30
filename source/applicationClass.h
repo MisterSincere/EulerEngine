@@ -17,24 +17,20 @@ namespace EE {
 }
 struct GLFWwindow;
 
-namespace EE {
+class EEApplication {
+public:
+	EEApplication();
+	~EEApplication();
 
-	class Application {
-	public:
-		Application();
-		~Application();
+	EEBool32 Create(EEApplicationCreateInfo const&);
+	void Release();
 
-		EEBool32 Create(EEWindowCreateInfo const&);
-		void Release();
+	bool PollEvent();
 
-		bool PollEvent();
+private:
+	static void Resize(GLFWwindow*, int, int, void*);
 
-	private:
-		static void Resize(GLFWwindow*, int, int, void*);
-
-	private:
-		Window* m_pWindow;
-		Graphics* m_pGraphics;
-	};
-
-}
+private:
+	EE::Window* m_pWindow;
+	EE::Graphics* m_pGraphics;
+};
