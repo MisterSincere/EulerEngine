@@ -153,6 +153,13 @@ namespace EE
 			 * Returns if the renderer is idle
 			 **/
 			void WaitTillIdle();
+
+
+			/* @brief Delete copy/move constructor/assignements */
+			Renderer(Renderer const&) = delete;
+			Renderer(Renderer&&) = delete;
+			Renderer& operator=(Renderer const&) = delete;
+			Renderer& operator=(Renderer&&) = delete;
 		};
 	}
 }

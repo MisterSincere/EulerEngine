@@ -29,15 +29,15 @@ EEApplication::~EEApplication()
 	Release();
 }
 
-EEBool32 EEApplication::Create(EEApplicationCreateInfo const& windowCInfo)
+EEBool32 EEApplication::Create(EEApplicationCreateInfo const& appCInfo)
 {
 	assert(m_pWindow);
-	if (!m_pWindow->Create(windowCInfo, Resize, this)) {
+	if (!m_pWindow->Create(appCInfo, Resize, this)) {
 		return EE_FALSE;
 	}
 
 	assert(m_pGraphics);
-	if (!m_pGraphics->Create(m_pWindow)) {
+	if (!m_pGraphics->Create(m_pWindow, appCInfo)) {
 		return EE_FALSE;
 	}
 

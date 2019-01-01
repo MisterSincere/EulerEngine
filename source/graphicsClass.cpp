@@ -22,7 +22,7 @@ Graphics::~Graphics()
 	RELEASE_S(pInstance);
 }
 
-bool Graphics::Create(Window* pWindow)
+bool Graphics::Create(Window* pWindow, EEApplicationCreateInfo const& info)
 {
 	// Store the pointer to the used window
 	this->pWindow = pWindow;
@@ -40,6 +40,9 @@ bool Graphics::Create(Window* pWindow)
 
 	// Swapchain setup
 	vk_swapchain();
+
+	// Create the renderer
+	vk_renderer(info);
 
 
 	return true;
@@ -107,4 +110,15 @@ void Graphics::vk_swapchain()
 {
 	pSwapchain = new vulkan::Swapchain(pDevice, pWindow);
 	pSwapchain->Create();
+}
+
+void Graphics::vk_renderer(EEApplicationCreateInfo const& info)
+{
+	pRenderer = new vulkan::Renderer(pSwapchain, info);
+	if (info.rendererType & EE_RENDER_TYPE_2D) {
+		pRenderer->Create2D();
+	}
+	if (info.rendererType & EE_RENDER_TYPE_3D) {
+		pRenderer->Create3D();
+	}
 }
