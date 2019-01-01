@@ -154,7 +154,23 @@ namespace EE
 				VkDeviceSize					size,
 				VkBuffer*							pBufferOut,
 				VkDeviceMemory*				pBufferMemoryOut,
-				void*									pData = nullptr) const;
+				void const*						pData = nullptr) const;
+
+			/**
+			 * Creates a device local buffer and uploads the data to it via a staging buffer.
+			 *
+			 * @param pData							Pointer to the data the buffer should contain
+			 * @param bufferSize				Size in bytes of the data
+			 * @param usageFlags				Usage that the buffer should have
+			 * @param pBufferOut				Pointer to where the created buffer will be stored
+			 * @param pBufferMemoryOut	Pointer to where the buffer memory will be stored
+			 **/
+			void CreateDeviceLocalBuffer(
+				void const*				 pData,
+				VkDeviceSize			 bufferSize,
+				VkBufferUsageFlags usageFlags,
+				VkBuffer*					 pBufferOut,
+				VkDeviceMemory*		 pBufferMemoryOut);
 
 
 			/**

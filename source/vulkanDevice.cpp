@@ -257,7 +257,7 @@ vulkan::ExecBuffer vulkan::Device::CreateCommandBuffer(VkCommandBufferLevel leve
 }
 
 VkResult vulkan::Device::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryProperties,
-	VkDeviceSize size, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut, void* pData) const
+	VkDeviceSize size, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut, void const* pData) const
 {
 	// Create the buffer handle
 	VkBufferCreateInfo bufferCInfo = vulkan::initializers::bufferCreateInfo(usageFlags, size);
@@ -288,6 +288,36 @@ VkResult vulkan::Device::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPro
 	VK_CHECK(vkBindBufferMemory(logicalDevice, *pBufferOut, *pBufferMemoryOut, 0));
 
 	return VK_SUCCESS;
+}
+
+void vulkan::Device::CreateDeviceLocalBuffer(void const* pData, VkDeviceSize bufferSize,
+	VkBufferUsageFlags usageFlags, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut)
+{
+	// Create a staging buffer which holds the data
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VK_CHECK(CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+					 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+					 bufferSize, &stagingBuffer, &stagingBufferMemory, pData));
+
+	// Create the final buffer to be device local and the destination of the data transfer
+	VK_CHECK(CreateBuffer(usageFlags | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+					 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, bufferSize, pBufferOut, pBufferMemoryOut));
+
+	// Now transfer the data
+	ExecBuffer execBuffer = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+
+	VkBufferCopy copyRegion;
+	copyRegion.srcOffset = 0u;
+	copyRegion.dstOffset = 0u;
+	copyRegion.size = bufferSize;
+	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBuffer, *pBufferOut, 1u, &copyRegion);
+
+	execBuffer.Execute();
+
+	// Destroy the staging buffer
+	vkFreeMemory(logicalDevice, stagingBufferMemory, pAllocator);
+	vkDestroyBuffer(logicalDevice, stagingBuffer, pAllocator);
 }
 
 VkCommandPool vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
@@ -453,8 +483,7 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free
 
 	// Create fence if we wanna wait
 	VkFence fence{ VK_NULL_HANDLE };
-	if (wait)
-	{
+	if (wait) {
 		VkFenceCreateInfo fenceCInfo = initializers::fenceCreateInfo(VK_FLAGS_NONE);
 		VK_CHECK(vkCreateFence(*device, &fenceCInfo, device->pAllocator, &fence));
 	}
@@ -463,14 +492,12 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free
 	vkQueueSubmit(queue, 1u, &submitInfo, fence);
 
 	// Wait for the fence to signal that the cmd buffer has finished execution and destroy afterwards (if desired)
-	if (fence != VK_NULL_HANDLE)
-	{
+	if (fence != VK_NULL_HANDLE) {
 		VK_CHECK(vkWaitForFences(*device, 1u, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
 		vkDestroyFence(*device, fence, device->pAllocator);
 	}
 
-	if (free)
-	{
+	if (free) {
 		vkFreeCommandBuffers(*device, device->cmdPoolGraphics, 1u, &cmdBuffer);
 	}
 }

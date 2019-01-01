@@ -102,7 +102,7 @@ namespace EE
 			VkDescriptorSet															descriptorSet,
 			std::vector<EEObjectResourceBinding> const& bindings,
 			std::vector<Texture*> const&								textures,
-			std::vector<Buffer*> const&									buffers);
+			std::vector<Buffer*> const&									buffers) const;
 
 		/**
 		 * Records this shader into the passed in command buffer
@@ -110,7 +110,7 @@ namespace EE
 		 * @param cmdBuffer			Command buffer this shader will be recorded to
 		 * @param pDescriptorSet	If descriptors are used in this shader this set will be recorded too
 		 **/
-		void Record(VkCommandBuffer cmdBuffer, VkDescriptorSet* pDescriptorSet = nullptr);
+		void Record(VkCommandBuffer cmdBuffer, VkDescriptorSet* pDescriptorSet = nullptr) const;
 
 
 		/* @brief Delete copy/move constructor/assignements */

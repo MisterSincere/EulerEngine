@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "vulkanShader.h"
+#include "vulkanMesh.h"
 
 /* @brief Defines for better code readibility */
 #define EEDEVICE pRenderer->pSwapchain->pDevice

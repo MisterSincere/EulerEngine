@@ -148,8 +148,6 @@ bool EE::Shader::Create()
 			new VkDescriptorSetLayoutBinding[settings.amountDescriptors];
 
 		// Will hold the desired type/shader stage for each iteration/descriptor
-		VkDescriptorType type;
-		VkShaderStageFlags shaderStage;
 		for (uint32_t i = 0u; i < settings.amountDescriptors; i++) {
 			aDescriptorSetLayoutBindings[i] = vulkan::initializers::descriptorSetLayoutBinding(
 				/*type*/				tools::eeToVk(settings.pDescriptors[i].type),
@@ -248,7 +246,7 @@ bool EE::Shader::CreateDescriptorSet(VkDescriptorSet* pDescriptorSet)
 bool EE::Shader::UpdateDescriptorSet(VkDescriptorSet descriptorSet,
 																		 std::vector<EEObjectResourceBinding> const& bindings,
 																		 std::vector<Texture*> const& textures,
-																		 std::vector<Buffer*> const& buffers)
+																		 std::vector<Buffer*> const& buffers) const
 {
 	// Indices: one iterating over the bufferinfos and the other over the imageinfos
 	// @note All descriptors are composed of imageinfos and bufferinfos but not sorted,
@@ -301,7 +299,7 @@ bool EE::Shader::UpdateDescriptorSet(VkDescriptorSet descriptorSet,
 	return true;
 }
 
-void EE::Shader::Record(VkCommandBuffer cmdBuffer, VkDescriptorSet* pDescriptorSet)
+void EE::Shader::Record(VkCommandBuffer cmdBuffer, VkDescriptorSet* pDescriptorSet) const
 {
 	vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pPipeline->pipeline);
 

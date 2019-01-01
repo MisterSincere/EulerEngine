@@ -365,7 +365,6 @@ void EE::Texture::Upload()
 //-------------------------------------------------------------------
 // Buffer
 //-------------------------------------------------------------------
-
 EE::Buffer::Buffer(vulkan::Device const* pDevice, size_t bufferSize)
 	: pDevice(pDevice)
 	, bufferSize(bufferSize)
