@@ -27,11 +27,14 @@ namespace EE
 		struct Device;
 		struct ExecBuffer
 		{
-			VkCommandBuffer cmdBuffer;
+			VkCommandBuffer cmdBuffer{ VK_NULL_HANDLE };
+			VkFence fence{ VK_NULL_HANDLE };
 			VkQueue queue;
 			Device* device;
 
 			operator VkCommandBuffer() { return cmdBuffer; }
+
+			~ExecBuffer();
 
 			void End();
 			void Execute(VkSubmitInfo* submitInfo = nullptr, bool wait = true, bool free = true);

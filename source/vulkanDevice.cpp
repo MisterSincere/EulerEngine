@@ -253,6 +253,10 @@ vulkan::ExecBuffer vulkan::Device::CreateCommandBuffer(VkCommandBufferLevel leve
 	execBuffer.queue = AcquireQueue(GRAPHICS_FAMILY);
 	execBuffer.device = this;
 
+	// Create the fence
+	VkFenceCreateInfo fenceCInfo = initializers::fenceCreateInfo(VK_FLAGS_NONE);
+	VK_CHECK(vkCreateFence(logicalDevice, &fenceCInfo, pAllocator, &(execBuffer.fence)));
+
 	return execBuffer;
 }
 
@@ -475,6 +479,13 @@ VkPhysicalDevice vulkan::Device::PickPhysicalDevice(VkInstance instance)
 //-------------------------------------------------------------------
 // ExecBuffer
 //-------------------------------------------------------------------
+vulkan::ExecBuffer::~ExecBuffer()
+{
+	if (fence != VK_NULL_HANDLE) {
+		vkDestroyFence(*device, fence, device->pAllocator);
+	}
+}
+
 void vulkan::ExecBuffer::End()
 {
 	VK_CHECK(vkEndCommandBuffer(cmdBuffer));
