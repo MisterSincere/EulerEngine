@@ -33,6 +33,7 @@ namespace EE
 
 			operator VkCommandBuffer() { return cmdBuffer; }
 
+			void End();
 			void Execute(VkSubmitInfo* submitInfo = nullptr, bool wait = true, bool free = true);
 		};
 

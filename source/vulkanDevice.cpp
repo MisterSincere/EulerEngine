@@ -470,6 +470,15 @@ VkPhysicalDevice vulkan::Device::PickPhysicalDevice(VkInstance instance)
 }
 
 
+
+//-------------------------------------------------------------------
+// ExecBuffer
+//-------------------------------------------------------------------
+void vulkan::ExecBuffer::End()
+{
+	VK_CHECK(vkEndCommandBuffer(cmdBuffer));
+}
+
 void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free)
 {
 	assert(cmdBuffer);
