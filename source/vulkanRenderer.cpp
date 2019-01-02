@@ -504,7 +504,7 @@ void vulkan::Renderer::Create2D()
 			framebufferCInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 			framebufferCInfo.pNext = nullptr;
 			framebufferCInfo.flags = 0;
-			framebufferCInfo.renderPass = renderPass3D;
+			framebufferCInfo.renderPass = renderPass2D;
 			framebufferCInfo.attachmentCount = uint32_t(attachments.size());
 			framebufferCInfo.pAttachments = attachments.data();
 			framebufferCInfo.width = pSwapchain->settings.extent.width;
