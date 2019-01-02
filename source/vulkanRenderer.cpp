@@ -421,7 +421,6 @@ void vulkan::Renderer::Create2D()
 	{
 		std::vector<VkAttachmentDescription> attachments(1);
 		// Color attachment
-		//@TODO:: Check if this attachment needs to be changed if only 2d rendering was enabled
 		attachments[0].flags = 0;
 		attachments[0].format = pSwapchain->settings.surfaceFormat.format;
 		attachments[0].samples = settings.sampleCount;
@@ -754,7 +753,7 @@ void vulkan::Renderer::Draw()
 		submitInfo.pCommandBuffers = &(buffers3D[imageIndex].execBuffer.cmdBuffer);
 		submitInfo.signalSemaphoreCount = 1u;
 		submitInfo.pSignalSemaphores = &semaphores.imageRendered3D;
-		VK_CHECK(vkQueueSubmit(buffers3D[imageIndex].execBuffer.queue, 1u, &submitInfo, VK_NULL_HANDLE));
+		buffers3D[imageIndex].execBuffer.Execute(&submitInfo, false, false);
 
 		// Change wait semaphore to one that will be signaled when 3d process has finished
 		waitSemaphore = semaphores.imageRendered3D;
@@ -767,7 +766,7 @@ void vulkan::Renderer::Draw()
 		submitInfo.pCommandBuffers = &(buffers2D[imageIndex].execBuffer.cmdBuffer);
 		submitInfo.signalSemaphoreCount = 1u;
 		submitInfo.pSignalSemaphores = &semaphores.imageRendered2D;
-		VK_CHECK(vkQueueSubmit(buffers2D[imageIndex].execBuffer.queue, 1u, &submitInfo, VK_NULL_HANDLE));
+		buffers2D[imageIndex].execBuffer.Execute(&submitInfo, false, false);
 
 		// Change wait semaphore to one that will be signaled when 2d process has finished
 		waitSemaphore = semaphores.imageRendered2D;

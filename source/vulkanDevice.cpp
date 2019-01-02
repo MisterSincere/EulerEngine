@@ -483,7 +483,7 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free
 {
 	assert(cmdBuffer);
 
-	VK_CHECK(vkEndCommandBuffer(cmdBuffer));
+	//VK_CHECK(vkEndCommandBuffer(cmdBuffer));
 
 	// Submit info (passed in will be used if not nullptr)
 	VkSubmitInfo submitInfo;
