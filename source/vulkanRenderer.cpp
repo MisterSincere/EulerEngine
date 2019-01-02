@@ -406,7 +406,7 @@ void vulkan::Renderer::Create3D()
 	VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageRendered3D));
 
 	// Create semaphore that is needed for 2d and 3d if it wasnt already created with Create2D method
-	if (semaphores.imageAvailable != VK_NULL_HANDLE) {
+	if (semaphores.imageAvailable == VK_NULL_HANDLE) {
 		VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageAvailable));
 	}
 
@@ -520,7 +520,7 @@ void vulkan::Renderer::Create2D()
 	VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageRendered2D));
 
 	// Create semaphore that is needed for 2d and 3d if it wasnt already created with Create2D method
-	if (semaphores.imageAvailable != VK_NULL_HANDLE) {
+	if (semaphores.imageAvailable == VK_NULL_HANDLE) {
 		VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageAvailable));
 	}
 

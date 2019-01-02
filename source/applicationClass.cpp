@@ -56,6 +56,12 @@ bool EEApplication::PollEvent()
 	return m_pWindow->PollEvents();
 }
 
+void EEApplication::Draw()
+{
+	m_pGraphics->pRenderer->RecordDrawCommands(std::vector<EE::Object*>(0));
+	m_pGraphics->pRenderer->Draw();
+}
+
 
 void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)
 {

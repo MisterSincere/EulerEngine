@@ -116,10 +116,10 @@ void Graphics::vk_swapchain()
 void Graphics::vk_renderer(EEApplicationCreateInfo const& info)
 {
 	pRenderer = new vulkan::Renderer(pSwapchain, info);
-	if (info.rendererType & EE_RENDER_TYPE_2D) {
-		pRenderer->Create2D();
-	}
 	if (info.rendererType & EE_RENDER_TYPE_3D) {
 		pRenderer->Create3D();
+	}
+	if (info.rendererType & EE_RENDER_TYPE_2D) {
+		pRenderer->Create2D();
 	}
 }

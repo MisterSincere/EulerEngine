@@ -26,6 +26,7 @@ public:
 	void Release();
 
 	bool PollEvent();
+	void Draw();
 
 private:
 	static void Resize(GLFWwindow*, int, int, void*);

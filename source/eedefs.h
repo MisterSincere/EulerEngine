@@ -65,7 +65,8 @@ enum EEFormat {
 
 enum EERenderType {
 	EE_RENDER_TYPE_2D = 0x01,
-	EE_RENDER_TYPE_3D = 0x02
+	EE_RENDER_TYPE_3D = 0x02,
+	EE_RENDER_TYPE_BOTH = 0x03
 };
 
 enum EEScreenMode {
