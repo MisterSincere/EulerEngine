@@ -16,6 +16,7 @@ Graphics::Graphics()
 
 Graphics::~Graphics()
 {
+	RELEASE_S(pRenderer);
 	RELEASE_S(pSwapchain);
 	RELEASE_S(pDevice);
 	RELEASE_S(pDebug);
