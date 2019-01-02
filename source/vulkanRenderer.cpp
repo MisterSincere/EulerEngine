@@ -137,10 +137,11 @@ void vulkan::DepthImage::Create()
 
 	VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
 	if (tools::isStencilFormat(format)) aspectFlags |= VK_IMAGE_ASPECT_STENCIL_BIT;
-	tools::imageBarrier(execBuffer.cmdBuffer, image, aspectFlags, 1u, VK_IMAGE_LAYOUT_PREINITIALIZED,
+	tools::imageBarrier(execBuffer, image, aspectFlags, 1u, VK_IMAGE_LAYOUT_PREINITIALIZED,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_HOST_BIT,
 		VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT);
 
+	execBuffer.End();
 	execBuffer.Execute();
 
 	isCreated = true;
@@ -711,11 +712,11 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 		// End recording of render pass and the command buffer
 		if (isCreated3D) {
 			vkCmdEndRenderPass(buffers3D[i].execBuffer);
-			VK_CHECK(vkEndCommandBuffer(buffers3D[i].execBuffer));
+			buffers3D[i].execBuffer.End();
 		}
 		if (isCreated2D) {
 			vkCmdEndRenderPass(buffers2D[i].execBuffer);
-			VK_CHECK(vkEndCommandBuffer(buffers2D[i].execBuffer));
+			buffers2D[i].execBuffer.End();
 		}
 	}
 }

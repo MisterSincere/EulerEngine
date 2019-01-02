@@ -313,6 +313,7 @@ void vulkan::Device::CreateDeviceLocalBuffer(void const* pData, VkDeviceSize buf
 	copyRegion.size = bufferSize;
 	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBuffer, *pBufferOut, 1u, &copyRegion);
 
+	execBuffer.End();
 	execBuffer.Execute();
 
 	// Destroy the staging buffer
@@ -482,8 +483,6 @@ void vulkan::ExecBuffer::End()
 void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free)
 {
 	assert(cmdBuffer);
-
-	//VK_CHECK(vkEndCommandBuffer(cmdBuffer));
 
 	// Submit info (passed in will be used if not nullptr)
 	VkSubmitInfo submitInfo;

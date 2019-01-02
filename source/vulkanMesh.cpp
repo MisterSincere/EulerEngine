@@ -103,6 +103,7 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 	copyRegion.size = indexSize;
 	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBufferIndices, indexBuffer.buffer, 1u, &copyRegion);
 
+	execBuffer.End();
 	execBuffer.Execute();
 
 	// Free staging buffer

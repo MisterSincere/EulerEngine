@@ -264,6 +264,9 @@ void EE::Texture::Upload()
 																	 VK_IMAGE_ASPECT_COLOR_BIT,
 																	 data.width, data.height);
 
+		// End recording
+		execBuffer.End();
+
 		// Execute the command buffer
 		execBuffer.Execute();
 
