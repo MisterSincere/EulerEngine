@@ -21,11 +21,13 @@
 
 #define EE_PRINT(val, ...) printf_s(val, __VA_ARGS__);
 
+#define EE_INVARIANT(expr) assert(expr);
+
 #define RELEASE_S(p) {if(p) {delete p; p = nullptr;}}
 #define RELEASE_A(p) {if(p) {delete[] p; p = nullptr;}}
 
 // std string wrap for the assets path
-#define EE_ASSETS_DIR(path) (std::string(EE_CMAKE_ASSETS_PATH) + path).c_str();
+#define EE_ASSETS_DIR(path) (std::string(EE_CMAKE_ASSETS_PATH) + path);
 
 ///////////////////////////
 // FOREWARD DECLARATIONS //

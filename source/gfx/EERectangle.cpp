@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "EERectangle.h"
 
+#include <EEApplication.h>
 #include <string>
 
 using namespace GFX;
@@ -34,9 +35,11 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	descriptor.shaderStage = EE_SHADER_STAGE_FRAGMENT;
 	descriptor.binding = 0u;
 
+	std::string vert = EE_ASSETS_DIR("shader/color2DVert.spv");
+	std::string frag = EE_ASSETS_DIR("shader/color2DFrag.spv");
 	EEShaderCreateInfo shaderCInfo;
-	shaderCInfo.vertexFileName = EE_ASSETS_DIR("shader/colorShader.vert");
-	shaderCInfo.fragmentFileName = EE_ASSETS_DIR("shader/colorShader.frag");
+	shaderCInfo.vertexFileName = vert.c_str();
+	shaderCInfo.fragmentFileName = frag.c_str();
 	shaderCInfo.amountObjects = 1u;
 	shaderCInfo.shaderInputType = EE_SHADER_INPUT_TYPE_CUSTOM;
 	shaderCInfo.pVertexInput = &shaderInput;
@@ -46,6 +49,8 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.is2DShader = EE_TRUE;
 	shaderCInfo.wireframe = EE_FALSE;
 	shaderCInfo.clockwise = EE_TRUE;
+
+	m_shader = pApp->CreateShader(shaderCInfo);
 }
 
 EERectangle::~EERectangle()

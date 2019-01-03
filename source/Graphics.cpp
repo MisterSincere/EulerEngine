@@ -7,6 +7,10 @@
 
 #include <cassert>
 
+#include "vkcore/vulkanShader.h"
+
+#define LAST_ELEMENT(vec) (vec[vec.size() - 1])
+
 using namespace EE;
 
 Graphics::Graphics()
@@ -17,6 +21,15 @@ Graphics::Graphics()
 Graphics::~Graphics()
 {
 	pRenderer->WaitTillIdle();
+
+	// SHADER
+	for (size_t i = 0u; i < currentShader.size(); i++) {
+		delete currentShader[i];
+		delete iCurrentShader[i];
+	}
+	currentShader.~vector();
+	iCurrentShader.~vector();
+
 	RELEASE_S(pRenderer);
 	RELEASE_S(pSwapchain);
 	RELEASE_S(pDevice);
@@ -48,6 +61,26 @@ bool Graphics::Create(Window* pWindow, EEApplicationCreateInfo const& info)
 
 
 	return true;
+}
+
+EEShader Graphics::CreateShader(EEShaderCreateInfo const& cinfo)
+{
+	EE_INVARIANT(iCurrentShader.size() == currentShader.size());
+
+	// Push back new shader handle
+	currentShader.push_back(new EE::Shader(pRenderer, cinfo));
+	if (!LAST_ELEMENT(currentShader)->Create()) {
+		delete LAST_ELEMENT(currentShader);
+		currentShader.erase(currentShader.end());
+		return nullptr;
+	}
+
+	// Push back addess of the index to the new shader
+	iCurrentShader.push_back(new uint32_t((uint32_t)currentShader.size() - 1u));
+
+	EE_INVARIANT(iCurrentShader.size() == currentShader.size());
+
+	return { LAST_ELEMENT(iCurrentShader) };
 }
 
 void Graphics::vk_instance()

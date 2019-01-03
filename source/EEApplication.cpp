@@ -41,14 +41,18 @@ EEBool32 EEApplication::Create(EEApplicationCreateInfo const& appCInfo)
 		return EE_FALSE;
 	}
 
-
+	isCreated = true;
 	return EE_TRUE;
 }
 
 void EEApplication::Release()
 {
-	RELEASE_S(m_pGraphics);
-	RELEASE_S(m_pWindow);
+	if(isCreated) {
+		RELEASE_S(m_pGraphics);
+		RELEASE_S(m_pWindow);
+
+		isCreated = false;
+	}
 }
 
 bool EEApplication::PollEvent()
@@ -62,6 +66,14 @@ void EEApplication::Draw()
 	m_pGraphics->pRenderer->Draw();
 }
 
+EEShader EEApplication::CreateShader(EEShaderCreateInfo const& cinfo)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to create a shader without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return m_pGraphics->CreateShader(cinfo);
+}
 
 void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)
 {

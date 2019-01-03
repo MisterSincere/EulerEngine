@@ -27,10 +27,13 @@ public:
 	bool PollEvent();
 	void Draw();
 
+	EEShader CreateShader(EEShaderCreateInfo const& shaderCInfo);
+
 private:
 	static void Resize(GLFWwindow*, int, int, void*);
 
 private:
 	EE::Window* m_pWindow;
 	EE::Graphics* m_pGraphics;
+	bool isCreated{ false };
 };

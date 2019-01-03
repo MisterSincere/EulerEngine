@@ -32,13 +32,13 @@ EE::Pipeline::Pipeline(vulkan::Renderer const* pRenderer, VkShaderModule vertSha
 	vertexShaderStageCInfo.pSpecializationInfo = nullptr;
 
 	// FRAGMENT: VkPipelineShaderStageCreateInfo
-	vertexShaderStageCInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-	vertexShaderStageCInfo.pNext = nullptr;
-	vertexShaderStageCInfo.flags = 0;
-	vertexShaderStageCInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	vertexShaderStageCInfo.module = fragShader;
-	vertexShaderStageCInfo.pName = "main";
-	vertexShaderStageCInfo.pSpecializationInfo = nullptr;
+	fragmentShaderStageCInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragmentShaderStageCInfo.pNext = nullptr;
+	fragmentShaderStageCInfo.flags = 0;
+	fragmentShaderStageCInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragmentShaderStageCInfo.module = fragShader;
+	fragmentShaderStageCInfo.pName = "main";
+	fragmentShaderStageCInfo.pSpecializationInfo = nullptr;
 
 	// VkPipelineVertexInputStateCreateInfo
 	vertexInputCInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -114,7 +114,7 @@ void EE::Pipeline::Create(VkDescriptorSetLayout* pDescriptorSetLayout, bool use2
 		EE_PRINT("[PIPELINE] Creation failed pipeline was not initialzed!\n");
 		tools::exitFatal("[PIPELINE] Creation failed pipeline was not initialzed!\n");
 	}
-	if (!isCreated) {
+	if (isCreated) {
 		EE_PRINT("[PIPELINE] Already created!\n");
 		tools::warning("[PIPELINE] Already created!\n");
 		return;

@@ -10,6 +10,7 @@
 
 namespace EE {
 
+	struct Shader;
 
 	struct Graphics
 	{
@@ -37,6 +38,9 @@ namespace EE {
 #endif
 		} settings;
 
+		std::vector<uint32_t*> iCurrentShader;
+		std::vector<EE::Shader*> currentShader;
+
 
 		/**
 		 * Default constructor
@@ -60,7 +64,11 @@ namespace EE {
 		 **/
 		bool Create(Window* pWindow, EEApplicationCreateInfo const& appCInfo);
 
-
+		/**
+		 * Creates a shader and returns a handle to it
+		 * @param shaderCInfo
+		 **/
+		EEShader CreateShader(EEShaderCreateInfo const& shaderCInfo);
 
 		void vk_instance();
 		void vk_device();
