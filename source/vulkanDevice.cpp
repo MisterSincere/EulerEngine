@@ -86,7 +86,7 @@ void vulkan::ExecBuffer::EndRecording()
 	}
 }
 
-void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait)
+void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait) const
 {
 	if ((currentState & EXECUTABLE) != EXECUTABLE) {
 		EE_PRINT("[EXEC_BUFFER] Was not executable, please record something before trying to execute!\n");
@@ -118,7 +118,7 @@ void vulkan::ExecBuffer::Wait(uint64_t timeout) const
 //-------------------------------------------------------------------
 // Device
 //-------------------------------------------------------------------
-vulkan::Device::Device(EE::vulkan::Instance* pInstance, EE::Window* pWindow, VkAllocationCallbacks const* pAllocator)
+vulkan::Device::Device(EE::vulkan::Instance const* pInstance, EE::Window* pWindow, VkAllocationCallbacks const* pAllocator)
 {
 	// instance and window need to be no nullptr
 	assert(pInstance && pWindow);

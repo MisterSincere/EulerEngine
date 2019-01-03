@@ -110,7 +110,7 @@ namespace EE
 		 * @param cmdBuffer			Command buffer this shader will be recorded to
 		 * @param pDescriptorSet	If descriptors are used in this shader this set will be recorded too
 		 **/
-		void Record(VkCommandBuffer cmdBuffer, VkDescriptorSet* pDescriptorSet = nullptr) const;
+		void Record(VkCommandBuffer cmdBuffer, VkDescriptorSet const* pDescriptorSet = nullptr) const;
 
 
 		/* @brief Delete copy/move constructor/assignements */

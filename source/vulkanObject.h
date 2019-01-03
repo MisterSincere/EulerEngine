@@ -61,8 +61,7 @@ namespace EE
 		 * @param textures		List of all current textures
 		 * @param buffers			List of all current buffers
 		 *
-		 * @return Is false if the maximum of descriptor sets in the shader is exceeded or
-		 *			this object was already created
+		 * @return When false check console output
 		 **/
 		bool Create(
 			std::vector<EEObjectResourceBinding> const& bindings,
@@ -74,7 +73,7 @@ namespace EE
 		 *
 		 * @param cmdBuffer		The command buffer this objects calls will be recorded to
 		 **/
-		void Record(VkCommandBuffer cmdBuffer);
+		void Record(VkCommandBuffer cmdBuffer) const;
 
 
 		// Delete copy/move constructor/assignements

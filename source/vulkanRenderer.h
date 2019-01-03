@@ -17,7 +17,9 @@ namespace EE
 
 	namespace vulkan
 	{
-
+		//-------------------------------------------------------------------
+		// DepthImage
+		//-------------------------------------------------------------------
 		struct DepthImage
 		{
 			Swapchain const* pSwapchain;
@@ -47,11 +49,14 @@ namespace EE
 			void Release();
 		};
 
+
+		//-------------------------------------------------------------------
+		// Renderer
+		//-------------------------------------------------------------------
 		struct Renderer
 		{
 			/* @brief Struct representing a render buffer by combining a framebuffer with its cmd buffer */
-			struct RenderBuffer
-			{
+			struct RenderBuffer {
 				ExecBuffer execBuffer;
 				VkFramebuffer framebuffer;
 			};
@@ -102,18 +107,16 @@ namespace EE
 			 */
 			Renderer(Swapchain* pSwapchain, EEApplicationCreateInfo const& settings);
 
-			/**
-			 * Destructor
-			 **/
+			/* Destructor */
 			~Renderer();
 
 			/**
-			 * Creates the 3d render pass
+			 * @brief Creates the 3d render pass
 			 **/
 			void Create3D();
 
 			/**
-			 * Creates the 2d render pass
+			 * @brief Creates the 2d render pass
 			 **/
 			void Create2D();
 
@@ -147,12 +150,12 @@ namespace EE
 			/**
 			 * Renders the next available image and presents it
 			 **/
-			void Draw();
+			void Draw() const;
 
 			/**
 			 * Returns if the renderer is idle
 			 **/
-			void WaitTillIdle();
+			void WaitTillIdle() const;
 
 
 			/* @brief Delete copy/move constructor/assignements */

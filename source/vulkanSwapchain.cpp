@@ -11,14 +11,14 @@
 using namespace EE;
 
 
-// Foreward declaration of setting helper functions
+// Foreward declaration of helper functions that are needed to get supported settings
 VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(std::vector<VkSurfaceFormatKHR> const& availableFormats);
 VkPresentModeKHR ChooseSwapchainPresentMode(std::vector<VkPresentModeKHR> const& availablePresentModes);
 VkExtent2D ChooseSwapchainExtent(VkSurfaceCapabilitiesKHR const& surfaceCapabilities, GLFWwindow*);
 VkCompositeAlphaFlagBitsKHR ChooseCompositeAlpha(VkSurfaceCapabilitiesKHR const& surfaceCapabilities);
 
 
-vulkan::Swapchain::Swapchain(Device* pDevice, Window* pWindow, bool vsync)
+vulkan::Swapchain::Swapchain(Device const* pDevice, Window const* pWindow, bool vsync)
 	: pDevice(pDevice)
 	, pWindow(pWindow)
 {
@@ -183,7 +183,7 @@ void vulkan::Swapchain::Create()
 	isCreated = true;
 }
 
-VkResult vulkan::Swapchain::AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex)
+VkResult vulkan::Swapchain::AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex) const
 {
 	assert(fpAcquireNextImageKHR);
 
@@ -191,7 +191,7 @@ VkResult vulkan::Swapchain::AcquireNextImage(VkSemaphore presentCompleteSemaphor
 	return fpAcquireNextImageKHR(*pDevice, swapchain, UINT64_MAX, presentCompleteSemaphore, VK_NULL_HANDLE, imageIndex);
 }
 
-VkResult vulkan::Swapchain::PresentImage(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore)
+VkResult vulkan::Swapchain::PresentImage(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore) const
 {
 	assert(fpQueuePresentKHR);
 
@@ -216,10 +216,6 @@ VkResult vulkan::Swapchain::PresentImage(VkQueue queue, uint32_t imageIndex, VkS
 
 	return fpQueuePresentKHR(queue, &presentInfo);
 }
-
-
-
-
 
 
 

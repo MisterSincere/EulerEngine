@@ -88,13 +88,12 @@ namespace EE {
 
 
 		/**
-		 * Default constructor.
-		 * Searches for requirements and allocates/initializes input values.
+		 * Default constructor: searches for requirements and allocates/initializes input values
 		 **/
 		Window();
 
 		/**
-		 * Default destructor
+		 * Destructor
 		 * @note The surface needs to be released manually by calling ReleaseSurface()
 		 **/
 		~Window();
@@ -111,8 +110,8 @@ namespace EE {
 		 **/
 		EEBool32 Create(
 			EEApplicationCreateInfo const& windowCInfo,
-			fpEEWindowResize					resizeMethod,
-			void*											pUserData);
+			fpEEWindowResize							 resizeMethod,
+			void*													 pUserData);
 
 
 		/**
@@ -123,7 +122,7 @@ namespace EE {
 		void CreateSurface(VkInstance instance, VkAllocationCallbacks const* pAllocator);
 
 		/* @brief Releases the surface */
-		void ReleaseSurface(VkInstance instance, VkAllocationCallbacks const* pAllocator);
+		void ReleaseSurface(VkInstance instance, VkAllocationCallbacks const* pAllocator) const;
 
 		/* @brief Call to poll the events of the window */
 		bool PollEvents();
@@ -136,7 +135,7 @@ namespace EE {
 		 *
 		 * @return	Struct describing the details of the used surface
 		 **/
-		vulkan::SurfaceDetails GetSurfaceDetails(VkPhysicalDevice physicalDevice);
+		vulkan::SurfaceDetails GetSurfaceDetails(VkPhysicalDevice physicalDevice) const;
 
 		/**
 		 * Checks if a gpu is compatible with the surface
@@ -149,11 +148,18 @@ namespace EE {
 		 *				 amount of necessities that the passed in device does not support. So that 0 indicates
 		 *				 a perfect device and 1 a worse and 2 even worse and so on.
 		 **/
-		bool IsAdequate(VkPhysicalDevice physicalDevice);
+		bool IsAdequate(VkPhysicalDevice physicalDevice) const;
 
 
 		/* @brief Helper method to create the glfw window */
 		bool glfw_createWindow(EEApplicationCreateInfo const&);
+
+
+		/* @brief Delete copy/move constructor/assignements */
+		Window(Window const&) = delete;
+		Window(Window&&) = delete;
+		Window& operator=(Window const&) = delete;
+		Window& operator=(Window&&) = delete;
 	};
 
 }

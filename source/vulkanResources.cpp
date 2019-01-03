@@ -245,7 +245,7 @@ void EE::Texture::Upload()
 			data.pixels);
 
 		// Get a cmd buffer that will be used to transfer the layout and copy to the image
-		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 
 		// Change image's layout to transfer dst so that we can than copy to it
@@ -264,10 +264,8 @@ void EE::Texture::Upload()
 																	 VK_IMAGE_ASPECT_COLOR_BIT,
 																	 data.width, data.height);
 
-		// End recording
+		// End recording and execute
 		execBuffer.EndRecording();
-
-		// Execute the command buffer
 		execBuffer.Execute();
 
 		// Free staging buffer
@@ -280,7 +278,7 @@ void EE::Texture::Upload()
 	// Also if different mip levels are desired these will be created before
 	// setting the imagelayout change.
 	{
-		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 		// If there are multiple mipmap levels generate these
 		if (mipLevels > 1u) {
@@ -298,6 +296,7 @@ void EE::Texture::Upload()
 																	VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT);
 		}
 
+		// End recording and execute
 		execBuffer.EndRecording();
 		execBuffer.Execute();
 	}
@@ -405,7 +404,7 @@ void EE::Buffer::Create(VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryPr
 	isCreated = true;
 }
 
-void EE::Buffer::Update(void* pData)
+void EE::Buffer::Update(void* pData) const
 {
 	if (!isCreated) {
 		EE_PRINT("[BUFFER] Buffer wasn't created!\n");

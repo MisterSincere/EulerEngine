@@ -717,7 +717,7 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 	}
 }
 
-void vulkan::Renderer::Draw()
+void vulkan::Renderer::Draw() const
 {
 	uint32_t imageIndex;
 	pSwapchain->AcquireNextImage(semaphores.imageAvailable, &imageIndex);
@@ -782,7 +782,7 @@ void vulkan::Renderer::Draw()
 	VK_CHECK(vkQueuePresentKHR(EEDEVICE->AcquireQueue(PRESENT_FAMILY), &presentInfo));
 }
 
-void vulkan::Renderer::WaitTillIdle()
+void vulkan::Renderer::WaitTillIdle() const
 {
 	vkQueueWaitIdle(EEDEVICE->AcquireQueue(GRAPHICS_FAMILY));
 }

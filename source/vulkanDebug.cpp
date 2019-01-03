@@ -23,7 +23,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	return VK_FALSE;
 }
 
-vulkan::Debug::Debug(Instance* pInstance)
+vulkan::Debug::Debug(Instance const* pInstance)
 	: pInstance(pInstance)
 {
 	assert(pInstance);

@@ -80,8 +80,8 @@ namespace EE {
 			}
 
 			inline VkSubmitInfo submitInfo(
-				VkCommandBuffer* commandBuffers,
-				uint32_t				 commandBufferCount)
+				VkCommandBuffer const* commandBuffers,
+				uint32_t							 commandBufferCount)
 			{
 				VkSubmitInfo submitInfo;
 				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

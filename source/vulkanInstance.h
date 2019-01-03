@@ -38,7 +38,7 @@ namespace EE
 			uint32_t apiVersion{ VK_API_VERSION_1_0 };
 
 			/* @brief Typecast to a VkInstance */
-			operator VkInstance() { return instance; }
+			operator VkInstance() const { return instance; }
 
 			/**
 			 * Default constructor that stores the settings and checks if they are supported.
@@ -50,7 +50,10 @@ namespace EE
 			 * @note Layers and extensions that are required for this instance according to work for the window
 			 *			 are already checked on window creation time.
 			 **/
-			Instance(EE::Window const& window, std::vector<char const*> additionalLayers, std::vector<char const*> additionalExtensions);
+			Instance(
+				EE::Window const&				 window,
+				std::vector<char const*> additionalLayers,
+				std::vector<char const*> additionalExtensions);
 
 			/**
 			 * Default desctructor
@@ -67,8 +70,11 @@ namespace EE
 			VkResult Create(VkAllocationCallbacks const* pAllocator);
 
 
-			/*@brief Delete dangerous move/copy constructors etc. */
+			/* @brief Delete copy/move constructor/assignements */
 			Instance(Instance const&) = delete;
+			Instance(Instance&&) = delete;
+			Instance& operator=(Instance const&) = delete;
+			Instance& operator=(Instance&&) = delete;
 		};
 
 	}

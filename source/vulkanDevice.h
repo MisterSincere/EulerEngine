@@ -102,7 +102,7 @@ namespace EE
 			 * @param pSubmitInfo		Pointer to an optional submit info (defaults)
 			 * @param wait					If true this method will only return after execution finish
 			 **/
-			void Execute(VkSubmitInfo* pSubmitInfo = nullptr, bool wait = true);
+			void Execute(VkSubmitInfo* pSubmitInfo = nullptr, bool wait = true) const;
 
 			/**
 			 * Is only returning after the fence has been signaled or the time passed in has been expired.
@@ -118,7 +118,7 @@ namespace EE
 		//-------------------------------------------------------------------
 		struct Device
 		{
-			Instance* pInstance;
+			Instance const* pInstance;
 			EE::Window* pWindow;
 
 			/* @brief The representation of the picked physical device (gpu) */
@@ -175,7 +175,7 @@ namespace EE
 			 * @param pAllocator	Pointer to different allocator callbacks (defaulting to nullptr for lazy alloc)
 			 **/
 			Device(
-				EE::vulkan::Instance*				 pInstance,
+				EE::vulkan::Instance const*	 pInstance,
 				EE::Window*									 pWindow,
 				VkAllocationCallbacks const* pAllocator);
 
@@ -329,8 +329,11 @@ namespace EE
 			VkPhysicalDevice PickPhysicalDevice(VkInstance instance) const;
 
 
-			/*@brief Delete dangerous move/copy constructors etc. */
+			/* @brief Delete copy/move constructor/assignements */
 			Device(Device const&) = delete;
+			Device(Device&&) = delete;
+			Device& operator=(Device const&) = delete;
+			Device& operator=(Device&&) = delete;
 		};
 	}
 }

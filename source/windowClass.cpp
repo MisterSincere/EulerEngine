@@ -130,7 +130,7 @@ void Window::CreateSurface(VkInstance instance, VkAllocationCallbacks const * pA
 	VK_CHECK(glfwCreateWindowSurface(instance, this->window, pAllocator, &surface));
 }
 
-void Window::ReleaseSurface(VkInstance instance, VkAllocationCallbacks const * pAllocator)
+void Window::ReleaseSurface(VkInstance instance, VkAllocationCallbacks const* pAllocator) const
 {
 	assert(instance != VK_NULL_HANDLE);
 	if (surface) vkDestroySurfaceKHR(instance, surface, pAllocator);
@@ -147,7 +147,7 @@ bool Window::PollEvents()
 	return glfwWindowShouldClose(window);
 }
 
-vulkan::SurfaceDetails Window::GetSurfaceDetails(VkPhysicalDevice physicalDevice)
+vulkan::SurfaceDetails Window::GetSurfaceDetails(VkPhysicalDevice physicalDevice) const
 {
 	vulkan::SurfaceDetails details;
 	uint32_t count{ 0u };
@@ -168,7 +168,7 @@ vulkan::SurfaceDetails Window::GetSurfaceDetails(VkPhysicalDevice physicalDevice
 	return details;
 }
 
-bool Window::IsAdequate(VkPhysicalDevice physicalDevice)
+bool Window::IsAdequate(VkPhysicalDevice physicalDevice) const
 {
 	if (surface == VK_NULL_HANDLE) {
 		EE_PRINT("Call CreateSurface to create a surface that can be checked against!\n");

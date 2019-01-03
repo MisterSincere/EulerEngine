@@ -14,7 +14,7 @@ namespace EE
 		struct Debug
 		{
 			/* @brief The instance of the application */
-			Instance* pInstance;
+			Instance const* pInstance;
 
 			/* @brief Extension functions */
 			PFN_vkCreateDebugReportCallbackEXT fpCreateDebugReportCallbackEXT{ nullptr };
@@ -29,11 +29,9 @@ namespace EE
 			 *
 			 * @param pInstance		Instance this debug callbacks will be used for
 			 **/
-			Debug(Instance* pInstance);
+			Debug(Instance const* pInstance);
 
-			/**
-			 * Default destructor
-			 **/
+			/* Destructor */
 			~Debug();
 
 			/**
@@ -42,8 +40,11 @@ namespace EE
 			void Create();
 
 
-			/*@brief Delete dangerous move/copy constructors etc. */
+			/* @brief Delete copy/move constructor/assignements */
 			Debug(Debug const&) = delete;
+			Debug(Debug&&) = delete;
+			Debug& operator=(Debug const&) = delete;
+			Debug& operator=(Debug&&) = delete;
 		};
 	}
 }

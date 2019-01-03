@@ -299,7 +299,7 @@ bool EE::Shader::UpdateDescriptorSet(VkDescriptorSet descriptorSet,
 	return true;
 }
 
-void EE::Shader::Record(VkCommandBuffer cmdBuffer, VkDescriptorSet* pDescriptorSet) const
+void EE::Shader::Record(VkCommandBuffer cmdBuffer, VkDescriptorSet const* pDescriptorSet) const
 {
 	vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pPipeline->pipeline);
 

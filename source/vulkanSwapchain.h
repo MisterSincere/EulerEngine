@@ -21,16 +21,15 @@ namespace EE
 			};
 
 			/* @brief The device that will be used */
-			Device* pDevice;
+			Device const* pDevice;
 			/* @brief The window that swapchain will present on */
-			EE::Window* pWindow;
+			EE::Window const* pWindow;
 
 			/* @brief Handle of the created swapchain */
 			VkSwapchainKHR swapchain{ VK_NULL_HANDLE };
 
 			/* @brief Holds some settings */
-			struct
-			{
+			struct {
 				VkSurfaceFormatKHR surfaceFormat;
 				VkPresentModeKHR presentMode;
 				VkExtent2D extent;
@@ -65,13 +64,11 @@ namespace EE
 			 * @param vsync			Set to true to enable vsync (defaults to false)
 			 **/
 			Swapchain(
-				Device*			pDevice,
-				EE::Window* pWindow,
-				bool				vsync = false);
+				EE::vulkan::Device const*	pDevice,
+				EE::Window const*					pWindow,
+				bool											vsync = false);
 
-			/**
-			 * Destructor
-			 **/
+			/* Destructor */
 			~Swapchain();
 
 			/**
@@ -92,7 +89,7 @@ namespace EE
 			 **/
 			VkResult AcquireNextImage(
 				VkSemaphore presentCompleteSemaphore,
-				uint32_t*		imageIndex);
+				uint32_t*		imageIndex) const;
 
 			/**
 			 * Queue an image for presentation.
@@ -106,11 +103,14 @@ namespace EE
 			VkResult PresentImage(
 				VkQueue			queue,
 				uint32_t		imageIndex,
-				VkSemaphore waitSemaphore = VK_NULL_HANDLE);
+				VkSemaphore waitSemaphore = VK_NULL_HANDLE) const;
 
 
-			/*@brief Delete dangerous move/copy constructors etc. */
+			/* @brief Delete copy/move constructor/assignements */
 			Swapchain(Swapchain const&) = delete;
+			Swapchain(Swapchain&&) = delete;
+			Swapchain& operator=(Swapchain const&) = delete;
+			Swapchain& operator=(Swapchain&&) = delete;
 		};
 	}
 }
