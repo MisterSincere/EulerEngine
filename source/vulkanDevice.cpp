@@ -10,8 +10,6 @@
 using namespace EE;
 
 
-
-
 //-------------------------------------------------------------------
 // ExecBuffer
 //-------------------------------------------------------------------
@@ -49,9 +47,9 @@ void vulkan::ExecBuffer::Create(Device const* pDevice, VkCommandBufferLevel leve
 
 void vulkan::ExecBuffer::Release()
 {
-	Wait();
-	vkDeviceWaitIdle(*pDevice);
 	if (currentState & CREATED) {
+		Wait();
+
 		vkDestroyFence(*pDevice, fence, pDevice->pAllocator);
 		vkFreeCommandBuffers(*pDevice, pDevice->cmdPoolGraphics, 1u, &cmdBuffer);
 
@@ -111,7 +109,7 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait)
 	if (wait) Wait();
 }
 
-void vulkan::ExecBuffer::Wait(uint64_t timeout)
+void vulkan::ExecBuffer::Wait(uint64_t timeout) const
 {
 	VK_CHECK(vkWaitForFences(*pDevice, 1u, &fence, VK_TRUE, timeout));
 }
@@ -180,7 +178,8 @@ vulkan::Device::~Device()
 	}
 }
 
-VkResult vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures, std::vector<char const*> const & additionalLayers, std::vector<char const*> const & additionalExtensions, VkQueueFlags requestedQueueTypes)
+VkResult vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures, std::vector<char const*> const & additionalLayers,
+	std::vector<char const*> const & additionalExtensions, VkQueueFlags requestedQueueTypes)
 {
 	// Queues that will be desired later need to be requested upon logical device creation
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -380,7 +379,7 @@ VkResult vulkan::Device::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPro
 }
 
 void vulkan::Device::CreateDeviceLocalBuffer(void const* pData, VkDeviceSize bufferSize,
-	VkBufferUsageFlags usageFlags, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut)
+	VkBufferUsageFlags usageFlags, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut) const
 {
 	// Create a staging buffer which holds the data
 	VkBuffer stagingBuffer;
@@ -410,7 +409,7 @@ void vulkan::Device::CreateDeviceLocalBuffer(void const* pData, VkDeviceSize buf
 	vkDestroyBuffer(logicalDevice, stagingBuffer, pAllocator);
 }
 
-VkCommandPool vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags createFlags)
+VkCommandPool vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags createFlags) const
 {
 	VkCommandPoolCreateInfo cmdPoolCInfo;
 	cmdPoolCInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -445,7 +444,7 @@ VkQueue vulkan::Device::AcquireQueue(QueueTypeFlagBits requestedFamily) const
 
 
 
-uint32_t vulkan::Device::GetQueueFamilyIndex(VkQueueFlagBits queueFlags)
+uint32_t vulkan::Device::GetQueueFamilyIndex(VkQueueFlagBits queueFlags) const
 {
 	// First check for a queue family that matches the desired type exactly
 	for (uint32_t i = 0u; i < uint32_t(queueFamilyProperties.size()); i++) {
@@ -488,7 +487,7 @@ uint32_t vulkan::Device::GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags 
 }
 
 
-bool vulkan::Device::IsFormatSupported(VkFormat format, VkImageTiling tiling, VkFormatFeatureFlags featureFlags)
+bool vulkan::Device::IsFormatSupported(VkFormat format, VkImageTiling tiling, VkFormatFeatureFlags featureFlags) const
 {
 	VkFormatProperties properties;
 	vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &properties);;
@@ -503,7 +502,7 @@ bool vulkan::Device::IsFormatSupported(VkFormat format, VkImageTiling tiling, Vk
 	return false;
 }
 
-bool vulkan::Device::LayerSupported(char const* layer)
+bool vulkan::Device::LayerSupported(char const* layer) const
 {
 	for (size_t i = 0; i < supportedLayers.size(); i++) {
 		if (strcmp(supportedLayers[i].layerName, layer) == 0) {
@@ -513,7 +512,7 @@ bool vulkan::Device::LayerSupported(char const* layer)
 	return false;
 }
 
-bool vulkan::Device::ExtensionSupported(char const* extension)
+bool vulkan::Device::ExtensionSupported(char const* extension) const
 {
 	for (size_t i = 0; i < supportedExtensions.size(); i++) {
 		if (strcmp(supportedExtensions[i].extensionName, extension) == 0) {
@@ -523,7 +522,7 @@ bool vulkan::Device::ExtensionSupported(char const* extension)
 	return false;
 }
 
-VkPhysicalDevice vulkan::Device::PickPhysicalDevice(VkInstance instance)
+VkPhysicalDevice vulkan::Device::PickPhysicalDevice(VkInstance instance) const
 {
 	assert(instance != VK_NULL_HANDLE);
 

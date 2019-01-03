@@ -11,6 +11,11 @@ namespace EE
 {
 	namespace vulkan
 	{
+		///////////////////////////
+		// FOREWARD DECLARATIONS //
+		///////////////////////////
+		struct Device;
+
 		/* @brief Describes different queue types in flags that can be set */
 		enum QueueTypeFlagBits {
 			PRESENT_FAMILY	= 0x01,
@@ -20,15 +25,20 @@ namespace EE
 		};
 		typedef uint32_t QueueTypes;
 
-		// The use of this struct wrapping around a simple command buffer is
-		// that the Vulkan Device will control which queue this command buffer is submitted to.
-		// The execution can be modified by passing in a pointer to a submit info.
-		// A nullptr will use a default submit info and wait for completed execution.
-		struct Device;
+
+		//-------------------------------------------------------------------
+		// ExecBuffer
+		//-------------------------------------------------------------------
+		/* The use of this struct wrapping around a simple command buffer is
+		 * that the Vulkan Device will control which queue this command buffer is submitted to.
+		 * The execution can be modified by passing in a pointer to a submit info.
+		 * A nullptr will use a default submit info and wait for completed execution.
+		 */
 		struct ExecBuffer
 		{
 			/* @note Pending state needs to be checked manually since this is not an updateable structure.
-			 *	 Also worth noticing is that recording/executable state have both the created bit set. */
+			 * Also worth noticing is that recording/executable state have both the created bit set.
+			 */
 			enum STATE {
 				ALLOCATED		= 0x01,
 				CREATED			= 0x02,
@@ -38,9 +48,8 @@ namespace EE
 
 			/* @brief Pointer to the device this buffer uses and executes on */
 			Device const* pDevice;
-			/* @brief Acquires queue from the device this buffer will execute on */
+			/* @brief Acquired queue from the device this buffer will execute on */
 			VkQueue queue;
-
 			/* @brief The command buffer that this struct is wrapping */
 			VkCommandBuffer cmdBuffer;
 			/* @brief Fence that is signaled when the execution has finished */
@@ -49,7 +58,6 @@ namespace EE
 			/* @brief Indicates the current available use of this buffer */
 			STATE currentState{ ALLOCATED };
 
-			/* @brief Typecast to our cmdbuffer */
 			operator VkCommandBuffer() { return cmdBuffer; }
 
 			/**
@@ -60,31 +68,48 @@ namespace EE
 			/**
 			 * Does already create everything needed for recording. After this constructor
 			 * the buffer is in the CREATED state
+			 * @note For further information check the Create() since this is the one used
 			 **/
 			ExecBuffer(Device const* pDevice, VkCommandBufferLevel level, bool begin = false, VkCommandBufferUsageFlags usageFlags = 0);
 
-			/**
-			 * Destructor
-			 **/
+			/* @brief Destructor: calls Release() */
 			~ExecBuffer();
 
 			/**
+			 * Creates this execbuffer and puts it into the created state making it
+			 * possible to begin recording etc.
 			 *
+			 * @param pDevice			Pointer to the device on which this buffer will execute
+			 * @param level				Desired level of the cmd buffer
+			 * @param begin				If true the state of this buffer is RECORDING (defaults)
+			 * @param usageFlags	When beginning this buffer you can pass some usageFlags too (defaults)
 			 **/
 			void Create(Device const* pDevice, VkCommandBufferLevel level, bool begin = false, VkCommandBufferUsageFlags usageFlags = 0);
 
+			/* @brief If created it waits 'till end of execution and destroys F***ING EVERYTHING */
 			void Release();
 
+			/* @brief Changes state to RECORDING */
 			void BeginRecording(VkCommandBufferUsageFlags usageFlags);
+
+			/* @brief Changes state to EXECUTABLE since Execute() can now be called */
 			void EndRecording();
-			void Execute(VkSubmitInfo* submitInfo = nullptr, bool wait = true);
+
+			/**
+			 * Executes either with a predefined submitinfo or the one passed in.
+			 * Will return immediately, unless wait is true
+			 *
+			 * @param pSubmitInfo		Pointer to an optional submit info (defaults)
+			 * @param wait					If true this method will only return after execution finish
+			 **/
+			void Execute(VkSubmitInfo* pSubmitInfo = nullptr, bool wait = true);
 
 			/**
 			 * Is only returning after the fence has been signaled or the time passed in has been expired.
 			 *
 			 * @param timeout		Maximal time to wait
 			 **/
-			void Wait(uint64_t timeout = DEFAULT_FENCE_TIMEOUT);
+			void Wait(uint64_t timeout = DEFAULT_FENCE_TIMEOUT) const;
 		};
 
 
@@ -127,8 +152,7 @@ namespace EE
 			VkCommandPool cmdPoolGraphics{ VK_NULL_HANDLE };
 
 			/* @brief Contains the queue family indices */
-			struct
-			{
+			struct {
 				uint32_t graphics;
 				uint32_t graphicsCount;
 				uint32_t compute;
@@ -139,7 +163,6 @@ namespace EE
 				uint32_t presentCount;
 			} queueIndices;
 
-			/* @brief Typecast to VkDevice */
 			operator VkDevice() const { return logicalDevice; }
 
 			/**
@@ -156,9 +179,7 @@ namespace EE
 				EE::Window*									 pWindow,
 				VkAllocationCallbacks const* pAllocator);
 
-			/**
-			 * Default destructor
-			 **/
+			/* Destructor */
 			~Device();
 
 			/**
@@ -213,8 +234,7 @@ namespace EE
 				VkDeviceSize			 bufferSize,
 				VkBufferUsageFlags usageFlags,
 				VkBuffer*					 pBufferOut,
-				VkDeviceMemory*		 pBufferMemoryOut);
-
+				VkDeviceMemory*		 pBufferMemoryOut) const;
 
 			/**
 			 * Creates a command pool to allocate command buffers from
@@ -229,7 +249,7 @@ namespace EE
 			 **/
 			VkCommandPool CreateCommandPool(
 				uint32_t								 queueFamilyIndex,
-				VkCommandPoolCreateFlags createFlags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+				VkCommandPoolCreateFlags createFlags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT) const;
 			
 
 			/**
@@ -250,7 +270,7 @@ namespace EE
 			 *
 			 * @throw Throws an exception if no queue family index could be found according to the desired one
 			 **/
-			uint32_t GetQueueFamilyIndex(VkQueueFlagBits queueFlags);
+			uint32_t GetQueueFamilyIndex(VkQueueFlagBits queueFlags) const;
 
 			/**
 			 * Gets the index of the memory type that has all the requested property flags
@@ -279,7 +299,7 @@ namespace EE
 			bool IsFormatSupported(
 				VkFormat						 format,
 				VkImageTiling				 tiling,
-				VkFormatFeatureFlags featureFlags);
+				VkFormatFeatureFlags featureFlags) const;
 
 			/**
 			 * Checks if a layer is supported by the current physical device
@@ -288,7 +308,7 @@ namespace EE
 			 *
 			 * @return Is true if the layer is supported
 			 **/
-			bool LayerSupported(char const* layer);
+			bool LayerSupported(char const* layer) const;
 
 			/**
 			 * Checks if an extension is supported by the current physical device
@@ -297,7 +317,7 @@ namespace EE
 			 *
 			 * @return Is true if the extension is supported
 			 **/
-			bool ExtensionSupported(char const* extension);
+			bool ExtensionSupported(char const* extension) const;
 
 			/**
 			 * Checks every available gpu if it is adequate to the window
@@ -306,7 +326,7 @@ namespace EE
 			 *
 			 * @return		Vulkan handle of the physical device alias gpu that was picked
 			 **/
-			VkPhysicalDevice PickPhysicalDevice(VkInstance instance);
+			VkPhysicalDevice PickPhysicalDevice(VkInstance instance) const;
 
 
 			/*@brief Delete dangerous move/copy constructors etc. */
