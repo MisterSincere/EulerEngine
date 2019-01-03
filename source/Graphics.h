@@ -1,11 +1,11 @@
 /////////////////////////////////////////////////////////////////////
-// Filename: graphicsClass.h
+// Filename: Graphics.h
 //
 // (C) Copyright 2019 Madness Studio. All Rights Reserved
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "vulkanRenderer.h"
+#include "vkcore/vulkanRenderer.h"
 
 
 namespace EE {

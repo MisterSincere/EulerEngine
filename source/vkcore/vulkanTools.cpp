@@ -9,7 +9,7 @@
 #include <cassert>
 #include <fstream>
 
-#include "graphicsClass.h"
+#include "Graphics.h"
 #include "eedefs.h"
 
 using namespace EE;

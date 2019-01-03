@@ -1,9 +1,9 @@
 /////////////////////////////////////////////////////////////////////
-// Filename: applicationClass.cpp
+// Filename: EEApplication.cpp
 //
 // (C) Copyright 2019 Madness Studio. All Rights Reserved
 /////////////////////////////////////////////////////////////////////
-#include "applicationClass.h"
+#include "EEApplication.h"
 
 //////////////
 // INCLUDES //
@@ -13,8 +13,8 @@
 /////////////////
 // MY INCLUDES //
 /////////////////
-#include "windowClass.h"
-#include "graphicsClass.h"
+#include "Window.h"
+#include "Graphics.h"
 
 
 EEApplication::EEApplication()

@@ -1,11 +1,11 @@
 /////////////////////////////////////////////////////////////////////
-// Filename: window.cpp
+// Filename: Window.cpp
 //
 // (C) Copyright 2019 Madness Studio. All Rights Reserved
 /////////////////////////////////////////////////////////////////////
-#include "windowClass.h"
+#include "Window.h"
 
-#include "vulkanTools.h"
+#include "vkcore/vulkanTools.h"
 
 #include <cassert>
 

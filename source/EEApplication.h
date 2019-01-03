@@ -1,12 +1,11 @@
 /////////////////////////////////////////////////////////////////////
-// Filename: applicationClass.h
+// Filename: EEApplication.h
 //
 // (C) Copyright 2019 Madness Studio. All Rights Reserved
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-//#include "eedefs.h" already included within window.h
-#include "windowClass.h"
+#include "eedefs.h"
 
 ///////////////////////////
 // FOREWARD DECLARATIONS //
