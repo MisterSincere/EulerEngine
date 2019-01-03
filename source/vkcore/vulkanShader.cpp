@@ -58,21 +58,21 @@ EE::Shader::Shader(vulkan::Renderer const* pRenderer, EEShaderCreateInfo const& 
 			// Input binding description
 			VkVertexInputBindingDescription* bindingDescription = new VkVertexInputBindingDescription;
 			bindingDescription->binding = 0;
-			bindingDescription->stride = shaderCInfo.pShaderInput->inputStride;
+			bindingDescription->stride = shaderCInfo.pVertexInput->inputStride;
 			bindingDescription->inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 			// Input attribute descriptions
 			VkVertexInputAttributeDescription* aAttributeDescriptions =
-				new VkVertexInputAttributeDescription[shaderCInfo.pShaderInput->amountInputs];
-			for (uint32_t i = 0u; i < shaderCInfo.pShaderInput->amountInputs; i++) {
+				new VkVertexInputAttributeDescription[shaderCInfo.pVertexInput->amountInputs];
+			for (uint32_t i = 0u; i < shaderCInfo.pVertexInput->amountInputs; i++) {
 				aAttributeDescriptions[i].binding = 0;
-				aAttributeDescriptions[i].location = shaderCInfo.pShaderInput->pShaderInputs[i].location;
-				aAttributeDescriptions[i].offset = shaderCInfo.pShaderInput->pShaderInputs[i].offset;
-				aAttributeDescriptions[i].format = tools::eeToVk(shaderCInfo.pShaderInput->pShaderInputs[i].format);
+				aAttributeDescriptions[i].location = shaderCInfo.pVertexInput->pInputDescs[i].location;
+				aAttributeDescriptions[i].offset = shaderCInfo.pVertexInput->pInputDescs[i].offset;
+				aAttributeDescriptions[i].format = tools::eeToVk(shaderCInfo.pVertexInput->pInputDescs[i].format);
 			}
 
 			pPipeline->vertexInputCInfo.pVertexBindingDescriptions = bindingDescription;
-			pPipeline->vertexInputCInfo.vertexAttributeDescriptionCount = shaderCInfo.pShaderInput->amountInputs;
+			pPipeline->vertexInputCInfo.vertexAttributeDescriptionCount = shaderCInfo.pVertexInput->amountInputs;
 			pPipeline->vertexInputCInfo.pVertexAttributeDescriptions = aAttributeDescriptions;
 		}
 

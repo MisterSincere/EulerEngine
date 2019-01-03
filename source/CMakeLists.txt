@@ -22,8 +22,7 @@ set	(VULKANCORE	vkcore/vulkanRenderer.h		vkcore/vulkanRenderer.cpp
 				vkcore/vulkanTools.h		vkcore/vulkanTools.cpp
 				vkcore/vulkanInitializers.h)
 
-set (GFX		gfx/EEField.h		gfx/EEField.cpp
-				gfx/EEIDrawable.h)
+set (GFX		gfx/EERectangle.h		gfx/EERectangle.cpp)
 
 set (EULERENGINEINTERN  Window.h		Window.cpp
 						Graphics.h		Graphics.cpp)
@@ -45,5 +44,8 @@ add_library (EulerEngine ${EULERENGINEOUT}
 						 ${VULKANCORE}
 						 ${EXTERNS}
 						 ${GFX})
+
+						 
+add_definitions("-DEE_CMAKE_ASSETS_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../assets/\"")
 
 include_directories (EulerEngine ${CMAKE_CURRENT_SOURCE_DIR})

@@ -5,7 +5,8 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
+#include <cstdio>
 #include <DirectXMath.h>
 
 #include "keycodes.h"
@@ -22,6 +23,9 @@
 
 #define RELEASE_S(p) {if(p) {delete p; p = nullptr;}}
 #define RELEASE_A(p) {if(p) {delete[] p; p = nullptr;}}
+
+// std string wrap for the assets path
+#define EE_ASSETS_DIR(path) (std::string(EE_CMAKE_ASSETS_PATH) + path).c_str();
 
 ///////////////////////////
 // FOREWARD DECLARATIONS //
@@ -132,15 +136,20 @@ struct EEPoint32 {
 	int32_t y;
 };
 
+struct EEPoint32F {
+	float x;
+	float y;
+};
+
 struct EEShaderInputDesc {
 	uint32_t location;
 	EEFormat format;
 	uint32_t offset;
 };
 
-struct EEShaderInput {
+struct EEVertexInput {
 	uint32_t								 amountInputs;
-	EEShaderInputDesc const* pShaderInputs;
+	EEShaderInputDesc const* pInputDescs;
 	uint32_t								 inputStride;
 };
 
@@ -186,7 +195,7 @@ struct EEShaderCreateInfo {
 	char const*								fragmentFileName;
 	uint32_t									amountObjects;		//< amount objects that will use this shader
 	EEShaderInputType					shaderInputType;	//< if not EE_SHADER_INPUT_TYPE_CUSTOM this shader should only be used for obj file read meshes
-	EEShaderInput const*			pShaderInput;
+	EEVertexInput const*			pVertexInput;
 	uint32_t									amountDescriptors;
 	EEDescriptorDesc const*		pDescriptors;
 	EEPushConstantDesc const* pPushConstant;
