@@ -91,7 +91,7 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 										 indexSize, &stagingBufferIndices, &stagingBufferIndicesMemory));
 
 	// Transfer the data
-	vulkan::ExecBuffer execBuffer = EEDEVICE->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+	vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
 	
 	VkBufferCopy copyRegion;
 	copyRegion.srcOffset = 0u;
@@ -103,7 +103,7 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 	copyRegion.size = indexSize;
 	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBufferIndices, indexBuffer.buffer, 1u, &copyRegion);
 
-	execBuffer.End();
+	execBuffer.EndRecording();
 	execBuffer.Execute();
 
 	// Free staging buffer

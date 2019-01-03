@@ -133,7 +133,7 @@ void vulkan::DepthImage::Create()
 	VK_CHECK(vkCreateImageView(LDEVICE, &imageViewCInfo, ALLOCATOR, &imageView));
 
 	// Convert image to an depth stencil attachment
-	ExecBuffer execBuffer = EEDEVICE->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+	ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
 
 	VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
 	if (tools::isStencilFormat(format)) aspectFlags |= VK_IMAGE_ASPECT_STENCIL_BIT;
@@ -141,7 +141,7 @@ void vulkan::DepthImage::Create()
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_HOST_BIT,
 		VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT);
 
-	execBuffer.End();
+	execBuffer.EndRecording();
 	execBuffer.Execute();
 
 	isCreated = true;
@@ -256,7 +256,6 @@ vulkan::Renderer::~Renderer()
 		vkDestroyRenderPass(LDEVICE, renderPass3D, ALLOCATOR);
 
 		for (size_t i = 0u; i < buffers3D.size(); i++) {
-			vkFreeCommandBuffers(LDEVICE, EEDEVICE->cmdPoolGraphics, 1u, &(buffers3D[i].execBuffer.cmdBuffer));
 			vkDestroyFramebuffer(LDEVICE, buffers3D[i].framebuffer, ALLOCATOR);
 		}
 
@@ -273,7 +272,6 @@ vulkan::Renderer::~Renderer()
 		vkDestroyRenderPass(LDEVICE, renderPass2D, ALLOCATOR);
 
 		for (size_t i = 0u; i < buffers2D.size(); i++) {
-			vkFreeCommandBuffers(LDEVICE, EEDEVICE->cmdPoolGraphics, 1u, &(buffers2D[i].execBuffer.cmdBuffer));
 			vkDestroyFramebuffer(LDEVICE, buffers2D[i].framebuffer, ALLOCATOR);
 		}
 
@@ -378,7 +376,7 @@ void vulkan::Renderer::Create3D()
 	{
 		for (size_t i = 0u; i < buffers3D.size(); i++) {
 			// Create the command buffer
-			buffers3D[i].execBuffer = EEDEVICE->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+			buffers3D[i].execBuffer.Create(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 			// Now set tjhe actual attachment resources for the framebuffer to use
 			std::vector<VkImageView> attachments = {
@@ -492,7 +490,7 @@ void vulkan::Renderer::Create2D()
 	{
 		for (size_t i = 0u; i < buffers2D.size(); i++) {
 			// Create the command buffer
-			buffers2D[i].execBuffer = EEDEVICE->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+			buffers2D[i].execBuffer.Create(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 			// Now set tjhe actual attachment resources for the framebuffer to use
 			std::vector<VkImageView> attachments = {
@@ -538,14 +536,14 @@ void vulkan::Renderer::Resize(std::vector<Object*> const& objectsToDraw)
 	// Free the render pass, command buffers and their framebuffers for 2d and 3d
 	if (isCreated3D) {
 		for (size_t i = 0u; i < buffers3D.size(); i++) {
-			vkFreeCommandBuffers(LDEVICE, EEDEVICE->cmdPoolGraphics, 1u, &(buffers3D[i].execBuffer.cmdBuffer));
+			buffers3D[i].execBuffer.Release();
 			vkDestroyFramebuffer(LDEVICE, buffers3D[i].framebuffer, ALLOCATOR);
 		}
 		vkDestroyRenderPass(LDEVICE, renderPass3D, ALLOCATOR);
 	}
 	if (isCreated2D) {
 		for (size_t i = 0u; i < buffers2D.size(); i++) {
-			vkFreeCommandBuffers(LDEVICE, EEDEVICE->cmdPoolGraphics, 1u, &(buffers2D[i].execBuffer.cmdBuffer));
+			buffers2D[i].execBuffer.Release();
 			vkDestroyFramebuffer(LDEVICE, buffers2D[i].framebuffer, ALLOCATOR);
 		}
 		vkDestroyRenderPass(LDEVICE, renderPass2D, ALLOCATOR);
@@ -584,8 +582,6 @@ void vulkan::Renderer::CreateShaderModule(char const* fileName, VkShaderModule& 
 
 void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 {
-	VkCommandBufferBeginInfo beginInfo = initializers::commandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
-
 	static float green = 0.0f;
 	static float speed = 0.001f;
 	green += speed;
@@ -612,7 +608,7 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 			renderPassBeginInfo.framebuffer = buffers3D[i].framebuffer;
 			renderPassBeginInfo.clearValueCount = 2u;
 			renderPassBeginInfo.pClearValues = clearValues;
-			VK_CHECK(vkBeginCommandBuffer(buffers3D[i].execBuffer, &beginInfo));
+			buffers3D[i].execBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 			vkCmdBeginRenderPass(buffers3D[i].execBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 		}
 		if (isCreated2D) {
@@ -620,7 +616,7 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 			renderPassBeginInfo.framebuffer = buffers2D[i].framebuffer;
 			renderPassBeginInfo.clearValueCount = 1u;
 			renderPassBeginInfo.pClearValues = &clearColor;
-			VK_CHECK(vkBeginCommandBuffer(buffers2D[i].execBuffer, &beginInfo));
+			buffers2D[i].execBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 			vkCmdBeginRenderPass(buffers2D[i].execBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 		}
 
@@ -712,11 +708,11 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 		// End recording of render pass and the command buffer
 		if (isCreated3D) {
 			vkCmdEndRenderPass(buffers3D[i].execBuffer);
-			buffers3D[i].execBuffer.End();
+			buffers3D[i].execBuffer.EndRecording();
 		}
 		if (isCreated2D) {
 			vkCmdEndRenderPass(buffers2D[i].execBuffer);
-			buffers2D[i].execBuffer.End();
+			buffers2D[i].execBuffer.EndRecording();
 		}
 	}
 }
@@ -754,7 +750,7 @@ void vulkan::Renderer::Draw()
 		submitInfo.pCommandBuffers = &(buffers3D[imageIndex].execBuffer.cmdBuffer);
 		submitInfo.signalSemaphoreCount = 1u;
 		submitInfo.pSignalSemaphores = &semaphores.imageRendered3D;
-		buffers3D[imageIndex].execBuffer.Execute(&submitInfo, false, false);
+		buffers3D[imageIndex].execBuffer.Execute(&submitInfo, false);
 
 		// Change wait semaphore to one that will be signaled when 3d process has finished
 		waitSemaphore = semaphores.imageRendered3D;
@@ -767,7 +763,7 @@ void vulkan::Renderer::Draw()
 		submitInfo.pCommandBuffers = &(buffers2D[imageIndex].execBuffer.cmdBuffer);
 		submitInfo.signalSemaphoreCount = 1u;
 		submitInfo.pSignalSemaphores = &semaphores.imageRendered2D;
-		buffers2D[imageIndex].execBuffer.Execute(&submitInfo, false, false);
+		buffers2D[imageIndex].execBuffer.Execute(&submitInfo, false);
 
 		// Change wait semaphore to one that will be signaled when 2d process has finished
 		waitSemaphore = semaphores.imageRendered2D;

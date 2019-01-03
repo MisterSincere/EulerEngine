@@ -11,6 +11,115 @@ using namespace EE;
 
 
 
+
+//-------------------------------------------------------------------
+// ExecBuffer
+//-------------------------------------------------------------------
+vulkan::ExecBuffer::ExecBuffer(Device const* pDevice, VkCommandBufferLevel level, bool begin, VkCommandBufferUsageFlags flags)
+{
+	Create(pDevice, level, begin, flags);
+}
+
+vulkan::ExecBuffer::~ExecBuffer()
+{
+	Release();
+}
+
+void vulkan::ExecBuffer::Create(Device const* pDevice, VkCommandBufferLevel level, bool begin, VkCommandBufferUsageFlags flags)
+{
+	// Store the device
+	this->pDevice = pDevice;
+	// Acquire a queue
+	queue = pDevice->AcquireQueue(GRAPHICS_FAMILY);
+
+	// Allocate the command buffer
+	VkCommandBufferAllocateInfo cmdBufferAllocInfo = initializers::commandBufferAllocateInfo(pDevice->cmdPoolGraphics, level, 1u);
+	VK_CHECK(vkAllocateCommandBuffers(*pDevice, &cmdBufferAllocInfo, &cmdBuffer));
+
+	// Create the fence
+	VkFenceCreateInfo fenceCInfo = initializers::fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
+	VK_CHECK(vkCreateFence(*pDevice, &fenceCInfo, pDevice->pAllocator, &fence));
+
+	// Set state to being created
+	currentState = CREATED;
+
+	// Begin recording of the command buffer if desired
+	if (begin) BeginRecording(flags);
+}
+
+void vulkan::ExecBuffer::Release()
+{
+	Wait();
+	vkDeviceWaitIdle(*pDevice);
+	if (currentState & CREATED) {
+		vkDestroyFence(*pDevice, fence, pDevice->pAllocator);
+		vkFreeCommandBuffers(*pDevice, pDevice->cmdPoolGraphics, 1u, &cmdBuffer);
+
+		currentState = ALLOCATED;
+	}
+}
+
+void vulkan::ExecBuffer::BeginRecording(VkCommandBufferUsageFlags usageFlags)
+{
+	if (currentState == ALLOCATED) {
+		EE_PRINT("[EXEC_BUFFER] Wasn't created yet!\n");
+		return;
+	} else if (currentState == RECORDING) {
+		EE_PRINT("[EXEC_BUFFER] Already recording!\n");
+		return;
+	}
+
+	Wait();
+
+	// After some checks we are safe to go with beginning the recording
+	VkCommandBufferBeginInfo beginInfo = initializers::commandBufferBeginInfo(usageFlags);
+	VK_CHECK(vkBeginCommandBuffer(cmdBuffer, &beginInfo));
+
+	currentState = RECORDING;
+}
+
+void vulkan::ExecBuffer::EndRecording()
+{
+	if ((currentState & RECORDING) == RECORDING) {
+		VK_CHECK(vkEndCommandBuffer(cmdBuffer));
+		currentState = EXECUTABLE;
+	} else {
+		EE_PRINT("[EXEC_BUFFER] Tried to end recording but execbuffer wasn't recording!\n");
+	}
+}
+
+void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait)
+{
+	if ((currentState & EXECUTABLE) != EXECUTABLE) {
+		EE_PRINT("[EXEC_BUFFER] Was not executable, please record something before trying to execute!\n");
+		assert(false);
+	}
+
+	// Wait for a possible fence to be signaled and then reset the fence
+	Wait();
+
+	// Submit info (passed in will be used if not nullptr)
+	VkSubmitInfo submitInfo;
+	if (_submitInfo) submitInfo = *_submitInfo;
+	else submitInfo = initializers::submitInfo(&cmdBuffer, 1u);
+
+	// Submit to the queue
+	VK_CHECK(vkResetFences(*pDevice, 1u, &fence));
+	vkQueueSubmit(queue, 1u, &submitInfo, fence);
+
+	// Wait with returning until the buffer has finished execution
+	if (wait) Wait();
+}
+
+void vulkan::ExecBuffer::Wait(uint64_t timeout)
+{
+	VK_CHECK(vkWaitForFences(*pDevice, 1u, &fence, VK_TRUE, timeout));
+}
+
+
+//-------------------------------------------------------------------
+// Device
+//-------------------------------------------------------------------
 vulkan::Device::Device(EE::vulkan::Instance* pInstance, EE::Window* pWindow, VkAllocationCallbacks const* pAllocator)
 {
 	// instance and window need to be no nullptr
@@ -236,30 +345,6 @@ VkResult vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures,
 	return VkResult();
 }
 
-vulkan::ExecBuffer vulkan::Device::CreateCommandBuffer(VkCommandBufferLevel level, bool begin, bool singleTime)
-{
-	VkCommandBufferAllocateInfo cmdBufferAllocInfo = initializers::commandBufferAllocateInfo(cmdPoolGraphics, level, 1u);
-
-	ExecBuffer execBuffer;
-	VK_CHECK(vkAllocateCommandBuffers(logicalDevice, &cmdBufferAllocInfo, &execBuffer.cmdBuffer));
-
-	// Open the buffer for recording if requested
-	if (begin) {
-		VkCommandBufferBeginInfo beginInfo = initializers::commandBufferBeginInfo((singleTime)
-																					 ? VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT : 0);
-		VK_CHECK(vkBeginCommandBuffer(execBuffer.cmdBuffer, &beginInfo));
-	}
-
-	execBuffer.queue = AcquireQueue(GRAPHICS_FAMILY);
-	execBuffer.device = this;
-
-	// Create the fence
-	VkFenceCreateInfo fenceCInfo = initializers::fenceCreateInfo(VK_FLAGS_NONE);
-	VK_CHECK(vkCreateFence(logicalDevice, &fenceCInfo, pAllocator, &(execBuffer.fence)));
-
-	return execBuffer;
-}
-
 VkResult vulkan::Device::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryProperties,
 	VkDeviceSize size, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut, void const* pData) const
 {
@@ -309,7 +394,7 @@ void vulkan::Device::CreateDeviceLocalBuffer(void const* pData, VkDeviceSize buf
 					 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, bufferSize, pBufferOut, pBufferMemoryOut));
 
 	// Now transfer the data
-	ExecBuffer execBuffer = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+	ExecBuffer execBuffer(this, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
 
 	VkBufferCopy copyRegion;
 	copyRegion.srcOffset = 0u;
@@ -317,7 +402,7 @@ void vulkan::Device::CreateDeviceLocalBuffer(void const* pData, VkDeviceSize buf
 	copyRegion.size = bufferSize;
 	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBuffer, *pBufferOut, 1u, &copyRegion);
 
-	execBuffer.End();
+	execBuffer.EndRecording();
 	execBuffer.Execute();
 
 	// Destroy the staging buffer
@@ -337,7 +422,7 @@ VkCommandPool vulkan::Device::CreateCommandPool(uint32_t queueFamilyIndex, VkCom
 	return cmdPool;
 }
 
-VkQueue vulkan::Device::AcquireQueue(QueueTypeFlagBits requestedFamily)
+VkQueue vulkan::Device::AcquireQueue(QueueTypeFlagBits requestedFamily) const
 {
 	uint32_t index;
 	if (requestedFamily & GRAPHICS_FAMILY) {
@@ -472,52 +557,5 @@ VkPhysicalDevice vulkan::Device::PickPhysicalDevice(VkInstance instance)
 
 	delete[] physicalDevices;
 	return pickedDevice;
-}
-
-
-
-//-------------------------------------------------------------------
-// ExecBuffer
-//-------------------------------------------------------------------
-vulkan::ExecBuffer::~ExecBuffer()
-{
-	if (fence != VK_NULL_HANDLE) {
-		vkDestroyFence(*device, fence, device->pAllocator);
-	}
-}
-
-void vulkan::ExecBuffer::End()
-{
-	VK_CHECK(vkEndCommandBuffer(cmdBuffer));
-}
-
-void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait, bool free)
-{
-	assert(cmdBuffer);
-
-	// Submit info (passed in will be used if not nullptr)
-	VkSubmitInfo submitInfo;
-	if (_submitInfo) submitInfo = *_submitInfo;
-	else submitInfo = initializers::submitInfo(&cmdBuffer, 1u);
-
-	// Create fence if we wanna wait
-	VkFence fence{ VK_NULL_HANDLE };
-	if (wait) {
-		VkFenceCreateInfo fenceCInfo = initializers::fenceCreateInfo(VK_FLAGS_NONE);
-		VK_CHECK(vkCreateFence(*device, &fenceCInfo, device->pAllocator, &fence));
-	}
-
-	// Submit to the queue
-	vkQueueSubmit(queue, 1u, &submitInfo, fence);
-
-	// Wait for the fence to signal that the cmd buffer has finished execution and destroy afterwards (if desired)
-	if (fence != VK_NULL_HANDLE) {
-		VK_CHECK(vkWaitForFences(*device, 1u, &fence, VK_TRUE, DEFAULT_FENCE_TIMEOUT));
-		vkDestroyFence(*device, fence, device->pAllocator);
-	}
-
-	if (free) {
-		vkFreeCommandBuffers(*device, device->cmdPoolGraphics, 1u, &cmdBuffer);
-	}
 }
 

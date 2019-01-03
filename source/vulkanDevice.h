@@ -27,19 +27,70 @@ namespace EE
 		struct Device;
 		struct ExecBuffer
 		{
-			VkCommandBuffer cmdBuffer{ VK_NULL_HANDLE };
-			VkFence fence{ VK_NULL_HANDLE };
-			VkQueue queue;
-			Device* device;
+			/* @note Pending state needs to be checked manually since this is not an updateable structure.
+			 *	 Also worth noticing is that recording/executable state have both the created bit set. */
+			enum STATE {
+				ALLOCATED		= 0x01,
+				CREATED			= 0x02,
+				RECORDING		= 0x04 | CREATED, //0x06
+				EXECUTABLE	= 0x08 | CREATED	//0x0A
+			};
 
+			/* @brief Pointer to the device this buffer uses and executes on */
+			Device const* pDevice;
+			/* @brief Acquires queue from the device this buffer will execute on */
+			VkQueue queue;
+
+			/* @brief The command buffer that this struct is wrapping */
+			VkCommandBuffer cmdBuffer;
+			/* @brief Fence that is signaled when the execution has finished */
+			VkFence fence;
+
+			/* @brief Indicates the current available use of this buffer */
+			STATE currentState{ ALLOCATED };
+
+			/* @brief Typecast to our cmdbuffer */
 			operator VkCommandBuffer() { return cmdBuffer; }
 
+			/**
+			 * Default constructor
+			 **/
+			ExecBuffer() {}
+
+			/**
+			 * Does already create everything needed for recording. After this constructor
+			 * the buffer is in the CREATED state
+			 **/
+			ExecBuffer(Device const* pDevice, VkCommandBufferLevel level, bool begin = false, VkCommandBufferUsageFlags usageFlags = 0);
+
+			/**
+			 * Destructor
+			 **/
 			~ExecBuffer();
 
-			void End();
-			void Execute(VkSubmitInfo* submitInfo = nullptr, bool wait = true, bool free = true);
+			/**
+			 *
+			 **/
+			void Create(Device const* pDevice, VkCommandBufferLevel level, bool begin = false, VkCommandBufferUsageFlags usageFlags = 0);
+
+			void Release();
+
+			void BeginRecording(VkCommandBufferUsageFlags usageFlags);
+			void EndRecording();
+			void Execute(VkSubmitInfo* submitInfo = nullptr, bool wait = true);
+
+			/**
+			 * Is only returning after the fence has been signaled or the time passed in has been expired.
+			 *
+			 * @param timeout		Maximal time to wait
+			 **/
+			void Wait(uint64_t timeout = DEFAULT_FENCE_TIMEOUT);
 		};
 
+
+		//-------------------------------------------------------------------
+		// Device
+		//-------------------------------------------------------------------
 		struct Device
 		{
 			Instance* pInstance;
@@ -89,7 +140,7 @@ namespace EE
 			} queueIndices;
 
 			/* @brief Typecast to VkDevice */
-			operator VkDevice() { return logicalDevice; }
+			operator VkDevice() const { return logicalDevice; }
 
 			/**
 			 * Default constructor:
@@ -127,18 +178,6 @@ namespace EE
 				std::vector<char const*> const& additionalLayers,
 				std::vector<char const*> const& additionalExtensions,
 				VkQueueFlags requestedQueueTypes = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT);
-
-			/**
-			 * Allocates a command buffer from the command pool
-			 *
-			 * @param level				Primary or secondary command buffer
-			 * @param begin				If true the command buffer will already begin recording (defaults to false)
-			 * @param singleTime	Indicates if the created command buffer will only be submitted once
-			 **/
-			ExecBuffer CreateCommandBuffer(
-				VkCommandBufferLevel level,
-				bool								 begin = false,
-				bool								 singleTime = false);
 
 			/**
 			 * Creates a buffer on this device
@@ -200,7 +239,7 @@ namespace EE
 			 *
 			 * @return The desired queue
 			 **/
-			VkQueue AcquireQueue(QueueTypeFlagBits requestedFamily);
+			VkQueue AcquireQueue(QueueTypeFlagBits requestedFamily) const;
 
 			/** 
 			 * Gets the index of the queue family that supports the passed in type

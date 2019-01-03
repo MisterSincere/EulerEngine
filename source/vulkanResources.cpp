@@ -245,7 +245,7 @@ void EE::Texture::Upload()
 			data.pixels);
 
 		// Get a cmd buffer that will be used to transfer the layout and copy to the image
-		vulkan::ExecBuffer execBuffer = EEDEVICE->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
 
 
 		// Change image's layout to transfer dst so that we can than copy to it
@@ -265,7 +265,7 @@ void EE::Texture::Upload()
 																	 data.width, data.height);
 
 		// End recording
-		execBuffer.End();
+		execBuffer.EndRecording();
 
 		// Execute the command buffer
 		execBuffer.Execute();
@@ -280,7 +280,7 @@ void EE::Texture::Upload()
 	// Also if different mip levels are desired these will be created before
 	// setting the imagelayout change.
 	{
-		vulkan::ExecBuffer execBuffer = EEDEVICE->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
 
 		// If there are multiple mipmap levels generate these
 		if (mipLevels > 1u) {
@@ -298,6 +298,7 @@ void EE::Texture::Upload()
 																	VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT);
 		}
 
+		execBuffer.EndRecording();
 		execBuffer.Execute();
 	}
 
