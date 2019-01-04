@@ -12,6 +12,8 @@ namespace EE {
 
 	struct Shader;
 	struct Mesh;
+	struct Buffer;
+	struct Texture;
 
 	struct Graphics
 	{
@@ -39,10 +41,21 @@ namespace EE {
 #endif
 		} settings;
 
+		/// Allocated resource tracking
 		std::vector<uint32_t*> iCurrentMeshes;
 		std::vector<EE::Mesh*> currentMeshes;
+
+		std::vector<uint32_t*> iCurrentBuffers;
+		std::vector<EE::Buffer*> currentBuffers;
+
+		std::vector<uint32_t*> iCurrentTextures;
+		std::vector<EE::Texture*> currentTextures;
+
 		std::vector<uint32_t*> iCurrentShader;
 		std::vector<EE::Shader*> currentShader;
+
+		std::vector<uint32_t*> iCurrentObjects;
+		std::vector<EE::Object*> currentObjects;
 
 
 		/**
@@ -50,9 +63,7 @@ namespace EE {
 		 **/
 		Graphics();
 
-		/**
-		 * Default destructor
-		 **/
+		/* Destructor */
 		~Graphics();
 
 		/**
@@ -72,19 +83,13 @@ namespace EE {
 		 **/
 		void Draw();
 
-		/**
-		 * Creates a mesh and returns a handle to it
-		 * @param pVertices				Pointer to the void vertex data
-		 * @param amountVertices	Amount of vertices in pVertices
-		 * @param indices					List of the drawing indices
-		 **/
+		/* @brief Create methods for any type of vulkan resource representation */
 		EEMesh CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const& indices);
-
-		/**
-		 * Creates a shader and returns a handle to it
-		 * @param shaderCInfo
-		 **/
+		EEBuffer CreateBuffer(size_t bufferSize);
+		EETexture CreateTexture(char const* fileName, bool enableMipMapping, bool unnormalizedCoordinates);
+		EETexture CreateTexture(EETextureCreateInfo const& textureCInfo);
 		EEShader CreateShader(EEShaderCreateInfo const& shaderCInfo);
+		EEObject CreateObject(EEShader shader, EEMesh mesh, std::vector<EEObjectResourceBinding> const& bindings, EESplitscreen	splitscreen);
 
 		void vk_instance();
 		void vk_device();

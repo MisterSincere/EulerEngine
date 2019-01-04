@@ -9,11 +9,13 @@
 
 #include "vkcore/vulkanShader.h"
 #include "vkcore/vulkanMesh.h"
-
+#include "vkcore/vulkanObject.h"
+#include "vkcore/vulkanResources.h"
 
 #define LAST_ELEMENT(vec) (vec[vec.size() - 1])
 
 using namespace EE;
+
 
 Graphics::Graphics()
 {
@@ -23,6 +25,22 @@ Graphics::Graphics()
 Graphics::~Graphics()
 {
 	pRenderer->WaitTillIdle();
+
+	// OBJECTS
+	for (size_t i = 0u; i < currentObjects.size(); i++) {
+		delete currentObjects[i];
+		delete iCurrentObjects[i];
+	}
+	currentObjects.~vector();
+	iCurrentObjects.~vector();
+
+	// TEXTURES
+	for (size_t i = 0u; i < currentTextures.size(); i++) {
+		delete currentTextures[i];
+		delete iCurrentTextures[i];
+	}
+	currentTextures.~vector();
+	iCurrentTextures.~vector();
 
 	// SHADER
 	for (size_t i = 0u; i < currentShader.size(); i++) {
@@ -40,6 +58,15 @@ Graphics::~Graphics()
 	currentMeshes.~vector();
 	iCurrentMeshes.~vector();
 
+	// BUFFERS
+	for (size_t i = 0u; i < currentBuffers.size(); i++) {
+		delete currentBuffers[i];
+		delete iCurrentBuffers[i];
+	}
+	currentBuffers.~vector();
+	iCurrentBuffers.~vector();
+
+	// Destroy vulkan core instances
 	RELEASE_S(pRenderer);
 	RELEASE_S(pSwapchain);
 	RELEASE_S(pDevice);
@@ -75,7 +102,7 @@ bool Graphics::Create(Window* pWindow, EEApplicationCreateInfo const& info)
 
 void EE::Graphics::Draw()
 {
-	pRenderer->RecordDrawCommands(std::vector<EE::Object*>(0));
+	pRenderer->RecordDrawCommands(currentObjects);
 	pRenderer->Draw();
 }
 
@@ -95,6 +122,53 @@ EEMesh EE::Graphics::CreateMesh(void const* pVertices, size_t amountVertices, st
 	return { LAST_ELEMENT(iCurrentShader) };
 }
 
+EEBuffer EE::Graphics::CreateBuffer(size_t bufferSize)
+{
+	EE_INVARIANT(iCurrentBuffers.size() == currentBuffers.size());
+
+	// Push back new buffer handle
+	currentBuffers.push_back(new EE::Buffer(pDevice, bufferSize));
+
+	// Push back address of the index to the new buffer
+	iCurrentBuffers.push_back(new uint32_t((uint32_t)currentBuffers.size() - 1u));
+
+	EE_INVARIANT(iCurrentBuffers.size() == currentBuffers.size());
+
+	return { LAST_ELEMENT(iCurrentBuffers) };
+}
+
+EETexture EE::Graphics::CreateTexture(char const* fileName, bool enableMipMapping, bool unnormalizedCoordinates)
+{
+	EE_INVARIANT(iCurrentTextures.size() == currentTextures.size());
+
+	// Push back new texture handle
+	currentTextures.push_back(new EE::Texture(pRenderer, fileName, enableMipMapping, unnormalizedCoordinates));
+	LAST_ELEMENT(currentTextures)->Upload();
+
+	// Push back address of the index to the new texture
+	iCurrentTextures.push_back(new uint32_t((uint32_t)currentTextures.size() - 1));
+
+	EE_INVARIANT(iCurrentTextures.size() == currentTextures.size());
+
+	return EETexture();
+}
+
+EETexture EE::Graphics::CreateTexture(EETextureCreateInfo const & textureCInfo)
+{
+	EE_INVARIANT(iCurrentTextures.size() == currentTextures.size());
+
+	// Push back new texture handle
+	currentTextures.push_back(new EE::Texture(pRenderer, textureCInfo));
+	LAST_ELEMENT(currentTextures)->Upload();
+
+	// Push back address of the index to the new texture
+	iCurrentTextures.push_back(new uint32_t((uint32_t)currentTextures.size() - 1));
+
+	EE_INVARIANT(iCurrentTextures.size() == currentTextures.size());
+
+	return EETexture();
+}
+
 EEShader Graphics::CreateShader(EEShaderCreateInfo const& cinfo)
 {
 	EE_INVARIANT(iCurrentShader.size() == currentShader.size());
@@ -104,16 +178,40 @@ EEShader Graphics::CreateShader(EEShaderCreateInfo const& cinfo)
 	if (!LAST_ELEMENT(currentShader)->Create()) {
 		delete LAST_ELEMENT(currentShader);
 		currentShader.erase(currentShader.end());
+		EE_INVARIANT(iCurrentObjects.size() == currentObjects.size());
 		return nullptr;
 	}
 
-	// Push back addess of the index to the new shader
+	// Push back address of the index to the new shader
 	iCurrentShader.push_back(new uint32_t((uint32_t)currentShader.size() - 1u));
 
 	EE_INVARIANT(iCurrentShader.size() == currentShader.size());
 
 	return { LAST_ELEMENT(iCurrentShader) };
 }
+
+EEObject EE::Graphics::CreateObject(EEShader shader, EEMesh mesh, std::vector<EEObjectResourceBinding> const & bindings, EESplitscreen splitscreen)
+{
+	EE_INVARIANT(iCurrentObjects.size() == currentObjects.size());
+
+	// Push back new object handle
+	currentObjects.push_back(new EE::Object(pRenderer, currentShader[*shader], currentMeshes[*mesh], splitscreen));
+	if (!LAST_ELEMENT(currentObjects)->Create(bindings, currentTextures, currentBuffers)) {
+		delete LAST_ELEMENT(currentObjects);
+		currentObjects.erase(currentObjects.end());
+		EE_INVARIANT(iCurrentObjects.size() == currentObjects.size());
+		return nullptr;
+	}
+
+	// Push back address of the index to the new object
+	iCurrentObjects.push_back(new uint32_t((uint32_t)currentObjects.size() - 1));
+
+	EE_INVARIANT(iCurrentObjects.size() == currentObjects.size());
+
+	return { LAST_ELEMENT(iCurrentObjects) };
+}
+
+
 
 void Graphics::vk_instance()
 {

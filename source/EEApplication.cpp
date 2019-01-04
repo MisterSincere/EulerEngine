@@ -68,10 +68,37 @@ void EEApplication::Draw()
 EEMesh EEApplication::CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const& indices)
 {
 	if (!isCreated) {
-		EE_PRINT("[EEAPPLICATION] Tried to create a shader without a created application...!\n");
+		EE_PRINT("[EEAPPLICATION] Tried to create a mesh without a created application...!\n");
 		EE_INVARIANT(isCreated);
 	}
 	return m_pGraphics->CreateMesh(pVertices, amountVertices, indices);
+}
+
+EEBuffer EEApplication::CreateBuffer(size_t bufferSize)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to create a buffer without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return m_pGraphics->CreateBuffer(bufferSize);
+}
+
+EETexture EEApplication::CreateTexture(char const* fileName, EEBool32 enableMipMapping, EEBool32 unnormalizedCoordinates)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to create a texture without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return m_pGraphics->CreateTexture(fileName, enableMipMapping, unnormalizedCoordinates);
+}
+
+EETexture EEApplication::CreateTexture(EETextureCreateInfo const & textureCInfo)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to create a texture without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return m_pGraphics->CreateTexture(textureCInfo);
 }
 
 EEShader EEApplication::CreateShader(EEShaderCreateInfo const& cinfo)
@@ -81,6 +108,15 @@ EEShader EEApplication::CreateShader(EEShaderCreateInfo const& cinfo)
 		EE_INVARIANT(isCreated);
 	}
 	return m_pGraphics->CreateShader(cinfo);
+}
+
+EEObject EEApplication::CreateObject(EEShader shader, EEMesh mesh, std::vector<EEObjectResourceBinding> const& bindings, EESplitscreen splitscreen)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to create an object without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return m_pGraphics->CreateObject(shader, mesh, bindings, splitscreen);
 }
 
 void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)
