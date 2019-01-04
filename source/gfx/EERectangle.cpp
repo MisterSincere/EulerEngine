@@ -67,13 +67,15 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 
 
 	m_uniformBuffer = pApp->CreateBuffer(sizeof(FragmentUBO));
-
+	FragmentUBO ubo = { DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f) };
 
 	std::vector<EEObjectResourceBinding> bindings(1);
 	bindings[0].type = EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	bindings[0].binding = 0u;
 	bindings[0].resource = m_uniformBuffer;
 	m_object = pApp->CreateObject(m_shader, m_mesh, bindings);
+
+	pApp->UpdateBuffer(m_uniformBuffer, &ubo);
 }
 
 EERectangle::~EERectangle()

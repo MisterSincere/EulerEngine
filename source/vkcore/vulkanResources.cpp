@@ -407,7 +407,7 @@ void EE::Buffer::Create(VkBufferUsageFlags usage, VkMemoryPropertyFlags memoryPr
 void EE::Buffer::Update(void const* pData) const
 {
 	if (!isCreated) {
-		EE_PRINT("[BUFFER] Buffer wasn't created!\n");
+		EE_PRINT("[BUFFER] Please create the buffer before trying to update it!\n");
 		return;
 	}
 
