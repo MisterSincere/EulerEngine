@@ -103,7 +103,7 @@ public:
 		EEShader																		shader,
 		EEMesh																			mesh,
 		std::vector<EEObjectResourceBinding> const& bindings,
-		EESplitscreen																splitscreen);
+		EESplitscreen																splitscreen = EE_SPLITSCREEN_UNDEFINED);
 
 private:
 	static void Resize(GLFWwindow*, int, int, void*);

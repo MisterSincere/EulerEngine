@@ -49,7 +49,6 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.is2DShader = EE_TRUE;
 	shaderCInfo.wireframe = EE_FALSE;
 	shaderCInfo.clockwise = EE_TRUE;
-
 	m_shader = pApp->CreateShader(shaderCInfo);
 
 
@@ -64,8 +63,17 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 		0u, 1u, 2u,
 		2u, 1u, 3u
 	};
-
 	m_mesh = pApp->CreateMesh(vertices.data(), vertices.size(), indices);
+
+
+	m_uniformBuffer = pApp->CreateBuffer(sizeof(FragmentUBO));
+
+
+	std::vector<EEObjectResourceBinding> bindings(1);
+	bindings[0].type = EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	bindings[0].binding = 0u;
+	bindings[0].resource = m_uniformBuffer;
+	m_object = pApp->CreateObject(m_shader, m_mesh, bindings);
 }
 
 EERectangle::~EERectangle()

@@ -26,6 +26,9 @@ namespace GFX
 		struct Vertex {
 			DirectX::XMFLOAT2 pos;
 		};
+		struct FragmentUBO {
+			DirectX::XMFLOAT3 color;
+		};
 
 	public:
 		EERectangle(EEApplication* pApp, EEPoint32F const& pos = { 0.0f, 0.0f }, EERect32U const& size = { 0u, 0u });
@@ -48,6 +51,7 @@ namespace GFX
 
 		EEShader m_shader;
 		EEMesh m_mesh;
+		EEBuffer m_uniformBuffer;
 		EEObject m_object;
 	};
 
