@@ -62,8 +62,16 @@ bool EEApplication::PollEvent()
 
 void EEApplication::Draw()
 {
-	m_pGraphics->pRenderer->RecordDrawCommands(std::vector<EE::Object*>(0));
-	m_pGraphics->pRenderer->Draw();
+	m_pGraphics->Draw();
+}
+
+EEMesh EEApplication::CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const& indices)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to create a shader without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return m_pGraphics->CreateMesh(pVertices, amountVertices, indices);
 }
 
 EEShader EEApplication::CreateShader(EEShaderCreateInfo const& cinfo)

@@ -8,6 +8,8 @@
 #include <cassert>
 
 #include "vkcore/vulkanShader.h"
+#include "vkcore/vulkanMesh.h"
+
 
 #define LAST_ELEMENT(vec) (vec[vec.size() - 1])
 
@@ -29,6 +31,14 @@ Graphics::~Graphics()
 	}
 	currentShader.~vector();
 	iCurrentShader.~vector();
+
+	// MESHES
+	for (size_t i = 0u; i < currentMeshes.size(); i++) {
+		delete currentMeshes[i];
+		delete iCurrentMeshes[i];
+	}
+	currentMeshes.~vector();
+	iCurrentMeshes.~vector();
 
 	RELEASE_S(pRenderer);
 	RELEASE_S(pSwapchain);
@@ -61,6 +71,28 @@ bool Graphics::Create(Window* pWindow, EEApplicationCreateInfo const& info)
 
 
 	return true;
+}
+
+void EE::Graphics::Draw()
+{
+	pRenderer->RecordDrawCommands(std::vector<EE::Object*>(0));
+	pRenderer->Draw();
+}
+
+EEMesh EE::Graphics::CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const & indices)
+{
+	EE_INVARIANT(iCurrentMeshes.size() == currentMeshes.size());
+
+	// Push back new mesh handle
+	currentMeshes.push_back(new EE::Mesh(pRenderer));
+	LAST_ELEMENT(currentMeshes)->Create(pVertices, amountVertices, indices);
+
+	// Push back address of the index to the new mesh
+	iCurrentMeshes.push_back(new uint32_t((uint32_t)currentMeshes.size() - 1u));
+
+	EE_INVARIANT(iCurrentMeshes.size() == currentMeshes.size());
+
+	return { LAST_ELEMENT(iCurrentShader) };
 }
 
 EEShader Graphics::CreateShader(EEShaderCreateInfo const& cinfo)

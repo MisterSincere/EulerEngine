@@ -5,6 +5,8 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <vector>
+
 #include "eedefs.h"
 
 ///////////////////////////
@@ -27,6 +29,7 @@ public:
 	bool PollEvent();
 	void Draw();
 
+	EEMesh CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const& indices);
 	EEShader CreateShader(EEShaderCreateInfo const& shaderCInfo);
 
 private:

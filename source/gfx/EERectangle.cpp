@@ -51,6 +51,21 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.clockwise = EE_TRUE;
 
 	m_shader = pApp->CreateShader(shaderCInfo);
+
+
+	std::vector<Vertex> vertices = {
+		{DirectX::XMFLOAT2(-0.5f, -0.5f)}, //< LEFT TOP
+		{DirectX::XMFLOAT2(+0.5f, -0.5f)}, //< RIGHT TOP
+		{DirectX::XMFLOAT2(-0.5f, +0.5f)}, //< LEFT BOTTOM
+		{DirectX::XMFLOAT2(+0.5f, +0.5f)}, //< RIGHT BOTTOM
+	};
+
+	std::vector<uint32_t> indices = {
+		0u, 1u, 2u,
+		2u, 1u, 3u
+	};
+
+	m_mesh = pApp->CreateMesh(vertices.data(), vertices.size(), indices);
 }
 
 EERectangle::~EERectangle()

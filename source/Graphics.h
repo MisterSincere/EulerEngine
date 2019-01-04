@@ -11,6 +11,7 @@
 namespace EE {
 
 	struct Shader;
+	struct Mesh;
 
 	struct Graphics
 	{
@@ -38,6 +39,8 @@ namespace EE {
 #endif
 		} settings;
 
+		std::vector<uint32_t*> iCurrentMeshes;
+		std::vector<EE::Mesh*> currentMeshes;
 		std::vector<uint32_t*> iCurrentShader;
 		std::vector<EE::Shader*> currentShader;
 
@@ -63,6 +66,19 @@ namespace EE {
 		 *		assert is triggered anyway.
 		 **/
 		bool Create(Window* pWindow, EEApplicationCreateInfo const& appCInfo);
+
+		/**
+		 * Draws all current objects
+		 **/
+		void Draw();
+
+		/**
+		 * Creates a mesh and returns a handle to it
+		 * @param pVertices				Pointer to the void vertex data
+		 * @param amountVertices	Amount of vertices in pVertices
+		 * @param indices					List of the drawing indices
+		 **/
+		EEMesh CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const& indices);
 
 		/**
 		 * Creates a shader and returns a handle to it
