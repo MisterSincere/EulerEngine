@@ -18,9 +18,7 @@ using namespace EE;
 
 
 Graphics::Graphics()
-{
-
-}
+{}
 
 Graphics::~Graphics()
 {
@@ -211,6 +209,15 @@ EEObject EE::Graphics::CreateObject(EEShader shader, EEMesh mesh, std::vector<EE
 	return { LAST_ELEMENT(iCurrentObjects) };
 }
 
+
+void EE::Graphics::UpdateBuffer(EEBuffer buffer, void const * pData)
+{
+	if ((*buffer) < 0 || (*buffer) >= currentBuffers.size()) {
+		EE_PRINT("[GRAPHICS] Invalid buffer handle passed in to be updated!\n");
+		return;
+	}
+	currentBuffers[*buffer]->Update(pData);
+}
 
 
 void Graphics::vk_instance()

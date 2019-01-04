@@ -147,7 +147,7 @@ namespace EE
 		 *
 		 * @param pData		Pointer to the new data
 		 **/
-		void Update(void* pData) const;
+		void Update(void const* pData) const;
 
 
 		/* @brief Delete copy/move constructor/assignements */

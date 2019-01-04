@@ -105,6 +105,14 @@ public:
 		std::vector<EEObjectResourceBinding> const& bindings,
 		EESplitscreen																splitscreen = EE_SPLITSCREEN_UNDEFINED);
 
+	/**
+	 * Updates the buffer passed in with the data passed in
+	 * 
+	 * @param buffer			The buffer that is desired to be updated
+	 * @param pData				Void pointer to the new data for the buffer
+	 **/
+	void UpdateBuffer(EEBuffer buffer, void const* pData);
+
 private:
 	static void Resize(GLFWwindow*, int, int, void*);
 

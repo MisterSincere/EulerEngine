@@ -119,6 +119,15 @@ EEObject EEApplication::CreateObject(EEShader shader, EEMesh mesh, std::vector<E
 	return m_pGraphics->CreateObject(shader, mesh, bindings, splitscreen);
 }
 
+void EEApplication::UpdateBuffer(EEBuffer buffer, void const* pData)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to update a buffer without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	m_pGraphics->UpdateBuffer(buffer, pData);
+}
+
 void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)
 {
 

@@ -91,6 +91,9 @@ namespace EE {
 		EEShader CreateShader(EEShaderCreateInfo const& shaderCInfo);
 		EEObject CreateObject(EEShader shader, EEMesh mesh, std::vector<EEObjectResourceBinding> const& bindings, EESplitscreen	splitscreen);
 
+		/* @brief Update methods for buffer, ... @TODO? */
+		void UpdateBuffer(EEBuffer buffer, void const* pData);
+
 		void vk_instance();
 		void vk_device();
 		void vk_debug();
