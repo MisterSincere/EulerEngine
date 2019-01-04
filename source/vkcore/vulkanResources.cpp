@@ -413,6 +413,6 @@ void EE::Buffer::Update(void const* pData) const
 
 	void* mapped;
 	VK_CHECK(vkMapMemory(pDevice->logicalDevice, bufferMemory, 0, bufferSize, 0, &mapped));
-	memcpy(mapped, pData, bufferSize);
+	memcpy(mapped, pData, static_cast<size_t>(bufferSize));
 	vkUnmapMemory(pDevice->logicalDevice, bufferMemory);
 }

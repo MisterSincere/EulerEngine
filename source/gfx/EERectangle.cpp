@@ -20,19 +20,23 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 		return;
 	}
 
-	EEShaderInputDesc inputDesc;
-	inputDesc.location = 0;
-	inputDesc.format = EE_FORMAT_R32G32_SFLOAT;
-	inputDesc.offset = offsetof(Vertex, pos);
+	std::vector<EEShaderInputDesc> inputDescs(2);
+	inputDescs[0].location = 0;
+	inputDescs[0].format = EE_FORMAT_R32G32B32_SFLOAT;
+	inputDescs[0].offset = offsetof(Vertex, position);
+
+	inputDescs[1].location = 1;
+	inputDescs[1].format = EE_FORMAT_R32G32B32_SFLOAT;
+	inputDescs[0].offset = offsetof(Vertex, color);
 
 	EEVertexInput shaderInput;
-	shaderInput.amountInputs = 1u;
-	shaderInput.pInputDescs = &inputDesc;
+	shaderInput.amountInputs = uint32_t(inputDescs.size());
+	shaderInput.pInputDescs = inputDescs.data();
 	shaderInput.inputStride = sizeof(EERectangle::Vertex);
 
 	EEDescriptorDesc descriptor;
 	descriptor.type = EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	descriptor.shaderStage = EE_SHADER_STAGE_FRAGMENT;
+	descriptor.shaderStage = EE_SHADER_STAGE_VERTEX;
 	descriptor.binding = 0u;
 
 	std::string vert = EE_ASSETS_DIR("shader/color2DVert.spv");
@@ -51,31 +55,37 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.clockwise = EE_TRUE;
 	m_shader = pApp->CreateShader(shaderCInfo);
 
+	float height = 3.0f;
+	float width = 3.0f;
 
 	std::vector<Vertex> vertices = {
-		{DirectX::XMFLOAT2(-0.5f, -0.5f)}, //< LEFT TOP
-		{DirectX::XMFLOAT2(+0.5f, -0.5f)}, //< RIGHT TOP
-		{DirectX::XMFLOAT2(-0.5f, +0.5f)}, //< LEFT BOTTOM
-		{DirectX::XMFLOAT2(+0.5f, +0.5f)}, //< RIGHT BOTTOM
+		{{-width, +height, 0.0f}, {1.0f, 0.0f, 0.0f}}, //< TOP LEFT
+		{{-width, -height, 0.0f}, {0.0f, 1.0f, 0.0f}}, //< BOTTOM LEFT
+		{{+width, -height, 0.0f}, {0.0f, 0.0f, 1.0f}}, //< BOTTOM RIGHT
+		{{+width, +height, 0.0f}, {1.0f, 0.0f, 1.0f}}, //< TOP RIGHT
 	};
 
 	std::vector<uint32_t> indices = {
-		0u, 1u, 2u,
-		2u, 1u, 3u
+		0, 1, 2,
+		0, 2, 3
 	};
-	m_mesh = pApp->CreateMesh(vertices.data(), vertices.size(), indices);
+	m_mesh = pApp->CreateMesh(vertices.data(), sizeof(Vertex) * vertices.size(), indices);
 
 
-	m_uniformBuffer = pApp->CreateBuffer(sizeof(FragmentUBO));
-	FragmentUBO ubo = { DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f) };
+	m_vertexUniformBuffer = pApp->CreateBuffer(sizeof(VertexUBO));
+
 
 	std::vector<EEObjectResourceBinding> bindings(1);
 	bindings[0].type = EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	bindings[0].binding = 0u;
-	bindings[0].resource = m_uniformBuffer;
+	bindings[0].resource = m_vertexUniformBuffer;
 	m_object = pApp->CreateObject(m_shader, m_mesh, bindings);
 
-	pApp->UpdateBuffer(m_uniformBuffer, &ubo);
+	VertexUBO ubo;
+	DirectX::XMStoreFloat4x4(&ubo.ortho, DirectX::XMMatrixIdentity());
+	DirectX::XMStoreFloat4x4(&ubo.baseView, DirectX::XMMatrixIdentity());
+	DirectX::XMStoreFloat4x4(&ubo.world, DirectX::XMMatrixIdentity());
+	pApp->UpdateBuffer(m_vertexUniformBuffer, &ubo);
 }
 
 EERectangle::~EERectangle()

@@ -24,10 +24,13 @@ namespace GFX
 	{
 	private:
 		struct Vertex {
-			DirectX::XMFLOAT2 pos;
-		};
-		struct FragmentUBO {
+			DirectX::XMFLOAT3 position;
 			DirectX::XMFLOAT3 color;
+		};
+		struct VertexUBO {
+			DirectX::XMFLOAT4X4 ortho;
+			DirectX::XMFLOAT4X4 baseView;
+			DirectX::XMFLOAT4X4 world;
 		};
 
 	public:
@@ -51,7 +54,7 @@ namespace GFX
 
 		EEShader m_shader;
 		EEMesh m_mesh;
-		EEBuffer m_uniformBuffer;
+		EEBuffer m_vertexUniformBuffer;
 		EEObject m_object;
 	};
 
