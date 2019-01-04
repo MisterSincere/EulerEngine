@@ -21,13 +21,13 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	}
 
 	std::vector<EEShaderInputDesc> inputDescs(2);
-	inputDescs[0].location = 0;
+	inputDescs[0].location = 0u;
 	inputDescs[0].format = EE_FORMAT_R32G32B32_SFLOAT;
 	inputDescs[0].offset = offsetof(Vertex, position);
 
-	inputDescs[1].location = 1;
+	inputDescs[1].location = 1u;
 	inputDescs[1].format = EE_FORMAT_R32G32B32_SFLOAT;
-	inputDescs[0].offset = offsetof(Vertex, color);
+	inputDescs[1].offset = offsetof(Vertex, color);
 
 	EEVertexInput shaderInput;
 	shaderInput.amountInputs = uint32_t(inputDescs.size());
@@ -55,8 +55,8 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.clockwise = EE_TRUE;
 	m_shader = pApp->CreateShader(shaderCInfo);
 
-	float height = 3.0f;
-	float width = 3.0f;
+	float height = 200.0f;
+	float width = 200.0f;
 
 	std::vector<Vertex> vertices = {
 		{{-width, +height, 0.0f}, {1.0f, 0.0f, 0.0f}}, //< TOP LEFT
