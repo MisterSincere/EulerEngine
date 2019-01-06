@@ -147,6 +147,11 @@ public:
 	 **/
 	DirectX::XMMATRIX AcquireBaseViewRH();
 
+	/**
+	 * Returns the current size of the actual drawing field
+	 **/
+	EERect32U GetWindowExtent();
+
 private:
 	static void Resize(GLFWwindow*, int, int, void*);
 

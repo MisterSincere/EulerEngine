@@ -184,6 +184,15 @@ DirectX::XMMATRIX EEApplication::AcquireBaseViewRH()
 	return XMLoadFloat4x4(&(m_pGraphics->matrices.baseViewRH));
 }
 
+EERect32U EEApplication::GetWindowExtent()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to get client size of window, without creating the application!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return { m_pGraphics->pSwapchain->settings.extent.width,m_pGraphics->pSwapchain->settings.extent.height };
+}
+
 void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)
 {
 

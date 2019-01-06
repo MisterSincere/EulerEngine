@@ -57,6 +57,7 @@ namespace GFX
 		EEShader m_shader;
 		EEMesh m_mesh;
 		EEBuffer m_vertexUniformBuffer;
+		VertexUBO m_vertexUniformBufferContent;
 		EEObject m_object;
 	};
 

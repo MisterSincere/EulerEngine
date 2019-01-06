@@ -56,14 +56,12 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.clockwise = EE_TRUE;
 	m_shader = pApp->CreateShader(shaderCInfo);
 
-	float width = size.width / 2.0f;
-	float height = size.height / 2.0f;
 
 	std::vector<Vertex> vertices = {
-		{{-width, +height, 0.0f}, {1.0f, 0.0f, 0.0f}}, //< TOP LEFT
-		{{-width, -height, 0.0f}, {0.0f, 1.0f, 0.0f}}, //< BOTTOM LEFT
-		{{+width, -height, 0.0f}, {0.0f, 0.0f, 1.0f}}, //< BOTTOM RIGHT
-		{{+width, +height, 0.0f}, {1.0f, 0.0f, 1.0f}}, //< TOP RIGHT
+		{{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, //< TOP LEFT
+		{{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}, //< BOTTOM LEFT
+		{{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}, //< BOTTOM RIGHT
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 1.0f}}, //< TOP RIGHT
 	};
 
 	std::vector<uint32_t> indices = {
@@ -81,6 +79,15 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	bindings[0].binding = 0u;
 	bindings[0].resource = m_vertexUniformBuffer;
 	m_object = pApp->CreateObject(m_shader, m_mesh, bindings);
+
+	// Initialize vertex buffer content
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.ortho, i_pApp->AcquireOrthoMatrixLH());
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.baseView, i_pApp->AcquireBaseViewLH());
+	// Create world matrix with passed in size and position
+	EERect32U wExtent = pApp->GetWindowExtent();
+	XMMATRIX world = XMMatrixScaling((float)size.width, (float)size.height, 1.0f);
+	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + pos.x, -(wExtent.height / 2.0f) + pos.y, 0.0f);
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.world, world);
 }
 
 EERectangle::~EERectangle()
@@ -89,9 +96,7 @@ EERectangle::~EERectangle()
 
 void EERectangle::Update()
 {
-	VertexUBO ubo;
-	XMStoreFloat4x4(&ubo.ortho, i_pApp->AcquireOrthoMatrixLH());
-	XMStoreFloat4x4(&ubo.baseView, i_pApp->AcquireBaseViewLH());
-	XMStoreFloat4x4(&ubo.world, DirectX::XMMatrixIdentity());
-	i_pApp->UpdateBuffer(m_vertexUniformBuffer, &ubo);
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.ortho, i_pApp->AcquireOrthoMatrixLH());
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.baseView, i_pApp->AcquireBaseViewLH());
+	i_pApp->UpdateBuffer(m_vertexUniformBuffer, &m_vertexUniformBufferContent);
 }
