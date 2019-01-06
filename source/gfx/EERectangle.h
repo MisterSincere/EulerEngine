@@ -52,13 +52,15 @@ namespace GFX
 		EEPoint32F m_position;
 		EERect32U m_size;
 
-		EEShader m_shader;
-		EEMesh m_mesh;
+		static EEShader m_shader;
+		static EEMesh m_mesh;
 		EEBuffer m_vertexUniformBuffer;
 		VertexUBO m_vertexUniformBufferContent;
 		EEBuffer m_fragmentUniformBuffer;
 		FragmentUBO m_fragmentUniformBufferContent;
 		EEObject m_object;
+
+		static bool m_fistRectangle;
 	};
 
 }

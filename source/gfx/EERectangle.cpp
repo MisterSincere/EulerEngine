@@ -11,6 +11,11 @@
 using namespace GFX;
 using namespace DirectX;
 
+
+bool EERectangle::m_fistRectangle{ true };
+EEShader EERectangle::m_shader = nullptr;
+EEMesh EERectangle::m_mesh = nullptr;
+
 EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 0.0f }*/, EERect32U const& size /*= { 0.0f, 0.0f }*/)
 	: m_pApp(pApp)
 	, m_position(pos)
@@ -21,8 +26,9 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 		return;
 	}
 
-	// SHADER
-	{
+	// Create the shader and mesh if this is the first rectangle
+	// other will then reuse this shader and mesh
+	if (m_fistRectangle) {
 		std::vector<EEShaderInputDesc> inputDescs(1);
 		inputDescs[0].location = 0u;
 		inputDescs[0].format = EE_FORMAT_R32G32B32_SFLOAT;
@@ -47,7 +53,7 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 		EEShaderCreateInfo shaderCInfo;
 		shaderCInfo.vertexFileName = vert.c_str();
 		shaderCInfo.fragmentFileName = frag.c_str();
-		shaderCInfo.amountObjects = 1u;
+		shaderCInfo.amountObjects = 200u;
 		shaderCInfo.shaderInputType = EE_SHADER_INPUT_TYPE_CUSTOM;
 		shaderCInfo.pVertexInput = &shaderInput;
 		shaderCInfo.amountDescriptors = uint32_t(descriptors.size());
@@ -57,10 +63,7 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 		shaderCInfo.wireframe = EE_FALSE;
 		shaderCInfo.clockwise = EE_TRUE;
 		m_shader = pApp->CreateShader(shaderCInfo);
-	}
 
-	// MESH
-	{
 		std::vector<Vertex> vertices = {
 			{{0.0f, 1.0f, 0.0f}}, //< TOP LEFT
 			{{0.0f, 0.0f, 0.0f}}, //< BOTTOM LEFT
@@ -72,6 +75,9 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 			0, 2, 3
 		};
 		m_mesh = pApp->CreateMesh(vertices.data(), sizeof(Vertex) * vertices.size(), indices);
+
+		// Now that the shader/mesh was created for the first time indicate that for the next creations
+		m_fistRectangle = false;
 	}
 
 	// RESOURCES
