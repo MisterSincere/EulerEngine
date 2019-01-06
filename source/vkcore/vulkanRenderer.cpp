@@ -244,13 +244,6 @@ vulkan::Renderer::Renderer(Swapchain* pSwapchain, EEApplicationCreateInfo const&
 	blendState.blendConstants[3] = 0.0f;
 
 
-	dynamicsState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	dynamicsState.pNext = nullptr;
-	dynamicsState.flags = 0;
-	dynamicsState.dynamicStateCount = uint32_t(aDynamicStates.size());
-	dynamicsState.pDynamicStates = aDynamicStates.data();
-
-
 	// Initialize buffer lists for both to the desired size no matter if needed
 	buffers2D.resize(pSwapchain->buffers.size());
 	buffers3D.resize(pSwapchain->buffers.size());

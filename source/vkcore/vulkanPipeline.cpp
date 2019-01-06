@@ -80,8 +80,8 @@ EE::Pipeline::Pipeline(vulkan::Renderer const* pRenderer, VkShaderModule vertSha
 	dynamicsCInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamicsCInfo.pNext = nullptr;
 	dynamicsCInfo.flags = 0;
-	dynamicsCInfo.dynamicStateCount = 1u;
-	dynamicsCInfo.pDynamicStates = new VkDynamicState{ VK_DYNAMIC_STATE_VIEWPORT };
+	dynamicsCInfo.dynamicStateCount = 2u;
+	dynamicsCInfo.pDynamicStates = new VkDynamicState[2]{ VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 
 	// Use descriptions of the predefined vertex type
 	predefinedVertexBindingDesc = EE::PredefinedVertex::inputBindingDescription;
