@@ -100,3 +100,36 @@ void EERectangle::Update()
 	XMStoreFloat4x4(&m_vertexUniformBufferContent.baseView, i_pApp->AcquireBaseViewLH());
 	i_pApp->UpdateBuffer(m_vertexUniformBuffer, &m_vertexUniformBufferContent);
 }
+
+void EERectangle::SetPositionAligned(EECenterFlags f) {
+	EERect32U wExtent = i_pApp->GetWindowExtent();
+	// Compute new position
+	i_position = {
+		(f&HORIZONTAL) ? (wExtent.width - i_size.width) / 2.0f : i_position.x,
+		(f&VERTICAL) ? (wExtent.height - i_size.height) / 2.0f : i_position.y
+	};
+	// Update world matrix
+	XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
+	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.world, world);
+}
+
+void EERectangle::SetPosition(EEPoint32F const& pos)
+{
+	i_position = pos;
+	// Update world matrix
+	EERect32U wExtent = i_pApp->GetWindowExtent();
+	XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
+	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.world, world);
+}
+
+void EERectangle::SetSize(EERect32U const& size)
+{
+	i_size = size;
+	// Update world matrix
+	EERect32U wExtent = i_pApp->GetWindowExtent();
+	XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
+	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
+	XMStoreFloat4x4(&m_vertexUniformBufferContent.world, world);
+}

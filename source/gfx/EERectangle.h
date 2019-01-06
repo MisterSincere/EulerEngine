@@ -40,14 +40,9 @@ namespace GFX
 		void Update();
 
 		virtual void SetBounds(EEPoint32F const& pos, EERect32U const& size) { SetPosition(pos); SetSize(size); }
-		virtual void SetPositionAligned(EECenterFlags f, EERect32U const& windowSize) {
-			SetPosition({
-				(f&HORIZONTAL) ? (windowSize.width  - i_size.width)  / 2.0f : i_position.x,
-				(f&VERTICAL)	 ? (windowSize.height - i_size.height) / 2.0f : i_position.y
-			});
-		}
-		virtual void SetPosition(EEPoint32F const& pos) { i_position = pos; }
-		virtual void SetSize(EERect32U const& size) { i_size = size; }
+		virtual void SetPositionAligned(EECenterFlags f);
+		virtual void SetPosition(EEPoint32F const& pos);
+		virtual void SetSize(EERect32U const& size);
 
 	protected:
 		EEApplication* i_pApp;
