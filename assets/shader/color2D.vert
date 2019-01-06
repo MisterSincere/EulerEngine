@@ -15,6 +15,6 @@ layout(binding = 0) uniform UBO
 
 void main()
 {
-	gl_Position = ubo.ortho * ubo.baseView * ubo.world * vec4(position, 1.0);
+	gl_Position = ubo.world * vec4(position, 1.0);
 	outColor = color;
 }

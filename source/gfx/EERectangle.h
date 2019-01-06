@@ -37,6 +37,8 @@ namespace GFX
 		EERectangle(EEApplication* pApp, EEPoint32F const& pos = { 0.0f, 0.0f }, EERect32U const& size = { 0u, 0u });
 		~EERectangle();
 
+		void Update();
+
 		virtual void SetBounds(EEPoint32F const& pos, EERect32U const& size) { SetPosition(pos); SetSize(size); }
 		virtual void SetPositionAligned(EECenterFlags f, EERect32U const& windowSize) {
 			SetPosition({

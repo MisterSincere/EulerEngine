@@ -9,6 +9,7 @@
 #include <string>
 
 using namespace GFX;
+using namespace DirectX;
 
 EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 0.0f }*/, EERect32U const& size /*= { 0.0f, 0.0f }*/)
 	: i_pApp(pApp)
@@ -55,8 +56,8 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.clockwise = EE_TRUE;
 	m_shader = pApp->CreateShader(shaderCInfo);
 
-	float height = 200.0f;
-	float width = 200.0f;
+	float height = .5f;
+	float width = .5f;
 
 	std::vector<Vertex> vertices = {
 		{{-width, +height, 0.0f}, {1.0f, 0.0f, 0.0f}}, //< TOP LEFT
@@ -80,14 +81,17 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	bindings[0].binding = 0u;
 	bindings[0].resource = m_vertexUniformBuffer;
 	m_object = pApp->CreateObject(m_shader, m_mesh, bindings);
-
-	VertexUBO ubo;
-	DirectX::XMStoreFloat4x4(&ubo.ortho, DirectX::XMMatrixIdentity());
-	DirectX::XMStoreFloat4x4(&ubo.baseView, DirectX::XMMatrixIdentity());
-	DirectX::XMStoreFloat4x4(&ubo.world, DirectX::XMMatrixIdentity());
-	pApp->UpdateBuffer(m_vertexUniformBuffer, &ubo);
 }
 
 EERectangle::~EERectangle()
 {
+}
+
+void EERectangle::Update()
+{
+	VertexUBO ubo;
+	XMStoreFloat4x4(&ubo.ortho, DirectX::XMMatrixIdentity());
+	XMStoreFloat4x4(&ubo.baseView, DirectX::XMMatrixIdentity());
+	XMStoreFloat4x4(&ubo.world, DirectX::XMMatrixIdentity());
+	i_pApp->UpdateBuffer(m_vertexUniformBuffer, &ubo);
 }

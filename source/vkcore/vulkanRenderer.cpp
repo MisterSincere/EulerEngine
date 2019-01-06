@@ -244,6 +244,13 @@ vulkan::Renderer::Renderer(Swapchain* pSwapchain, EEApplicationCreateInfo const&
 	blendState.blendConstants[3] = 0.0f;
 
 
+	dynamicsState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicsState.pNext = nullptr;
+	dynamicsState.flags = 0;
+	dynamicsState.dynamicStateCount = uint32_t(aDynamicStates.size());
+	dynamicsState.pDynamicStates = aDynamicStates.data();
+
+
 	// Initialize buffer lists for both to the desired size no matter if needed
 	buffers2D.resize(pSwapchain->buffers.size());
 	buffers3D.resize(pSwapchain->buffers.size());
@@ -588,9 +595,12 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 	if (green >= 1.0f) green = 0.0f;
 
 	// Clear values are the same over all buffers
-	VkClearValue clearColor = { 0.0f, green, 0.0f, 1.0f };
+	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	VkClearValue depthClearValue = { 1.0f, 0 }; // Depth, stencil
 	VkClearValue clearValues[] = { clearColor, depthClearValue };
+	VkRect2D scissor;
+	scissor.offset = { 0,0 };
+	scissor.extent = { pSwapchain->settings.extent.width,pSwapchain->settings.extent.height };
 
 	// Are set to the same size in the constructor
 	assert(buffers3D.size() == buffers2D.size());
@@ -619,6 +629,10 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 			buffers2D[i].execBuffer.BeginRecording(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 			vkCmdBeginRenderPass(buffers2D[i].execBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 		}
+
+		// Set scissor
+		if (isCreated2D)vkCmdSetScissor(buffers2D[i].execBuffer, 0u, 1u, &scissor);
+		if (isCreated3D)vkCmdSetScissor(buffers3D[i].execBuffer, 0u, 1u, &scissor);
 
 		// Default viewport
 		VkViewport vp;

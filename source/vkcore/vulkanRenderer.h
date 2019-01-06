@@ -92,6 +92,8 @@ namespace EE
 			VkPipelineViewportStateCreateInfo viewportState;
 			VkPipelineMultisampleStateCreateInfo multisampleState;
 			VkPipelineColorBlendStateCreateInfo blendState;
+			std::vector<VkDynamicState> aDynamicStates = { VK_DYNAMIC_STATE_SCISSOR , VK_DYNAMIC_STATE_VIEWPORT };
+			VkPipelineDynamicStateCreateInfo dynamicsState;
 
 			/* @brief Holds the settings for this renderer */
 			struct {
