@@ -16,6 +16,8 @@
 #include "Window.h"
 #include "Graphics.h"
 
+using namespace DirectX;
+
 
 EEApplication::EEApplication()
 	: m_pWindow(new EE::Window)
@@ -126,6 +128,60 @@ void EEApplication::UpdateBuffer(EEBuffer buffer, void const* pData)
 		EE_INVARIANT(isCreated);
 	}
 	m_pGraphics->UpdateBuffer(buffer, pData);
+}
+
+DirectX::XMMATRIX EEApplication::AcquireOrthoMatrixLH()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return XMLoadFloat4x4(&(m_pGraphics->matrices.orthoLH));
+}
+
+DirectX::XMMATRIX EEApplication::AcquireOrthoMatrixRH()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return XMLoadFloat4x4(&(m_pGraphics->matrices.orthoRH));
+}
+
+DirectX::XMMATRIX EEApplication::AcquirePerspectiveMatrixLH()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return XMLoadFloat4x4(&(m_pGraphics->matrices.projLH));
+}
+
+DirectX::XMMATRIX EEApplication::AcquirePerspectiveMatrixRH()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return XMLoadFloat4x4(&(m_pGraphics->matrices.projRH));
+}
+
+DirectX::XMMATRIX EEApplication::AcquireBaseViewLH()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return XMLoadFloat4x4(&(m_pGraphics->matrices.baseViewLH));
+}
+
+DirectX::XMMATRIX EEApplication::AcquireBaseViewRH()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return XMLoadFloat4x4(&(m_pGraphics->matrices.baseViewRH));
 }
 
 void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)

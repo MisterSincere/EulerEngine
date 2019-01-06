@@ -32,6 +32,16 @@ namespace EE {
 		/* @brief The renderer */
 		vulkan::Renderer* pRenderer{ nullptr };
 
+		/* @brief Drawing matrices that are kept uptodate to the current extent */
+		struct {
+			DirectX::XMFLOAT4X4 orthoLH;
+			DirectX::XMFLOAT4X4 orthoRH;
+			DirectX::XMFLOAT4X4 projLH;
+			DirectX::XMFLOAT4X4 projRH;
+			DirectX::XMFLOAT4X4 baseViewLH;
+			DirectX::XMFLOAT4X4 baseViewRH;
+		} matrices;
+
 		/* @brief Holds settings for the vulkan handling */
 		struct {
 #ifdef _DEBUG
@@ -39,6 +49,8 @@ namespace EE {
 #else 
 			bool validation{ false };
 #endif
+			float nearPlane{ 0.1f };
+			float farPlane{ 1000.0f };
 		} settings;
 
 		/// Allocated resource tracking

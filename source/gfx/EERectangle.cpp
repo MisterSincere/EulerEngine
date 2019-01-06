@@ -56,8 +56,8 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	shaderCInfo.clockwise = EE_TRUE;
 	m_shader = pApp->CreateShader(shaderCInfo);
 
-	float height = .5f;
-	float width = .5f;
+	float width = size.width / 2.0f;
+	float height = size.height / 2.0f;
 
 	std::vector<Vertex> vertices = {
 		{{-width, +height, 0.0f}, {1.0f, 0.0f, 0.0f}}, //< TOP LEFT
@@ -90,8 +90,8 @@ EERectangle::~EERectangle()
 void EERectangle::Update()
 {
 	VertexUBO ubo;
-	XMStoreFloat4x4(&ubo.ortho, DirectX::XMMatrixIdentity());
-	XMStoreFloat4x4(&ubo.baseView, DirectX::XMMatrixIdentity());
+	XMStoreFloat4x4(&ubo.ortho, i_pApp->AcquireOrthoMatrixLH());
+	XMStoreFloat4x4(&ubo.baseView, i_pApp->AcquireBaseViewLH());
 	XMStoreFloat4x4(&ubo.world, DirectX::XMMatrixIdentity());
 	i_pApp->UpdateBuffer(m_vertexUniformBuffer, &ubo);
 }

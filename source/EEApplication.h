@@ -113,6 +113,40 @@ public:
 	 **/
 	void UpdateBuffer(EEBuffer buffer, void const* pData);
 
+	/**
+	 * Returns an orthogonal left handed projection matrix for 2d rendering with the current
+	 * window's extent.
+	 **/
+	DirectX::XMMATRIX AcquireOrthoMatrixLH();
+
+	/**
+	 * Returns an orthogonal right handed projection matrix for 2d rendering with the current
+	 * window's extent.
+	 **/
+	DirectX::XMMATRIX AcquireOrthoMatrixRH();
+
+	/**
+	 * Returns a perspective left handed projection matrix for 3d rendering with the current
+	 * window's extent.
+	 **/
+	DirectX::XMMATRIX AcquirePerspectiveMatrixLH();
+
+	/**
+	 * Returns a perspective right handed projection matrix for 3d rendering with the current
+	 * window's extent.
+	 **/
+	DirectX::XMMATRIX AcquirePerspectiveMatrixRH();
+
+	/**
+	 * Returns a left handed base view matrix
+	 **/
+	DirectX::XMMATRIX AcquireBaseViewLH();
+
+	/**
+	 * Returns a right handed base view matrix
+	 **/
+	DirectX::XMMATRIX AcquireBaseViewRH();
+
 private:
 	static void Resize(GLFWwindow*, int, int, void*);
 

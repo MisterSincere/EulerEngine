@@ -15,6 +15,7 @@
 #define LAST_ELEMENT(vec) (vec[vec.size() - 1])
 
 using namespace EE;
+using namespace DirectX;
 
 
 Graphics::Graphics()
@@ -94,6 +95,19 @@ bool Graphics::Create(Window* pWindow, EEApplicationCreateInfo const& info)
 	// Create the renderer
 	vk_renderer(info);
 
+	// Initialize some drawing matrices
+	XMStoreFloat4x4(&matrices.orthoLH, XMMatrixOrthographicLH(float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
+	XMStoreFloat4x4(&matrices.orthoRH, XMMatrixOrthographicRH(float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
+
+	XMStoreFloat4x4(&matrices.projLH, XMMatrixPerspectiveFovLH(XM_PIDIV2, float(pSwapchain->settings.extent.width) / float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
+	XMStoreFloat4x4(&matrices.projRH, XMMatrixPerspectiveFovRH(XM_PIDIV2, float(pSwapchain->settings.extent.width) / float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
+
+	// base view matrices
+	XMVECTOR position = XMVectorSet(0.0f, 0.0f, -1.0f, 1.0f);
+	XMVECTOR target = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMStoreFloat4x4(&matrices.baseViewLH, XMMatrixLookAtLH(position, target, up));
+	XMStoreFloat4x4(&matrices.baseViewRH, XMMatrixLookAtRH(position, target, up));
 
 	return true;
 }
