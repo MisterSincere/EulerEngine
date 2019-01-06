@@ -25,12 +25,14 @@ namespace GFX
 	private:
 		struct Vertex {
 			DirectX::XMFLOAT3 position;
-			DirectX::XMFLOAT3 color;
 		};
 		struct VertexUBO {
 			DirectX::XMFLOAT4X4 ortho;
 			DirectX::XMFLOAT4X4 baseView;
 			DirectX::XMFLOAT4X4 world;
+		};
+		struct FragmentUBO {
+			DirectX::XMFLOAT4 bgColor;
 		};
 
 	public:
@@ -39,20 +41,23 @@ namespace GFX
 
 		void Update();
 
-		virtual void SetBounds(EEPoint32F const& pos, EERect32U const& size) { SetPosition(pos); SetSize(size); }
-		virtual void SetPositionAligned(EECenterFlags f);
-		virtual void SetPosition(EEPoint32F const& pos);
-		virtual void SetSize(EERect32U const& size);
+		void SetBounds(EEPoint32F const& pos, EERect32U const& size) { SetPosition(pos); SetSize(size); }
+		void SetPositionAligned(EECenterFlags f);
+		void SetPosition(EEPoint32F const& pos);
+		void SetSize(EERect32U const& size);
+		void SetBackgroundColor(EEColor const& color);
 
-	protected:
-		EEApplication* i_pApp;
-		EEPoint32F i_position;
-		EERect32U i_size;
+	private:
+		EEApplication* m_pApp;
+		EEPoint32F m_position;
+		EERect32U m_size;
 
 		EEShader m_shader;
 		EEMesh m_mesh;
 		EEBuffer m_vertexUniformBuffer;
 		VertexUBO m_vertexUniformBufferContent;
+		EEBuffer m_fragmentUniformBuffer;
+		FragmentUBO m_fragmentUniformBufferContent;
 		EEObject m_object;
 	};
 
