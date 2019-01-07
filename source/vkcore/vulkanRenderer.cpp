@@ -402,7 +402,9 @@ void vulkan::Renderer::Create3D()
 
 	// Create 3d render specific semaphore
 	VkSemaphoreCreateInfo semCInfo = initializers::semaphoreCreateInfo();
-	VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageRendered3D));
+	if (semaphores.imageRendered3D == VK_NULL_HANDLE) {
+		VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageRendered3D));
+	}
 
 	// Create semaphore that is needed for 2d and 3d if it wasnt already created with Create2D method
 	if (semaphores.imageAvailable == VK_NULL_HANDLE) {
@@ -515,7 +517,9 @@ void vulkan::Renderer::Create2D()
 
 	// Create 2d render specific semaphore
 	VkSemaphoreCreateInfo semCInfo = initializers::semaphoreCreateInfo();
-	VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageRendered2D));
+	if (semaphores.imageRendered2D == VK_NULL_HANDLE) {
+		VK_CHECK(vkCreateSemaphore(LDEVICE, &semCInfo, ALLOCATOR, &semaphores.imageRendered2D));
+	}
 
 	// Create semaphore that is needed for 2d and 3d if it wasnt already created with Create2D method
 	if (semaphores.imageAvailable == VK_NULL_HANDLE) {
@@ -552,9 +556,6 @@ void vulkan::Renderer::Resize(std::vector<Object*> const& objectsToDraw)
 	// [TURNING_POINT] Let the swapchain recreate itself 
 	pSwapchain->Create();
 
-	// Record the objects again
-	RecordDrawCommands(objectsToDraw);
-
 	// Recreate the renderer that were created before
 	if (isCreated2D) {
 		isCreated2D = false;
@@ -564,6 +565,9 @@ void vulkan::Renderer::Resize(std::vector<Object*> const& objectsToDraw)
 		isCreated3D = false;
 		Create3D();
 	}
+
+	// Record the objects again
+	RecordDrawCommands(objectsToDraw);
 }
 
 void vulkan::Renderer::CreateShaderModule(char const* fileName, VkShaderModule& shaderModuleOut) const

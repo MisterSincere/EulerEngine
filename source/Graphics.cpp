@@ -118,6 +118,11 @@ void EE::Graphics::Draw()
 	pRenderer->Draw();
 }
 
+void EE::Graphics::Resize()
+{
+	pRenderer->Resize(currentObjects);
+}
+
 EEMesh EE::Graphics::CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const & indices)
 {
 	EE_INVARIANT(iCurrentMeshes.size() == currentMeshes.size());

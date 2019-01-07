@@ -37,6 +37,7 @@ void vulkan::ExecBuffer::Create(Device const* pDevice, VkCommandBufferLevel leve
 	// Create the fence
 	VkFenceCreateInfo fenceCInfo = initializers::fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
 	VK_CHECK(vkCreateFence(*pDevice, &fenceCInfo, pDevice->pAllocator, &fence));
+	EE_INFO_EXEC_BUFFER("Created");
 
 	// Set state to being created
 	currentState = CREATED;
@@ -48,11 +49,13 @@ void vulkan::ExecBuffer::Create(Device const* pDevice, VkCommandBufferLevel leve
 void vulkan::ExecBuffer::Release()
 {
 	if (currentState & CREATED) {
+
 		Wait();
 
 		vkDestroyFence(*pDevice, fence, pDevice->pAllocator);
 		vkFreeCommandBuffers(*pDevice, pDevice->cmdPoolGraphics, 1u, &cmdBuffer);
 
+		EE_INFO_EXEC_BUFFER("Released");
 		currentState = ALLOCATED;
 	}
 }
@@ -60,10 +63,10 @@ void vulkan::ExecBuffer::Release()
 void vulkan::ExecBuffer::BeginRecording(VkCommandBufferUsageFlags usageFlags)
 {
 	if (currentState == ALLOCATED) {
-		EE_PRINT("[EXEC_BUFFER] Wasn't created yet!\n");
+		EE_PRINT_EXEC_BUFFER("Tried to begin recording but wasn't created yet!");
 		return;
 	} else if (currentState == RECORDING) {
-		EE_PRINT("[EXEC_BUFFER] Already recording!\n");
+		EE_PRINT_EXEC_BUFFER("Already recording!");
 		return;
 	}
 
@@ -72,6 +75,7 @@ void vulkan::ExecBuffer::BeginRecording(VkCommandBufferUsageFlags usageFlags)
 	// After some checks we are safe to go with beginning the recording
 	VkCommandBufferBeginInfo beginInfo = initializers::commandBufferBeginInfo(usageFlags);
 	VK_CHECK(vkBeginCommandBuffer(cmdBuffer, &beginInfo));
+	EE_INFO_EXEC_BUFFER("Began recording");
 
 	currentState = RECORDING;
 }
@@ -80,16 +84,17 @@ void vulkan::ExecBuffer::EndRecording()
 {
 	if ((currentState & RECORDING) == RECORDING) {
 		VK_CHECK(vkEndCommandBuffer(cmdBuffer));
+		EE_INFO_EXEC_BUFFER("Ended recording");
 		currentState = EXECUTABLE;
 	} else {
-		EE_PRINT("[EXEC_BUFFER] Tried to end recording but execbuffer wasn't recording!\n");
+		EE_PRINT_EXEC_BUFFER("Tried to end recording but execbuffer wasn't recording!");
 	}
 }
 
 void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait) const
 {
 	if ((currentState & EXECUTABLE) != EXECUTABLE) {
-		EE_PRINT("[EXEC_BUFFER] Was not executable, please record something before trying to execute!\n");
+		EE_PRINT_EXEC_BUFFER("Was not executable, please record something before trying to execute!");
 		assert(false);
 	}
 
@@ -104,6 +109,7 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait) const
 	// Submit to the queue
 	VK_CHECK(vkResetFences(*pDevice, 1u, &fence));
 	vkQueueSubmit(queue, 1u, &submitInfo, fence);
+	EE_INFO_EXEC_BUFFER("Started execution");
 
 	// Wait with returning until the buffer has finished execution
 	if (wait) Wait();
@@ -111,7 +117,9 @@ void vulkan::ExecBuffer::Execute(VkSubmitInfo* _submitInfo, bool wait) const
 
 void vulkan::ExecBuffer::Wait(uint64_t timeout) const
 {
+	EE_INFO_EXEC_BUFFER("Started waiting for ExecBuffer");
 	VK_CHECK(vkWaitForFences(*pDevice, 1u, &fence, VK_TRUE, timeout));
+	EE_INFO_EXEC_BUFFER("Waited successfully for ExecBuffer");
 }
 
 

@@ -83,8 +83,8 @@ namespace EE
 			/* @brief Encapsulates the needed semaphore for synchronizing the draw method */
 			struct {
 				VkSemaphore imageAvailable{ VK_NULL_HANDLE };
-				VkSemaphore imageRendered3D;
-				VkSemaphore imageRendered2D;
+				VkSemaphore imageRendered3D{ VK_NULL_HANDLE };
+				VkSemaphore imageRendered2D{ VK_NULL_HANDLE };
 			} semaphores;
 
 			/* @brief Descriptions that need to be used for all pipelines using this renderer */

@@ -18,6 +18,9 @@
 
 using namespace DirectX;
 
+/* @brief Foreward declaration of the high level resize method and definition of the user data we pass in */
+void Resize(GLFWwindow* window, int w, int h, void* userData);
+
 
 EEApplication::EEApplication()
 	: m_pWindow(new EE::Window)
@@ -34,7 +37,7 @@ EEApplication::~EEApplication()
 EEBool32 EEApplication::Create(EEApplicationCreateInfo const& appCInfo)
 {
 	assert(m_pWindow);
-	if (!m_pWindow->Create(appCInfo, Resize, this)) {
+	if (!m_pWindow->Create(appCInfo, Resize, m_pGraphics)) {
 		return EE_FALSE;
 	}
 
@@ -234,7 +237,16 @@ EERect32U EEApplication::GetWindowExtent()
 	return { m_pGraphics->pSwapchain->settings.extent.width,m_pGraphics->pSwapchain->settings.extent.height };
 }
 
-void EEApplication::Resize(GLFWwindow* window, int w, int h, void* userData)
+void Resize(GLFWwindow* window, int w, int h, void* userData)
 {
+	if (w <= 0 || h <= 0) return;
 
+	// Get the user data
+	EE::Graphics* pGraphics = reinterpret_cast<EE::Graphics*>(userData);
+
+	// Store width as unsigned int
+	uint32_t width = uint32_t(w);
+	uint32_t height = uint32_t(h);
+
+	if (pGraphics) pGraphics->Resize();
 }

@@ -130,6 +130,11 @@ namespace EE {
 		 **/
 		void Draw();
 
+		/**
+		 * Recreates/Reconfigures the renderer to the new current size
+		 **/
+		void Resize();
+
 		/* @brief Create methods for any type of vulkan resource representation */
 		EEMesh CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const& indices);
 		EEBuffer CreateBuffer(size_t bufferSize);

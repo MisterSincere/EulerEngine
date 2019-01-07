@@ -50,6 +50,7 @@ add_library (EulerEngine ${EULERENGINEOUT}
 
 						 
 add_definitions("-DEE_CMAKE_ASSETS_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../assets/\"")
+add_definitions("-DEE_PRINT_INFORMATIONS")
 
 include_directories (EulerEngine ${CMAKE_CURRENT_SOURCE_DIR})
 
