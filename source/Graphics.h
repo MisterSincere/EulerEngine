@@ -69,6 +69,41 @@ namespace EE {
 		std::vector<uint32_t*> iCurrentObjects;
 		std::vector<EE::Object*> currentObjects;
 
+		/// Predefined shader
+		struct {
+			/***********************VERTEX***********************
+			 * #version 450
+			 * #extension GL_ARB_separate_shader_objects : enable
+			 *
+			 * layout(location = 0) in vec3 position;
+			 *
+			 * layout(binding = 0) uniform UBO {
+			 *	 mat4 ortho;
+			 *	 mat4 baseView;
+			 *	 mat4 world;
+			 * } ubo;
+			 * 
+			 * void main() {
+			 * 	 gl_Position = ubo.ortho * ubo.baseView * ubo.world * vec4(position, 1.0);
+			 * }
+			 *
+			 **********************FRAGMENT**********************
+			 * #version 450
+			 * #extension GL_ARB_separate_shader_objects : enable
+			 * 
+			 * layout(location = 0) out vec4 outColor;
+			 * 
+			 * layout(binding = 1) uniform UBO {
+			 * 	vec4 bgColor;
+			 * } ubo;
+			 * 
+			 * void main() {
+			 * 	outColor = ubo.bgColor;
+			 * }
+			 **/
+			EEShader color2D{ nullptr };
+		} shader;
+
 
 		/**
 		 * Default constructor
@@ -105,6 +140,7 @@ namespace EE {
 
 		/* @brief Update methods for buffer, ... @TODO? */
 		void UpdateBuffer(EEBuffer buffer, void const* pData);
+
 
 		void vk_instance();
 		void vk_device();

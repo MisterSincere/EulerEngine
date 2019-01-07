@@ -213,3 +213,22 @@ struct EETextureCreateInfo {
 	EEBool32			 enableMipMapping;
 	EEBool32			 format;
 };
+
+
+namespace EEShaderColor2D {
+
+	struct VertexInputType {
+		DirectX::XMFLOAT3 position; // location = 0
+	};
+	// binding = 0
+	struct VertexUBO {
+		DirectX::XMFLOAT4X4 ortho;
+		DirectX::XMFLOAT4X4 baseView;
+		DirectX::XMFLOAT4X4 world;
+	};
+	// binding = 1
+	struct FragmentUBO {
+		DirectX::XMFLOAT4 fillColor;
+	};
+
+}

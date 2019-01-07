@@ -184,6 +184,47 @@ DirectX::XMMATRIX EEApplication::AcquireBaseViewRH()
 	return XMLoadFloat4x4(&(m_pGraphics->matrices.baseViewRH));
 }
 
+EEShader EEApplication::AcquireShaderColor2D()
+{
+	if (!m_pGraphics->shader.color2D) {
+		std::vector<EEShaderInputDesc> inputDescs(1);
+		inputDescs[0].location = 0u;
+		inputDescs[0].format = EE_FORMAT_R32G32B32_SFLOAT;
+		inputDescs[0].offset = offsetof(EEShaderColor2D::VertexInputType, position);
+
+		EEVertexInput shaderInput;
+		shaderInput.amountInputs = uint32_t(inputDescs.size());
+		shaderInput.pInputDescs = inputDescs.data();
+		shaderInput.inputStride = sizeof(EEShaderColor2D::VertexInputType);
+
+		std::vector<EEDescriptorDesc> descriptors(2);
+		descriptors[0].type = EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptors[0].shaderStage = EE_SHADER_STAGE_VERTEX;
+		descriptors[0].binding = 0u;
+
+		descriptors[1].type = EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptors[1].shaderStage = EE_SHADER_STAGE_FRAGMENT;
+		descriptors[1].binding = 1u;
+
+		std::string vert = EE_ASSETS_DIR("shader/color2DVert.spv");
+		std::string frag = EE_ASSETS_DIR("shader/color2DFrag.spv");
+		EEShaderCreateInfo shaderCInfo;
+		shaderCInfo.vertexFileName = vert.c_str();
+		shaderCInfo.fragmentFileName = frag.c_str();
+		shaderCInfo.amountObjects = 200u;
+		shaderCInfo.shaderInputType = EE_SHADER_INPUT_TYPE_CUSTOM;
+		shaderCInfo.pVertexInput = &shaderInput;
+		shaderCInfo.amountDescriptors = uint32_t(descriptors.size());
+		shaderCInfo.pDescriptors = descriptors.data();
+		shaderCInfo.pPushConstant = nullptr;
+		shaderCInfo.is2DShader = EE_TRUE;
+		shaderCInfo.wireframe = EE_FALSE;
+		shaderCInfo.clockwise = EE_TRUE;
+		m_pGraphics->shader.color2D = CreateShader(shaderCInfo);
+	}
+	return m_pGraphics->shader.color2D;
+}
+
 EERect32U EEApplication::GetWindowExtent()
 {
 	if (!isCreated) {

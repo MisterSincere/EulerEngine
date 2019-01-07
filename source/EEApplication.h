@@ -148,6 +148,12 @@ public:
 	DirectX::XMMATRIX AcquireBaseViewRH();
 
 	/**
+	 * Returns a handle for the prepared color 2d shader.
+	 * For vertex input and ubo types check namespace EEShaderColor2D
+	 **/
+	EEShader AcquireShaderColor2D();
+
+	/**
 	 * Returns the current size of the actual drawing field
 	 **/
 	EERect32U GetWindowExtent();

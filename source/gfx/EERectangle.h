@@ -22,19 +22,6 @@ namespace GFX
 
 	class EERectangle
 	{
-	private:
-		struct Vertex {
-			DirectX::XMFLOAT3 position;
-		};
-		struct VertexUBO {
-			DirectX::XMFLOAT4X4 ortho;
-			DirectX::XMFLOAT4X4 baseView;
-			DirectX::XMFLOAT4X4 world;
-		};
-		struct FragmentUBO {
-			DirectX::XMFLOAT4 bgColor;
-		};
-
 	public:
 		EERectangle(EEApplication* pApp, EEPoint32F const& pos = { 0.0f, 0.0f }, EERect32U const& size = { 0u, 0u });
 		~EERectangle();
@@ -52,15 +39,13 @@ namespace GFX
 		EEPoint32F m_position;
 		EERect32U m_size;
 
-		static EEShader m_shader;
-		static EEMesh m_mesh;
+		EEShader m_shader;
+		EEMesh m_mesh;
 		EEBuffer m_vertexUniformBuffer;
-		VertexUBO m_vertexUniformBufferContent;
+		EEShaderColor2D::VertexUBO m_vertexUniformBufferContent;
 		EEBuffer m_fragmentUniformBuffer;
-		FragmentUBO m_fragmentUniformBufferContent;
+		EEShaderColor2D::FragmentUBO m_fragmentUniformBufferContent;
 		EEObject m_object;
-
-		static bool m_fistRectangle;
 	};
 
 }
