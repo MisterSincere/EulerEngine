@@ -133,6 +133,28 @@ void EEApplication::UpdateBuffer(EEBuffer buffer, void const* pData)
 	m_pGraphics->UpdateBuffer(buffer, pData);
 }
 
+bool EEApplication::KeyHit(EEKey key)
+{
+	return m_pWindow->input.keysHit[key];
+}
+
+bool EEApplication::KeyPressed(EEKey key)
+{
+	return m_pWindow->input.keysPressed[key];
+}
+
+void EEApplication::MousePosition(double & posX, double & posY)
+{
+	posX = m_pWindow->input.mouseX;
+	posY = m_pWindow->input.mouseY;
+}
+
+void EEApplication::MouseMovement(double & dX, double & dY)
+{
+	dX = m_pWindow->input.mouseXDelta;
+	dX = m_pWindow->input.mouseXDelta;
+}
+
 DirectX::XMMATRIX EEApplication::AcquireOrthoMatrixLH()
 {
 	if (!isCreated) {

@@ -114,6 +114,28 @@ public:
 	void UpdateBuffer(EEBuffer buffer, void const* pData);
 
 	/**
+	 * Returns true if the key was just hit. If they key was hit the previous frame
+	 * this method returns false.
+	 **/
+	bool KeyHit(EEKey key);
+
+	/**
+	 * Returns true if the key is currently held down.
+	 **/
+	bool KeyPressed(EEKey key);
+
+	/**
+	 * Stores the current mouse position in the references passed in.
+	 **/
+	void MousePosition(double& posX, double& posY);
+
+	/**
+	 * Stores the movement of the mouse since the previous frame in
+	 * the references passed in.
+	 **/
+	void MouseMovement(double& dX, double& dY);
+	
+	/**
 	 * Returns an orthogonal left handed projection matrix for 2d rendering with the current
 	 * window's extent.
 	 **/
