@@ -557,13 +557,16 @@ void vulkan::Renderer::Resize(std::vector<Object*> const& objectsToDraw)
 	pSwapchain->Create();
 
 	// Recreate the renderer that were created before
-	if (isCreated2D) {
-		isCreated2D = false;
-		Create2D();
-	}
-	if (isCreated3D) {
-		isCreated3D = false;
+	bool tempIsCreated2D = isCreated2D;
+	bool tempIsCreated3D = isCreated3D;
+	isCreated2D = false;
+	isCreated3D = false;
+
+	if (tempIsCreated3D) {
 		Create3D();
+	}
+	if (tempIsCreated2D) {
+		Create2D();
 	}
 
 	// Record the objects again
