@@ -262,9 +262,9 @@ GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, char* text, EEPoint32F co
 
 	EERect32U wExtent = m_pApp->GetWindowExtent();
 	XMMATRIX world = XMMatrixTransformation2D(
-		{ 0.0f, 0.0f }, 0.0f, { 50.0f, 50.0f }, //< Scale to desired size
+		{ 0.0f, 0.0f }, 0.0f, { size, size }, //< Scale to desired size
 		{ 0.0f, 0.0f }, 0.0f,										//< No rotation supported until now
-		{ -(wExtent.width / 2.0f) + 25.0f, -(wExtent.height / 2.0f) + 25.0f } //< Translate depending on position
+		{ -(wExtent.width / 2.0f) + position.x, -(wExtent.height / 2.0f) + position.y } //< Translate depending on position
 	);
 	XMStoreFloat4x4(&(pText->world), world);
 

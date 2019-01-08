@@ -136,7 +136,7 @@ EEMesh EE::Graphics::CreateMesh(void const* pVertices, size_t amountVertices, st
 
 	EE_INVARIANT(iCurrentMeshes.size() == currentMeshes.size());
 
-	return { LAST_ELEMENT(iCurrentShader) };
+	return { LAST_ELEMENT(iCurrentMeshes) };
 }
 
 EEBuffer EE::Graphics::CreateBuffer(size_t bufferSize)
