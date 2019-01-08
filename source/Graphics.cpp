@@ -167,10 +167,10 @@ EETexture EE::Graphics::CreateTexture(char const* fileName, bool enableMipMappin
 
 	EE_INVARIANT(iCurrentTextures.size() == currentTextures.size());
 
-	return EETexture();
+	return { LAST_ELEMENT(iCurrentTextures) };
 }
 
-EETexture EE::Graphics::CreateTexture(EETextureCreateInfo const & textureCInfo)
+EETexture EE::Graphics::CreateTexture(EETextureCreateInfo const& textureCInfo)
 {
 	EE_INVARIANT(iCurrentTextures.size() == currentTextures.size());
 
@@ -183,7 +183,7 @@ EETexture EE::Graphics::CreateTexture(EETextureCreateInfo const & textureCInfo)
 
 	EE_INVARIANT(iCurrentTextures.size() == currentTextures.size());
 
-	return EETexture();
+	return { LAST_ELEMENT(iCurrentTextures) };
 }
 
 EEShader Graphics::CreateShader(EEShaderCreateInfo const& cinfo)
