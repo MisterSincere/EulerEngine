@@ -24,7 +24,8 @@ set	(VULKANCORE	vkcore/vulkanRenderer.h		vkcore/vulkanRenderer.cpp
 				vkcore/vulkanTools.h		vkcore/vulkanTools.cpp
 				vkcore/vulkanInitializers.h)
 
-set (GFX		gfx/EERectangle.h		gfx/EERectangle.cpp)
+set (GFX		gfx/EERectangle.h		gfx/EERectangle.cpp
+				gfx/EEFontEngine.h		gfx/EEFontEngine.cpp)
 
 set (EULERENGINEINTERN  Window.h		Window.cpp
 						Graphics.h		Graphics.cpp)
@@ -54,6 +55,7 @@ add_definitions("-DEE_CMAKE_ASSETS_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../assets/
 #add_definitions("-DEE_PRINT_INFORMATIONS")
 
 include_directories (EulerEngine ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories (EulerEngine ${CMAKE_CURRENT_SOURCE_DIR}/freetype/include)
 
 
 # function that stores just the shader type appendix in the result

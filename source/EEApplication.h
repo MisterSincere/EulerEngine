@@ -35,14 +35,14 @@ public:
 	 * to EE_SHADER_INPUT_TYPE_CUSTOM and define your own shaderInput.
 	 * 
 	 * @param pVertices				Void pointer for all kinds of vertex data
-	 * @param amountVertices	The amount of vertices that are supposed to be in pVertices
+	 * @param bufferSize			Size of the vertex data in bytes
 	 * @param indices					List of the indices describing the faces
 	 *
 	 * @return Handle to the created mesh (nullptr if an error occured)
 	 **/
 	EEMesh CreateMesh(
 		void const*									 pVertices,
-		size_t											 amountVertices,
+		size_t											 bufferSize,
 		std::vector<uint32_t> const& indices);
 
 	/**
@@ -106,12 +106,62 @@ public:
 		EESplitscreen																splitscreen = EE_SPLITSCREEN_UNDEFINED);
 
 	/**
-	 * Updates the buffer passed in with the data passed in
+	 * UPDATES the buffer passed in with the data passed in
 	 * 
 	 * @param buffer			The buffer that is desired to be updated
 	 * @param pData				Void pointer to the new data for the buffer
 	 **/
 	void UpdateBuffer(EEBuffer buffer, void const* pData);
+
+	/**
+	 * UPDATES the data of a mesh.
+	 *
+	 * @param mesh				Handle to the mesh that should be updated
+	 * @param pVertices		New vertex data
+	 * @param bufferSize	Size of the vertex data
+	 * @param indices			New index data
+	 **/
+	void UpdateMesh(
+		EEMesh											 mesh,
+		void const*									 pVertices,
+		size_t											 bufferSize,
+		std::vector<uint32_t> const& indices);
+
+	/**
+	 * RELEASES the objects data (descriptor sets for instance). Will wait till queue is idle.
+	 * The shader and meshes that this object used will NOT be released.
+	 *
+	 * @param object		Handle to the object that should be released
+	 **/
+	void ReleaseObject(EEObject& object);
+
+	/**
+	 * RELEASES the mesh's data (buffer, memory...)
+	 *
+	 * @param mesh			Handle to the mesh that is desired to be released
+	 **/
+	void ReleaseMesh(EEMesh& mesh);
+
+	/**
+	 * RELEASES the shaders' data. Will NOT release the textures that were pased in for a descriptor.
+	 *
+	 * @param shader		Handle to the shader that is desired to be released
+	 **/
+	void ReleaseShader(EEShader& shader);
+
+	/**
+	 * RELEASES the textures' data. Teh data loaded from the image will be freed.
+	 *
+	 * @param texture		Handle to the texture that is desired to be released
+	 **/
+	void ReleaseTexture(EETexture& texture);
+
+	/**
+	 * RELEASES the buffers' data and its memory.
+	 *
+	 * @param buffer		Handle to the buffer that is desired to be released
+	 **/
+	void ReleaseBuffer(EEBuffer& buffer);
 
 	/**
 	 * Returns true if the key was just hit. If they key was hit the previous frame

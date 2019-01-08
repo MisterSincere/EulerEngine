@@ -143,8 +143,16 @@ namespace EE {
 		EEShader CreateShader(EEShaderCreateInfo const& shaderCInfo);
 		EEObject CreateObject(EEShader shader, EEMesh mesh, std::vector<EEObjectResourceBinding> const& bindings, EESplitscreen	splitscreen);
 
-		/* @brief Update methods for buffer, ... @TODO? */
+		/* @brief Release methods for any type of vulkan resource representation */
+		void ReleaseObject(EEObject&);
+		void ReleaseMesh(EEMesh&);
+		void ReleaseShader(EEShader&);
+		void ReleaseTexture(EETexture&);
+		void ReleaseBuffer(EEBuffer&);
+
+		/* @brief Update methods for buffer and mesh */
 		void UpdateBuffer(EEBuffer buffer, void const* pData);
+		void UpdateMesh(EEMesh, void const* pVertices, size_t bufferSize, std::vector<uint32_t> const& indices);
 
 
 		void vk_instance();

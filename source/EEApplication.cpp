@@ -133,6 +133,60 @@ void EEApplication::UpdateBuffer(EEBuffer buffer, void const* pData)
 	m_pGraphics->UpdateBuffer(buffer, pData);
 }
 
+void EEApplication::UpdateMesh(EEMesh mesh, void const* pVertices, size_t bufferSize, std::vector<uint32_t> const & indices)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to update a mesh without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	m_pGraphics->UpdateMesh(mesh, pVertices, bufferSize, indices);
+}
+
+void EEApplication::ReleaseObject(EEObject& object)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to release an object without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	m_pGraphics->ReleaseObject(object);
+}
+
+void EEApplication::ReleaseMesh(EEMesh& mesh)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to release a mesh without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	m_pGraphics->ReleaseMesh(mesh);
+}
+
+void EEApplication::ReleaseShader(EEShader& shader)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to release a shader without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	m_pGraphics->ReleaseShader(shader);
+}
+
+void EEApplication::ReleaseTexture(EETexture& texture)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to release a texture without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	m_pGraphics->ReleaseTexture(texture);
+}
+
+void EEApplication::ReleaseBuffer(EEBuffer& buffer)
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to creareleasete a buffer without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	m_pGraphics->ReleaseBuffer(buffer);
+}
+
 bool EEApplication::KeyHit(EEKey key)
 {
 	return m_pWindow->input.keysHit[key];

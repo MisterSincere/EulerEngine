@@ -228,6 +228,163 @@ EEObject EE::Graphics::CreateObject(EEShader shader, EEMesh mesh, std::vector<EE
 	return { LAST_ELEMENT(iCurrentObjects) };
 }
 
+void EE::Graphics::ReleaseObject(EEObject& object)
+{
+	// Acquire buffer index and set the pointer for the user to a nullptr
+	uint32_t index = *object;
+	object = nullptr;
+
+	// Wait 'till queue is idle
+	vkQueueWaitIdle(pDevice->AcquireQueue(vulkan::GRAPHICS_FAMILY));
+
+	// Release the instance of EEInternObject
+	delete currentObjects[index];
+	currentObjects.erase(currentObjects.begin() + index);
+
+	// Release the index/handle
+	delete iCurrentObjects[index];
+	iCurrentObjects.erase(iCurrentObjects.begin() + index);
+
+	EE_INVARIANT(currentObjects.size() == iCurrentObjects.size());
+
+	// Update the indices
+	for (size_t i = 0u; i < iCurrentObjects.size(); i++) {
+		if (*iCurrentObjects[i] > index) (*iCurrentObjects[i])--;
+		else if (*iCurrentObjects[i] == index) {
+			delete iCurrentObjects[i];
+			iCurrentObjects.erase(iCurrentObjects.begin() + i);
+		}
+	}
+
+	EE_INVARIANT(currentObjects.size() == iCurrentObjects.size());
+
+	// Cmd buffer recording is done automatically every frame
+}
+
+void EE::Graphics::ReleaseMesh(EEMesh& mesh)
+{
+	// Acquire buffer index and set the pointer for the user to a nullptr
+	uint32_t index = *mesh;
+	mesh = nullptr;
+
+	// Wait 'till queue is idle
+	vkQueueWaitIdle(pDevice->AcquireQueue(vulkan::GRAPHICS_FAMILY));
+
+	// Release the instance of EEInternMesh
+	delete currentMeshes[index];
+	currentMeshes.erase(currentMeshes.begin() + index);
+
+	// Release the index/handle
+	delete iCurrentMeshes[index];
+	iCurrentMeshes.erase(iCurrentMeshes.begin() + index);
+
+	EE_INVARIANT(currentMeshes.size() == iCurrentMeshes.size());
+
+	// Update the indices
+	for (size_t i = 0u; i < iCurrentMeshes.size(); i++) {
+		if (*iCurrentMeshes[i] > index) (*iCurrentMeshes[i])--;
+		else if (*iCurrentMeshes[i] == index) {
+			delete iCurrentMeshes[i];
+			iCurrentMeshes.erase(iCurrentMeshes.begin() + i);
+		}
+	}
+
+	EE_INVARIANT(currentMeshes.size() == iCurrentMeshes.size());
+}
+
+void EE::Graphics::ReleaseShader(EEShader& shader)
+{
+	// Acquire buffer index and set the pointer for the user to a nullptr
+	uint32_t index = *shader;
+	shader = nullptr;
+
+	// Wait 'till queue is idle
+	vkQueueWaitIdle(pDevice->AcquireQueue(vulkan::GRAPHICS_FAMILY));
+
+	// Release the instance of EEInternShader
+	delete currentShader[index];
+	currentShader.erase(currentShader.begin() + index);
+
+	// Release the index/handle
+	delete iCurrentShader[index];
+	iCurrentShader.erase(iCurrentShader.begin() + index);
+
+	EE_INVARIANT(currentShader.size() == iCurrentShader.size());
+
+	// Update the indices
+	for (size_t i = 0u; i < iCurrentShader.size(); i++) {
+		if (*iCurrentShader[i] > index) (*iCurrentShader[i])--;
+		else if (*iCurrentShader[i] == index) {
+			delete iCurrentShader[i];
+			iCurrentShader.erase(iCurrentShader.begin() + i);
+		}
+	}
+
+	EE_INVARIANT(currentShader.size() == iCurrentShader.size());
+}
+
+void EE::Graphics::ReleaseTexture(EETexture& texture)
+{
+	// Acquire buffer index and set the pointer for the user to a nullptr
+	uint32_t index = *texture;
+	texture = nullptr;
+
+	// Wait 'till queue is idle
+	vkQueueWaitIdle(pDevice->AcquireQueue(vulkan::GRAPHICS_FAMILY));
+
+	// Release the instance of EEInternTexture
+	delete currentTextures[index];
+	currentTextures.erase(currentTextures.begin() + index);
+
+	// Release the index/handle
+	delete iCurrentTextures[index];
+	iCurrentTextures.erase(iCurrentTextures.begin() + index);
+
+	EE_INVARIANT(currentTextures.size() == iCurrentTextures.size());
+
+	// Update the indices
+	for (size_t i = 0u; i < iCurrentTextures.size(); i++) {
+		if (*iCurrentTextures[i] > index) (*iCurrentTextures[i])--;
+		else if (*iCurrentTextures[i] == index) {
+			delete iCurrentTextures[i];
+			iCurrentTextures.erase(iCurrentTextures.begin() + i);
+		}
+	}
+
+	EE_INVARIANT(currentTextures.size() == iCurrentTextures.size());
+}
+
+void EE::Graphics::ReleaseBuffer(EEBuffer& buffer)
+{
+	// Acquire buffer index and set the pointer for the user to a nullptr
+	uint32_t index = *buffer;
+	buffer = nullptr;
+
+	// Wait 'till queue is idle
+	vkQueueWaitIdle(pDevice->AcquireQueue(vulkan::GRAPHICS_FAMILY));
+
+	// Release the instance of EEInternBuffer
+	delete currentBuffers[index];
+	currentBuffers.erase(currentBuffers.begin() + index);
+
+	// Release the index/handle
+	delete iCurrentBuffers[index];
+	iCurrentBuffers.erase(iCurrentBuffers.begin() + index);
+
+	EE_INVARIANT(currentBuffers.size() == iCurrentBuffers.size());
+
+	// Update the indices
+	for (size_t i = 0u; i < iCurrentBuffers.size(); i++) {
+		if (*iCurrentBuffers[i] > index) (*iCurrentBuffers[i])--;
+		else if (*iCurrentBuffers[i] == index) {
+			delete iCurrentBuffers[i];
+			iCurrentBuffers.erase(iCurrentBuffers.begin() + i);
+		}
+	}
+
+	EE_INVARIANT(currentBuffers.size() == iCurrentBuffers.size());
+}
+
 
 void EE::Graphics::UpdateBuffer(EEBuffer buffer, void const * pData)
 {
@@ -236,6 +393,11 @@ void EE::Graphics::UpdateBuffer(EEBuffer buffer, void const * pData)
 		return;
 	}
 	currentBuffers[*buffer]->Update(pData);
+}
+
+void EE::Graphics::UpdateMesh(EEMesh mesh, void const* pVertices, size_t bufferSize, std::vector<uint32_t> const& indices)
+{
+	currentMeshes[*mesh]->Update(pVertices, bufferSize, indices);
 }
 
 
