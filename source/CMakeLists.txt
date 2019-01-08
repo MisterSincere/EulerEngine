@@ -8,7 +8,8 @@ cmake_minimum_required(VERSION 3.2.3)
 # Source Files
 set (EXTERNS vkcore/stb_image.h)
 
-set (SHADER ../assets/shader/color2D.vert ../assets/shader/color2D.frag)
+set (SHADER ../assets/shader/color2D.vert ../assets/shader/color2D.frag
+			../assets/shader/font.vert	  ../assets/shader/font.frag)
 
 set (VULKAN		vkcore/vulkanObject.h		vkcore/vulkanObject.cpp
 				vkcore/vulkanShader.h		vkcore/vulkanShader.cpp
