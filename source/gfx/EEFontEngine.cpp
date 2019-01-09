@@ -354,14 +354,16 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, char* text
 			penY += 1.0f;
 			penX = 0.0f;
 			continue;
+		} else if (text[i] == ' ') {
+			penX += .5f;
+			continue;
 		}
 
 		// Try to get the desired characters' details. std::map::at throws outofrange exception
 		// if the character was not defined as a key in the map
 		try {
 			curLetter = pFont->letterDetails.at(text[i]);
-		}
-		catch (std::out_of_range const& oor) {
+		} catch (std::out_of_range const& oor) {
 			EE_PRINT("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n%s", oor.what());
 			EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n");
 			return EE_FALSE;

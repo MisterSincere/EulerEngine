@@ -16,7 +16,7 @@ namespace EE
 
 		/* @brief Holds informations about the vertex buffer */
 		struct {
-			VkDeviceSize maxBufferSize;
+			VkDeviceSize bufferSize;
 			VkBuffer buffer;
 			VkDeviceMemory memory;
 		} vertexBuffer;
@@ -24,7 +24,7 @@ namespace EE
 		/* @brief Holds informations about the index buffer */
 		struct {
 			uint32_t count;
-			VkDeviceSize maxBufferSize;
+			VkDeviceSize bufferSize;
 			VkBuffer buffer;
 			VkDeviceMemory memory;
 		} indexBuffer;
