@@ -81,14 +81,14 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 	VkDeviceMemory stagingBufferVerticesMemory;
 	VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 										 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-										 vertexSize, &stagingBufferVertices, &stagingBufferVerticesMemory));
+										 vertexSize, &stagingBufferVertices, &stagingBufferVerticesMemory, pData));
 
 	// Also create a staging buffer for the new index data
 	VkBuffer stagingBufferIndices;
 	VkDeviceMemory stagingBufferIndicesMemory;
 	VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 										 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-										 indexSize, &stagingBufferIndices, &stagingBufferIndicesMemory));
+										 indexSize, &stagingBufferIndices, &stagingBufferIndicesMemory, indices.data()));
 
 	// Transfer the data
 	vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
@@ -98,10 +98,10 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 	copyRegion.dstOffset = 0u;
 	// Copy vertex data
 	copyRegion.size = vertexSize;
-	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBufferVertices, vertexBuffer.buffer, 1u, &copyRegion);
+	vkCmdCopyBuffer(execBuffer, stagingBufferVertices, vertexBuffer.buffer, 1u, &copyRegion);
 	// Copy index data
 	copyRegion.size = indexSize;
-	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBufferIndices, indexBuffer.buffer, 1u, &copyRegion);
+	vkCmdCopyBuffer(execBuffer, stagingBufferIndices, indexBuffer.buffer, 1u, &copyRegion);
 
 	execBuffer.EndRecording();
 	execBuffer.Execute();

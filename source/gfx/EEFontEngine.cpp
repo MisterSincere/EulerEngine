@@ -130,7 +130,7 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 	}
 
 	// Set the size of the font face
-	error = FT_Set_Char_Size(pFont->face, 0, 16 * 64, m_pApp->GetWindowExtent().width, m_pApp->GetWindowExtent().height);
+	error = FT_Set_Pixel_Sizes(pFont->face, 256, 256);
 	if (error) {
 		delete pFont;
 		EE_PRINT("[EEFONTENGINE] Failed to set up font (size)!\n");
@@ -143,7 +143,11 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 	uint32_t fontImgWidth{ 0u }, fontImgHeight{ 0u }, glyphIndex{ 0u };
 	uint32_t maxTopBearingY{ 0u }, maxBelowBearingY{ 0u };
 
+	// Initialize fonts' max values so the checks during the loop can be made
+	pFont->maxLetterWidth = 0u;
+
 	FT_GlyphSlot glyph = pFont->face->glyph;
+	uint32_t letterWidth;
 	// Get the bitmap per character
 	for (size_t i = 0u; i < numChars; i++) {
 		glyphIndex = FT_Get_Char_Index(pFont->face, charSet[i]);
@@ -153,10 +157,18 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 		if (error) continue;
 
 		// Store informations about the position of this character in the final image for the shader
-		pFont->letterDetails[charSet[i]] = { fontImgWidth, glyph->bitmap.width, glyph->bitmap.rows, uint32_t(glyph->bitmap_top) };
+		letterWidth = glyph->bitmap.width + 2*glyph->bitmap_left;
+		pFont->letterDetails[charSet[i]] = {
+			fontImgWidth,
+			letterWidth,
+			glyph->bitmap.rows,
+			uint32_t(glyph->bitmap_left),
+			uint32_t(glyph->bitmap_top)
+		};
 
 		// Update the final font image dimensions
-		fontImgWidth += glyph->bitmap.width;
+		pFont->maxLetterWidth = MAX(letterWidth, pFont->maxLetterWidth);
+		fontImgWidth += letterWidth;
 		maxTopBearingY = MAX((uint32_t)glyph->bitmap_top, maxTopBearingY);
 		maxBelowBearingY = MAX((uint32_t)glyph->bitmap.rows - MIN(glyph->bitmap.rows, (uint32_t)glyph->bitmap_top), maxBelowBearingY);
 	}
@@ -180,8 +192,8 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 		// Write the image data of the character to the correct position in the final fontImageData
 		for (uint32_t y = 0u; y < pFont->face->glyph->bitmap.rows; y++) {
 			for (uint32_t x = 0u; x < pFont->face->glyph->bitmap.width; x++) {
-				fontImageData[(y + maxTopBearingY - curLetter.bearingY) * fontImgWidth + curLetter.offsetX + x] =
-					pFont->face->glyph->bitmap.buffer[y * pFont->face->glyph->bitmap.width + x];
+				unsigned char curVal = pFont->face->glyph->bitmap.buffer[y * pFont->face->glyph->bitmap.width + x];
+				fontImageData[(y + maxTopBearingY - curLetter.bearingY) * fontImgWidth + curLetter.offsetX + curLetter.bearingX + x] = curVal;
 			}
 		}
 	}
@@ -195,7 +207,7 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 	textureCInfo.pData = fontImageData;
 	textureCInfo.extent = { fontImgWidth, fontImgHeight };
 	textureCInfo.unnormalizedCoordinates = EE_TRUE;
-	textureCInfo.enableMipMapping = EE_FALSE;
+	textureCInfo.enableMipMapping = EE_TRUE;
 	textureCInfo.format = EE_FORMAT_R8_UNORM;
 	pFont->texture = m_pApp->CreateTexture(textureCInfo);
 
@@ -331,35 +343,45 @@ void GFX::EEFontEngine::Update()
 EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, char* text, std::vector<VertexInput>& vertices, std::vector<uint32_t>& indices)
 {
 	// Settings of the per letter dimensions
-	float letterWidth{ 1.0f }, letterHeight{ 2.0f }, letterSpacing{ 1.0f };
+	float letterWidth{ 1.0f }, letterHeight{ 1.0f }, letterSpacing{ 1.0f }, penX{ 0.0f }, penY{ 0.0f };
 
 	Letter curLetter; //< Stored the letter for each loop iteration
 	uint32_t topLeftIndex, topRightIndex, bottomRightIndex, bottomLeftIndex; //< Stores the current indices
 	for (size_t i = 0u; i < strlen(text); i++) {
+
+		// Handle first special characters, but for every else character use the font
+		if (text[i] == '\n') {
+			penY += 1.0f;
+			penX = 0.0f;
+			continue;
+		}
+
 		// Try to get the desired characters' details. std::map::at throws outofrange exception
 		// if the character was not defined as a key in the map
 		try {
 			curLetter = pFont->letterDetails.at(text[i]);
-		} catch (std::out_of_range const& oor) {
+		}
+		catch (std::out_of_range const& oor) {
 			EE_PRINT("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n%s", oor.what());
 			EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n");
 			return EE_FALSE;
 		}
 
+		letterWidth = (float)curLetter.width / pFont->maxLetterWidth;
 		// TOP LEFT
-		vertices.push_back({ {letterWidth*i, 0.0f}, {float(curLetter.offsetX), 0.0f} });
+		vertices.push_back({ {penX, penY}, {float(curLetter.offsetX), 0.0f} });
 		topLeftIndex = uint32_t(vertices.size() - 1);
 
 		// BOTTOM LEFT
-		vertices.push_back({ {letterWidth*i, letterHeight}, {float(curLetter.offsetX), float(pFont->height)} });
+		vertices.push_back({ {penX, penY + letterHeight}, {float(curLetter.offsetX), float(pFont->height)} });
 		bottomLeftIndex = uint32_t(vertices.size() - 1);
 
 		// TOP RIGHT
-		vertices.push_back({ {letterWidth*i + letterWidth, 0.0f}, {float(curLetter.offsetX + curLetter.width), 0.0f} });
+		vertices.push_back({ {penX + letterWidth, penY}, {float(curLetter.offsetX + curLetter.width), 0.0f} });
 		topRightIndex = uint32_t(vertices.size() - 1);
 
 		// BOTTOM RIGHT
-		vertices.push_back({ {letterWidth*i + letterWidth, letterHeight}, {float(curLetter.offsetX + curLetter.width), float(pFont->height)} });
+		vertices.push_back({ {penX + letterWidth, penY + letterHeight}, {float(curLetter.offsetX + curLetter.width), float(pFont->height)} });
 		bottomRightIndex = uint32_t(vertices.size() - 1);
 
 		// Push back the indices in clockwise order
@@ -369,6 +391,9 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, char* text
 		indices.push_back(topLeftIndex);
 		indices.push_back(bottomRightIndex);
 		indices.push_back(bottomLeftIndex);
+
+		// Shift pen position by the current letterwidth
+		penX += letterWidth;
 	}
 
 	return EE_TRUE;

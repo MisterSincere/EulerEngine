@@ -54,6 +54,7 @@ namespace GFX
 			uint32_t offsetX;
 			uint32_t width;
 			uint32_t height;
+			uint32_t bearingX;
 			uint32_t bearingY;
 		};
 
@@ -64,6 +65,7 @@ namespace GFX
 			uint32_t width;
 			uint32_t height;
 			std::map<char, Letter> letterDetails;
+			uint32_t maxLetterWidth;
 		};
 
 		/* @brief Holds informatios of a text that can be rendered */

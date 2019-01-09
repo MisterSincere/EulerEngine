@@ -14,7 +14,8 @@ void main() {
 	vec4 texColor = texture(tex, fTexCoord);
 
 	if (texColor.r > 0.0) {
-		outColor = ubo.textColor;
+		outColor.rgb = ubo.textColor.rgb;
+		outColor.a = ubo.textColor.a * texColor.r;
 	} else {
 		outColor = vec4(0.0, 0.0, 0.0, 0.0);
 	}

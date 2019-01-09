@@ -136,6 +136,11 @@ EE::Texture::Texture(vulkan::Renderer const* pRenderer, EETextureCreateInfo cons
 		data.channels = 1;
 		break;
 
+	case EE_FORMAT_R8_SNORM:
+		format = VK_FORMAT_R8_SNORM;
+		data.channels = 1;
+		break;
+
 	case EE_FORMAT_R8G8B8A8_UINT:
 		format = VK_FORMAT_R8G8B8A8_UINT;
 		data.channels = 4;
