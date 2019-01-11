@@ -798,5 +798,14 @@ void vulkan::Renderer::Draw() const
 
 void vulkan::Renderer::WaitTillIdle() const
 {
-	vkQueueWaitIdle(EEDEVICE->AcquireQueue(GRAPHICS_FAMILY));
+	if (isCreated2D) {
+		for (size_t i = 0u; i < buffers2D.size(); i++) {
+			buffers2D[i].execBuffer.Wait();
+		}
+	}
+	if (isCreated3D) {
+		for (size_t i = 0u; i < buffers3D.size(); i++) {
+			buffers3D[i].execBuffer.Wait();
+		}
+	}
 }

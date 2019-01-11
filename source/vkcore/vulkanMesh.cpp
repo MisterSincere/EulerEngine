@@ -71,45 +71,68 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 		EE_PRINT("[MESH] Please create the mesh before you want to update it!\n");
 		return;
 	}
+	pRenderer->WaitTillIdle();
 
 	VkDeviceSize newVertexBufferSize = static_cast<VkDeviceSize>(bufferSize);
 	VkDeviceSize newIndexBufferSize = static_cast<VkDeviceSize>(sizeof(uint32_t) * indices.size());
 
-	// Create the staging buffer to upload the new vertex data
-	VkBuffer stagingBufferVertices;
-	VkDeviceMemory stagingBufferVerticesMemory;
-	VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-																	VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-																	newVertexBufferSize, &stagingBufferVertices, &stagingBufferVerticesMemory, pData));
+	bool allowRecreation = false;
 
-	// Also create a staging buffer for the new index data
-	VkBuffer stagingBufferIndices;
-	VkDeviceMemory stagingBufferIndicesMemory;
-	VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-																	VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-																	newIndexBufferSize, &stagingBufferIndices, &stagingBufferIndicesMemory, indices.data()));
+	// VERTEX BUFFER
+	if (allowRecreation && newVertexBufferSize != vertexBuffer.bufferSize) {
+		vkFreeMemory(LDEVICE, vertexBuffer.memory, ALLOCATOR);
+		vkDestroyBuffer(LDEVICE, vertexBuffer.buffer, ALLOCATOR);
 
-	// Transfer the data
-	vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
-	
-	VkBufferCopy copyRegion;
-	copyRegion.srcOffset = 0u;
-	copyRegion.dstOffset = 0u;
-	// Copy vertex data
-	copyRegion.size = newVertexBufferSize;
-	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBufferVertices, vertexBuffer.buffer, 1u, &copyRegion);
-	// Copy index data
-	copyRegion.size = newIndexBufferSize;
-	vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBufferIndices, indexBuffer.buffer, 1u, &copyRegion);
+	} else {
+		// Create the staging buffers
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+																		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+																		newVertexBufferSize, &stagingBuffer, &stagingBufferMemory, pData));
+		// Copy vertex data
+		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+		VkBufferCopy copyRegion;
+		copyRegion.srcOffset = 0u;
+		copyRegion.dstOffset = 0u;
+		copyRegion.size = newVertexBufferSize;
+		vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBuffer, vertexBuffer.buffer, 1u, &copyRegion);
+		execBuffer.EndRecording();
+		execBuffer.Execute();
 
-	execBuffer.EndRecording();
-	execBuffer.Execute();
+		// Free staging buffers
+		vkFreeMemory(LDEVICE, stagingBufferMemory, ALLOCATOR);
+		vkDestroyBuffer(LDEVICE, stagingBuffer, ALLOCATOR);
+	}
 
-	// Free staging buffer
-	vkFreeMemory(LDEVICE, stagingBufferIndicesMemory, ALLOCATOR);
-	vkDestroyBuffer(LDEVICE, stagingBufferIndices, ALLOCATOR);
-	vkFreeMemory(LDEVICE, stagingBufferVerticesMemory, ALLOCATOR);
-	vkDestroyBuffer(LDEVICE, stagingBufferVertices, ALLOCATOR);
+
+	// INDEX BUFFER
+	if (allowRecreation && newIndexBufferSize != indexBuffer.bufferSize) {
+		vkFreeMemory(LDEVICE, indexBuffer.memory, ALLOCATOR);
+		vkDestroyBuffer(LDEVICE, indexBuffer.buffer, ALLOCATOR);
+
+
+	} else {
+		// Also create a staging buffers
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+																		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+																		newIndexBufferSize, &stagingBuffer, &stagingBufferMemory, indices.data()));
+		// Copy index data
+		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+		VkBufferCopy copyRegion;
+		copyRegion.srcOffset = 0u;
+		copyRegion.dstOffset = 0u;
+		copyRegion.size = newIndexBufferSize;
+		vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBuffer, indexBuffer.buffer, 1u, &copyRegion);
+		execBuffer.EndRecording();
+		execBuffer.Execute();
+
+		// Free staging buffers
+		vkFreeMemory(LDEVICE, stagingBufferMemory, ALLOCATOR);
+		vkDestroyBuffer(LDEVICE, stagingBuffer, ALLOCATOR);
+	}
 }
 
 void EE::Mesh::Record(VkCommandBuffer cmdBuffer) const
