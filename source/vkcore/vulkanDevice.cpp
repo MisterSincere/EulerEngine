@@ -401,7 +401,7 @@ void vulkan::Device::CreateDeviceLocalBuffer(void const* pData, VkDeviceSize buf
 					 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, bufferSize, pBufferOut, pBufferMemoryOut));
 
 	// Now transfer the data
-	ExecBuffer execBuffer(this, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+	ExecBuffer execBuffer(this, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	VkBufferCopy copyRegion;
 	copyRegion.srcOffset = 0u;

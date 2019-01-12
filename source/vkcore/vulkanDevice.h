@@ -58,7 +58,7 @@ namespace EE
 			/* @brief Indicates the current available use of this buffer */
 			STATE currentState{ ALLOCATED };
 
-			operator VkCommandBuffer() { return cmdBuffer; }
+			operator VkCommandBuffer() const { return cmdBuffer; }
 
 			/**
 			 * Default constructor

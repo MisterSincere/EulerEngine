@@ -24,7 +24,7 @@ namespace EE
 		vulkan::Renderer const* pRenderer;
 
 		Shader* pShader;
-		Mesh const* pMesh;
+		Mesh* pMesh;
 
 		/* @brief Descriptor set of this object */
 		VkDescriptorSet descriptorSet;
@@ -46,7 +46,7 @@ namespace EE
 		Object(
 			vulkan::Renderer const* pRenderer,
 			Shader*									pShader,
-			Mesh const*							pMesh,
+			Mesh*										pMesh,
 			EESplitscreen						splitscreen);
 
 		/**
@@ -73,7 +73,7 @@ namespace EE
 		 *
 		 * @param cmdBuffer		The command buffer this objects calls will be recorded to
 		 **/
-		void Record(VkCommandBuffer cmdBuffer) const;
+		void Record(VkCommandBuffer cmdBuffer);
 
 
 		// Delete copy/move constructor/assignements

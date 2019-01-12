@@ -16,7 +16,7 @@
 #define ALLOCATOR EEDEVICE->pAllocator
 
 
-EE::Object::Object(vulkan::Renderer const* pRenderer, Shader* pShader, Mesh const* pMesh, EESplitscreen splitscreen)
+EE::Object::Object(vulkan::Renderer const* pRenderer, Shader* pShader, Mesh* pMesh, EESplitscreen splitscreen)
 	: pRenderer(pRenderer)
 	, pMesh(pMesh)
 	, pShader(pShader)
@@ -59,7 +59,7 @@ bool EE::Object::Create(std::vector<EEObjectResourceBinding> const& bindings,
 	return true;
 }
 
-void EE::Object::Record(VkCommandBuffer cmdBuffer) const
+void EE::Object::Record(VkCommandBuffer cmdBuffer)
 {
 	// Record shader
 	pShader->Record(cmdBuffer, (pShader->settings.amountDescriptors) ? &descriptorSet : nullptr);

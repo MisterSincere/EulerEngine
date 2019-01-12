@@ -589,11 +589,6 @@ void vulkan::Renderer::CreateShaderModule(char const* fileName, VkShaderModule& 
 
 void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
 {
-	static float green = 0.0f;
-	static float speed = 0.001f;
-	green += speed;
-	if (green >= 1.0f) green = 0.0f;
-
 	// Clear values are the same over all buffers
 	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 	VkClearValue depthClearValue = { 1.0f, 0 }; // Depth, stencil

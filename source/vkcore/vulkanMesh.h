@@ -15,19 +15,26 @@ namespace EE
 		vulkan::Renderer const* pRenderer;
 
 		/* @brief Holds informations about the vertex buffer */
-		struct {
+		struct VertexBuffer{
 			VkDeviceSize bufferSize;
 			VkBuffer buffer;
 			VkDeviceMemory memory;
-		} vertexBuffer;
+		};
 
 		/* @brief Holds informations about the index buffer */
-		struct {
+		struct IndexBuffer {
 			uint32_t count;
 			VkDeviceSize bufferSize;
 			VkBuffer buffer;
 			VkDeviceMemory memory;
-		} indexBuffer;
+		};
+
+		std::vector<VertexBuffer> vertexBuffers;
+		uint32_t curVertexBuffer{ 0u };
+		bool changeVertexBuffer{ false };
+		std::vector<IndexBuffer> indexBuffers;
+		uint32_t curIndexBuffer{ 0u };
+		bool changeIndexBuffer{ false };
 
 		/* @brief Indicates wether this mesh can be used */
 		bool isCreated{ false };
@@ -85,7 +92,7 @@ namespace EE
 		 *
 		 * @param cmdBuffer		Command buffer this mesh will be record on
 		 **/
-		void Record(VkCommandBuffer cmdBuffer) const;
+		void Record(VkCommandBuffer cmdBuffer);
 
 
 		/* @brief Delete copy/move constructor/assignements */
