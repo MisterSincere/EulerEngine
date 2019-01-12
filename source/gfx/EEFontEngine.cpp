@@ -326,6 +326,11 @@ void GFX::EEFontEngine::ChangeTextColor(EEText text, EEColor const& newColor)
 	m_pApp->UpdateBuffer(pText->fragmentBuffer, &(pText->color));
 }
 
+void GFX::EEFontEngine::SetTextVisibility(EEText text, EEBool32 visibility)
+{
+	m_pApp->SetObjectVisibility(m_currentTexts[*text]->object, visibility);
+}
+
 void GFX::EEFontEngine::Update()
 {
 	// Fragment buffer gets updated if changed for the vertex buffer we do not

@@ -32,6 +32,8 @@ namespace EE
 		bool is2DObject;
 		EESplitscreen splitscreen;
 
+		bool isVisible{ true };
+
 		/* @brief Indicates wether this object is created to a state where it can be used */
 		bool isCreated{ false };
 

@@ -146,6 +146,11 @@ namespace GFX
 		void ChangeTextColor(EEText text, EEColor const& newColor);
 
 		/**
+		 * Changes the visibility of the object
+		 **/
+		void SetTextVisibility(EEText text, EEBool32 visibility);
+
+		/**
 		 * Please call every frame so the text can adjust to i.e. resizing
 		 **/
 		void Update();

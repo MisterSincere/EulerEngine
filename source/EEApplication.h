@@ -128,6 +128,14 @@ public:
 		std::vector<uint32_t> const& indices);
 
 	/**
+	 * If set to true the passed in object won't be rendered
+	 *
+	 * @param object		The object you wanna set visible or not
+	 * @param visible		Boolean indicating wether the object should be rendered
+	 **/
+	void SetObjectVisibility(EEObject object, EEBool32 visible);
+
+	/**
 	 * RELEASES the objects data (descriptor sets for instance). Will wait till queue is idle.
 	 * The shader and meshes that this object used will NOT be released.
 	 *

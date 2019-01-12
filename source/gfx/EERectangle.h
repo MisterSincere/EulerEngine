@@ -33,6 +33,7 @@ namespace GFX
 		void SetPosition(EEPoint32F const& pos);
 		void SetSize(EERect32U const& size);
 		void SetBackgroundColor(EEColor const& color);
+		void SetVisibility(EEBool32 visible);
 
 	private:
 		EEApplication* m_pApp;

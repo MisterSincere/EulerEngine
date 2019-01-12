@@ -15,6 +15,7 @@
 /////////////////
 #include "Window.h"
 #include "Graphics.h"
+#include "vkcore/vulkanObject.h"
 
 using namespace DirectX;
 
@@ -140,6 +141,11 @@ void EEApplication::UpdateMesh(EEMesh mesh, void const* pVertices, size_t buffer
 		EE_INVARIANT(isCreated);
 	}
 	m_pGraphics->UpdateMesh(mesh, pVertices, bufferSize, indices);
+}
+
+void EEApplication::SetObjectVisibility(EEObject object, EEBool32 visible)
+{
+	m_pGraphics->currentObjects[*object]->isVisible = visible;
 }
 
 void EEApplication::ReleaseObject(EEObject& object)

@@ -118,3 +118,8 @@ void EERectangle::SetBackgroundColor(EEColor const& color)
 {
 	m_fragmentUniformBufferContent.fillColor = { color.r, color.g, color.b, color.a };
 }
+
+void GFX::EERectangle::SetVisibility(EEBool32 visible)
+{
+	m_pApp->SetObjectVisibility(m_object, visible);
+}

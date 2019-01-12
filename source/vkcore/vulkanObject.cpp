@@ -61,6 +61,8 @@ bool EE::Object::Create(std::vector<EEObjectResourceBinding> const& bindings,
 
 void EE::Object::Record(VkCommandBuffer cmdBuffer)
 {
+	if (!isVisible) return;
+
 	// Record shader
 	pShader->Record(cmdBuffer, (pShader->settings.amountDescriptors) ? &descriptorSet : nullptr);
 
