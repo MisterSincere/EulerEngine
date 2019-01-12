@@ -27,7 +27,7 @@ public:
 	void Release();
 
 	bool PollEvent();
-	void Draw();
+	void Draw(EEColor const& color = { 0.0f, 0.0f, 0.0f, 1.0f });
 
 	/**
 	 * Creates a MESH with the data passed in and the faces described in the indices array.

@@ -144,8 +144,9 @@ namespace EE
 			 * Each swapchain image as its own command buffer
 			 * 
 			 * @param objectsToDraw		List of all objects that are desired to be drawn
+			 * @param color						A custom clear color for the color attachment
 			 **/
-			void RecordDrawCommands(std::vector<Object*> const& objectsToDraw);
+			void RecordDrawCommands(std::vector<Object*> const& objectsToDraw, EEColor const& color = { 0.0f, 0.0f, 0.0f, 1.0f });
 
 			/**
 			 * Renders the next available image and presents it

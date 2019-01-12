@@ -65,9 +65,9 @@ bool EEApplication::PollEvent()
 	return m_pWindow->PollEvents();
 }
 
-void EEApplication::Draw()
+void EEApplication::Draw(EEColor const& color)
 {
-	m_pGraphics->Draw();
+	m_pGraphics->Draw(color);
 }
 
 EEMesh EEApplication::CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const& indices)

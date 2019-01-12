@@ -128,7 +128,7 @@ namespace EE {
 		/**
 		 * Draws all current objects
 		 **/
-		void Draw();
+		void Draw(EEColor const& color);
 
 		/**
 		 * Recreates/Reconfigures the renderer to the new current size

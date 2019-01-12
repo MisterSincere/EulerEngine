@@ -587,10 +587,10 @@ void vulkan::Renderer::CreateShaderModule(char const* fileName, VkShaderModule& 
 	VK_CHECK(vkCreateShaderModule(LDEVICE, &cinfo, ALLOCATOR, &shaderModuleOut));
 }
 
-void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects)
+void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects, EEColor const& color)
 {
 	// Clear values are the same over all buffers
-	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+	VkClearValue clearColor = { color.r, color.g, color.b, color.a };
 	VkClearValue depthClearValue = { 1.0f, 0 }; // Depth, stencil
 	VkClearValue clearValues[] = { clearColor, depthClearValue };
 	VkRect2D scissor;

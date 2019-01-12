@@ -112,9 +112,9 @@ bool Graphics::Create(Window* pWindow, EEApplicationCreateInfo const& info)
 	return true;
 }
 
-void EE::Graphics::Draw()
+void EE::Graphics::Draw(EEColor const& color)
 {
-	pRenderer->RecordDrawCommands(currentObjects);
+	pRenderer->RecordDrawCommands(currentObjects, color);
 	pRenderer->Draw();
 }
 
