@@ -58,9 +58,9 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	XMStoreFloat4x4(&m_vertexUniformBufferContent.ortho, m_pApp->AcquireOrthoMatrixLH());
 	XMStoreFloat4x4(&m_vertexUniformBufferContent.baseView, m_pApp->AcquireBaseViewLH());
 	// Create world matrix with passed in size and position
-	EERect32U wExtent = pApp->GetWindowExtent();
+	m_initialWindowExtent = pApp->GetWindowExtent();
 	XMMATRIX world = XMMatrixScaling((float)size.width, (float)size.height, 1.0f);
-	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + pos.x, -(wExtent.height / 2.0f) + pos.y, 0.0f);
+	world *= XMMatrixTranslation(-(m_initialWindowExtent.width / 2.0f) + pos.x, -(m_initialWindowExtent.height / 2.0f) + pos.y, 0.0f);
 	XMStoreFloat4x4(&m_vertexUniformBufferContent.world, world);
 
 	// Initialize fragment buffer content
@@ -124,7 +124,13 @@ void GFX::EERectangle::SetVisibility(EEBool32 visible)
 	m_pApp->SetObjectVisibility(m_object, visible);
 }
 
-bool GFX::EERectangle::Intersect(EEPoint32F const & pos)
+bool GFX::EERectangle::Intersect(EEPoint32F const& pos)
 {
-	return false;
+	EERect32U currentExtent = m_pApp->GetWindowExtent();
+	float scaleX = (float)currentExtent.width / m_initialWindowExtent.width;
+	float scaleY = (float)currentExtent.height / m_initialWindowExtent.height;
+	float t1 = pos.x - m_position.x;
+	float t2 = pos.y - m_position.y;
+	return t1 > 0.0f && t1 < m_size.width * scaleX
+				&& t2 > 0.0f && t2 < m_size.height * scaleY;
 }

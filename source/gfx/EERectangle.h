@@ -40,6 +40,7 @@ namespace GFX
 		EEApplication* m_pApp;
 		EEPoint32F m_position;
 		EERect32U m_size;
+		EERect32U m_initialWindowExtent;
 
 		EEShader m_shader;
 		EEMesh m_mesh;

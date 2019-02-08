@@ -183,9 +183,9 @@ public:
 	bool KeyPressed(EEKey key);
 
 	/**
-	 * Stores the current mouse position in the references passed in.
+	 * Stores the current mouse position in the reference passed in.
 	 **/
-	void MousePosition(double& posX, double& posY);
+	void MousePosition(EEPoint32F& pos);
 
 	/**
 	 * Stores the movement of the mouse since the previous frame in

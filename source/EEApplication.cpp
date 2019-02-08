@@ -203,10 +203,9 @@ bool EEApplication::KeyPressed(EEKey key)
 	return m_pWindow->input.keysPressed[key];
 }
 
-void EEApplication::MousePosition(double & posX, double & posY)
+void EEApplication::MousePosition(EEPoint32F& pos)
 {
-	posX = m_pWindow->input.mouseX;
-	posY = m_pWindow->input.mouseY;
+	pos = { (float)m_pWindow->input.mouseX, (float)m_pWindow->input.mouseY };
 }
 
 void EEApplication::MouseMovement(double & dX, double & dY)
