@@ -92,46 +92,45 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 	// VERTEX BUFFER
 	if (newVertexBufferSize > 0 && newVertexBufferSize != CUR_VERTEX_BUFFER.bufferSize) {
 
-		// Create the other vertex buffer and indicate for the next record to use this buffer
-		// note: if changeVertexBuffer is already true this method was called at least twice before
-		// the draw call and we need to release/destroy/free the previous "new" vertex buffer
-		if (changeVertexBuffer) {
-			vkFreeMemory(LDEVICE, OTHER_VERTEX_BUFFER.memory, ALLOCATOR);
-			vkDestroyBuffer(LDEVICE, OTHER_VERTEX_BUFFER.buffer, ALLOCATOR);
-		}
-		else {
-			changeVertexBuffer = true;
-		}
+			// Create the other vertex buffer and indicate for the next record to use this buffer
+			// note: if changeVertexBuffer is already true this method was called at least twice before
+			// the draw call and we need to release/destroy/free the previous "new" vertex buffer
+			if (changeVertexBuffer) {
+				vkFreeMemory(LDEVICE, OTHER_VERTEX_BUFFER.memory, ALLOCATOR);
+				vkDestroyBuffer(LDEVICE, OTHER_VERTEX_BUFFER.buffer, ALLOCATOR);
+			} else {
+				changeVertexBuffer = true;
+			}
 
-		OTHER_VERTEX_BUFFER.bufferSize = newVertexBufferSize;
-		EEDEVICE->CreateDeviceLocalBuffer(pData, OTHER_VERTEX_BUFFER.bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			&(OTHER_VERTEX_BUFFER.buffer), &(OTHER_VERTEX_BUFFER.memory));
+			OTHER_VERTEX_BUFFER.bufferSize = newVertexBufferSize;
+			EEDEVICE->CreateDeviceLocalBuffer(pData, OTHER_VERTEX_BUFFER.bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+				&(OTHER_VERTEX_BUFFER.buffer), &(OTHER_VERTEX_BUFFER.memory));
 
+	} else if (newVertexBufferSize > 0) {
+			// Create the staging buffers
+			VkBuffer stagingBuffer;
+			VkDeviceMemory stagingBufferMemory;
+			VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+																			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+																			newVertexBufferSize, &stagingBuffer, &stagingBufferMemory, pData));
+			// Copy vertex data
+			vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+			VkBufferCopy copyRegion;
+			copyRegion.srcOffset = 0u;
+			copyRegion.dstOffset = 0u;
+			copyRegion.size = newVertexBufferSize;
+			vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBuffer, CUR_VERTEX_BUFFER.buffer, 1u, &copyRegion);
+			execBuffer.EndRecording();
+			execBuffer.Execute();
 
-	} else if (newVertexBufferSize == 0 && newVertexBufferSize != CUR_VERTEX_BUFFER.bufferSize) {
-		changeVertexBuffer = true;
+			// Free staging buffers
+			vkFreeMemory(LDEVICE, stagingBufferMemory, ALLOCATOR);
+			vkDestroyBuffer(LDEVICE, stagingBuffer, ALLOCATOR);
 
 	} else {
-		// Create the staging buffers
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		VK_CHECK(EEDEVICE->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-																		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-																		newVertexBufferSize, &stagingBuffer, &stagingBufferMemory, pData));
-		// Copy vertex data
-		vulkan::ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
-		VkBufferCopy copyRegion;
-		copyRegion.srcOffset = 0u;
-		copyRegion.dstOffset = 0u;
-		copyRegion.size = newVertexBufferSize;
-		vkCmdCopyBuffer(execBuffer.cmdBuffer, stagingBuffer, CUR_VERTEX_BUFFER.buffer, 1u, &copyRegion);
-		execBuffer.EndRecording();
-		execBuffer.Execute();
-
-		// Free staging buffers
-		vkFreeMemory(LDEVICE, stagingBufferMemory, ALLOCATOR);
-		vkDestroyBuffer(LDEVICE, stagingBuffer, ALLOCATOR);
+		changeVertexBuffer = true;
 	}
+	
 
 
 	// INDEX BUFFER
@@ -142,8 +141,7 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 		if (changeIndexBuffer) {
 			vkFreeMemory(LDEVICE, OTHER_INDEX_BUFFER.memory, ALLOCATOR);
 			vkDestroyBuffer(LDEVICE, OTHER_INDEX_BUFFER.buffer, ALLOCATOR);
-		}
-		else {
+		} else {
 			changeIndexBuffer = true;
 		}
 
@@ -152,10 +150,7 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 		EEDEVICE->CreateDeviceLocalBuffer(indices.data(), OTHER_INDEX_BUFFER.bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			&(OTHER_INDEX_BUFFER).buffer, &(OTHER_INDEX_BUFFER).memory);
 
-	} else if(newIndexBufferSize == 0 && newIndexBufferSize != CUR_INDEX_BUFFER.bufferSize) {
-		changeIndexBuffer = true;
-
-	} else {
+	} else if (newIndexBufferSize > 0) {
 		// Also create a staging buffers
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -175,6 +170,9 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 		// Free staging buffers
 		vkFreeMemory(LDEVICE, stagingBufferMemory, ALLOCATOR);
 		vkDestroyBuffer(LDEVICE, stagingBuffer, ALLOCATOR);
+
+	} else {
+		changeIndexBuffer = true;
 	}
 }
 

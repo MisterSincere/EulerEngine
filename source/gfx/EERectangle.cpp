@@ -123,3 +123,8 @@ void GFX::EERectangle::SetVisibility(EEBool32 visible)
 {
 	m_pApp->SetObjectVisibility(m_object, visible);
 }
+
+bool GFX::EERectangle::Intersect(EEPoint32F const & pos)
+{
+	return false;
+}

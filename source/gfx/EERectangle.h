@@ -34,6 +34,7 @@ namespace GFX
 		void SetSize(EERect32U const& size);
 		void SetBackgroundColor(EEColor const& color);
 		void SetVisibility(EEBool32 visible);
+		bool Intersect(EEPoint32F const& pos);
 
 	private:
 		EEApplication* m_pApp;
