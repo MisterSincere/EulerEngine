@@ -355,6 +355,8 @@ VkResult vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures,
 VkResult vulkan::Device::CreateBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryProperties,
 	VkDeviceSize size, VkBuffer* pBufferOut, VkDeviceMemory* pBufferMemoryOut, void const* pData) const
 {
+	assert(size > 0);
+
 	// Create the buffer handle
 	VkBufferCreateInfo bufferCInfo = vulkan::initializers::bufferCreateInfo(usageFlags, size);
 	VK_CHECK(vkCreateBuffer(logicalDevice, &bufferCInfo, pAllocator, pBufferOut));

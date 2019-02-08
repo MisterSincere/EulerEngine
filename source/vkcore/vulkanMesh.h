@@ -16,7 +16,7 @@ namespace EE
 
 		/* @brief Holds informations about the vertex buffer */
 		struct VertexBuffer{
-			VkDeviceSize bufferSize;
+			VkDeviceSize bufferSize{ 0u };
 			VkBuffer buffer;
 			VkDeviceMemory memory;
 		};
@@ -24,7 +24,7 @@ namespace EE
 		/* @brief Holds informations about the index buffer */
 		struct IndexBuffer {
 			uint32_t count;
-			VkDeviceSize bufferSize;
+			VkDeviceSize bufferSize{ 0u };
 			VkBuffer buffer;
 			VkDeviceMemory memory;
 		};
@@ -35,6 +35,7 @@ namespace EE
 		std::vector<IndexBuffer> indexBuffers;
 		uint32_t curIndexBuffer{ 0u };
 		bool changeIndexBuffer{ false };
+
 
 		/* @brief Indicates wether this mesh can be used */
 		bool isCreated{ false };

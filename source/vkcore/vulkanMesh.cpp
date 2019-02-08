@@ -27,10 +27,14 @@ EE::Mesh::Mesh(vulkan::Renderer const* pRenderer)
 EE::Mesh::~Mesh()
 {
 	if (isCreated) {
-		vkFreeMemory(LDEVICE, CUR_INDEX_BUFFER.memory, ALLOCATOR);
-		vkDestroyBuffer(LDEVICE, CUR_INDEX_BUFFER.buffer, ALLOCATOR);
-		vkFreeMemory(LDEVICE, CUR_VERTEX_BUFFER.memory, ALLOCATOR);
-		vkDestroyBuffer(LDEVICE, CUR_VERTEX_BUFFER.buffer, ALLOCATOR);
+		if (CUR_INDEX_BUFFER.bufferSize) {
+			vkFreeMemory(LDEVICE, CUR_INDEX_BUFFER.memory, ALLOCATOR);
+			vkDestroyBuffer(LDEVICE, CUR_INDEX_BUFFER.buffer, ALLOCATOR);
+		}
+		if (CUR_VERTEX_BUFFER.bufferSize) {
+			vkFreeMemory(LDEVICE, CUR_VERTEX_BUFFER.memory, ALLOCATOR);
+			vkDestroyBuffer(LDEVICE, CUR_VERTEX_BUFFER.buffer, ALLOCATOR);
+		}
 
 		isCreated = false;
 	}
@@ -86,20 +90,26 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 
 
 	// VERTEX BUFFER
-	if (newVertexBufferSize != CUR_VERTEX_BUFFER.bufferSize) {
+	if (newVertexBufferSize > 0 && newVertexBufferSize != CUR_VERTEX_BUFFER.bufferSize) {
+
 		// Create the other vertex buffer and indicate for the next record to use this buffer
 		// note: if changeVertexBuffer is already true this method was called at least twice before
 		// the draw call and we need to release/destroy/free the previous "new" vertex buffer
 		if (changeVertexBuffer) {
 			vkFreeMemory(LDEVICE, OTHER_VERTEX_BUFFER.memory, ALLOCATOR);
 			vkDestroyBuffer(LDEVICE, OTHER_VERTEX_BUFFER.buffer, ALLOCATOR);
-		} else {
+		}
+		else {
 			changeVertexBuffer = true;
 		}
 
 		OTHER_VERTEX_BUFFER.bufferSize = newVertexBufferSize;
 		EEDEVICE->CreateDeviceLocalBuffer(pData, OTHER_VERTEX_BUFFER.bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-																			&(OTHER_VERTEX_BUFFER.buffer), &(OTHER_VERTEX_BUFFER.memory));
+			&(OTHER_VERTEX_BUFFER.buffer), &(OTHER_VERTEX_BUFFER.memory));
+
+
+	} else if (newVertexBufferSize == 0 && newVertexBufferSize != CUR_VERTEX_BUFFER.bufferSize) {
+		changeVertexBuffer = true;
 
 	} else {
 		// Create the staging buffers
@@ -125,21 +135,25 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 
 
 	// INDEX BUFFER
-	if (newIndexBufferSize != CUR_INDEX_BUFFER.bufferSize) {
+	if (newIndexBufferSize > 0 && newIndexBufferSize != CUR_INDEX_BUFFER.bufferSize) {
 		// Create the other index buffer and indicate for the next record to use this buffer
 		// note: if changeIndexBuffer is already true this method was called at least twice before
 		// the draw call and we need to release/destroy/free the previous "new" index buffer
 		if (changeIndexBuffer) {
 			vkFreeMemory(LDEVICE, OTHER_INDEX_BUFFER.memory, ALLOCATOR);
 			vkDestroyBuffer(LDEVICE, OTHER_INDEX_BUFFER.buffer, ALLOCATOR);
-		} else {
+		}
+		else {
 			changeIndexBuffer = true;
 		}
 
 		OTHER_INDEX_BUFFER.bufferSize = newIndexBufferSize;
 		OTHER_INDEX_BUFFER.count = uint32_t(indices.size());
 		EEDEVICE->CreateDeviceLocalBuffer(indices.data(), OTHER_INDEX_BUFFER.bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-																			&(OTHER_INDEX_BUFFER).buffer, &(OTHER_INDEX_BUFFER).memory);
+			&(OTHER_INDEX_BUFFER).buffer, &(OTHER_INDEX_BUFFER).memory);
+
+	} else if(newIndexBufferSize == 0 && newIndexBufferSize != CUR_INDEX_BUFFER.bufferSize) {
+		changeIndexBuffer = true;
 
 	} else {
 		// Also create a staging buffers
@@ -166,25 +180,46 @@ void EE::Mesh::Update(void const* pData, size_t bufferSize, std::vector<uint32_t
 
 void EE::Mesh::Record(VkCommandBuffer cmdBuffer)
 {
+	// Will destroy the current vertex buffer if it exists and will switch to the other one
+	// if it exists. Will only be entered once, per "set-to-true" of changeVertexBuffer
 	if (changeVertexBuffer) {
-		vkFreeMemory(LDEVICE, CUR_VERTEX_BUFFER.memory, ALLOCATOR);
-		vkDestroyBuffer(LDEVICE, CUR_VERTEX_BUFFER.buffer, ALLOCATOR);
-		curVertexBuffer = (curVertexBuffer + 1) % 2;
+		if (CUR_VERTEX_BUFFER.bufferSize) {
+			vkFreeMemory(LDEVICE, CUR_VERTEX_BUFFER.memory, ALLOCATOR);
+			vkDestroyBuffer(LDEVICE, CUR_VERTEX_BUFFER.buffer, ALLOCATOR);
+			CUR_VERTEX_BUFFER.bufferSize = 0;
+		}
+
+		if (OTHER_VERTEX_BUFFER.bufferSize) {
+			curVertexBuffer = (curVertexBuffer + 1) % 2;
+		}
+
 		changeVertexBuffer = false;
 	}
+
+	// Similiar to the vertex buffer check above
 	if (changeIndexBuffer) {
-		vkFreeMemory(LDEVICE, CUR_INDEX_BUFFER.memory, ALLOCATOR);
-		vkDestroyBuffer(LDEVICE, CUR_INDEX_BUFFER.buffer, ALLOCATOR);
-		curIndexBuffer = (curIndexBuffer + 1) % 2;
+		if (CUR_INDEX_BUFFER.bufferSize) {
+			vkFreeMemory(LDEVICE, CUR_INDEX_BUFFER.memory, ALLOCATOR);
+			vkDestroyBuffer(LDEVICE, CUR_INDEX_BUFFER.buffer, ALLOCATOR);
+			CUR_INDEX_BUFFER.bufferSize = 0;
+		}
+
+		// Only switch if other exists
+		if (OTHER_INDEX_BUFFER.bufferSize) {
+			curIndexBuffer = (curIndexBuffer + 1) % 2;
+		}
+
 		changeIndexBuffer = false;
 	}
-	// Bind buffer
-	VkDeviceSize offset{ 0 };
-	vkCmdBindVertexBuffers(cmdBuffer, 0u, 1u, &(CUR_VERTEX_BUFFER.buffer), &offset);
-	vkCmdBindIndexBuffer(cmdBuffer, CUR_INDEX_BUFFER.buffer, 0, VK_INDEX_TYPE_UINT32);
 
-	// Draw indexed
-	vkCmdDrawIndexed(cmdBuffer, CUR_INDEX_BUFFER.count, 1u, 0u, 0u, 0u);
+	// Draw this mesh if the index/vertex buffer exist
+	if (CUR_VERTEX_BUFFER.bufferSize && CUR_INDEX_BUFFER.bufferSize) {
+		// Bind buffer
+		VkDeviceSize offset{ 0 };
+		vkCmdBindVertexBuffers(cmdBuffer, 0u, 1u, &(CUR_VERTEX_BUFFER.buffer), &offset);
+		vkCmdBindIndexBuffer(cmdBuffer, CUR_INDEX_BUFFER.buffer, 0, VK_INDEX_TYPE_UINT32);
 
-	
+		// Draw indexed
+		vkCmdDrawIndexed(cmdBuffer, CUR_INDEX_BUFFER.count, 1u, 0u, 0u, 0u);
+	}
 }
