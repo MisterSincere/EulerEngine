@@ -183,15 +183,27 @@ public:
 	bool KeyPressed(EEKey key);
 
 	/**
-	 * Stores the current mouse position in the reference passed in.
+	 * Returns the current position
 	 **/
-	void MousePosition(EEPoint32F& pos);
+	EEPoint64F MousePosition();
 
 	/**
-	 * Stores the movement of the mouse since the previous frame in
-	 * the references passed in.
+	 * Returns the movement of the mouse since the previous frame in
+	 * the point structure where x/y is dx/dy.
 	 **/
-	void MouseMovement(double& dX, double& dY);
+	EEPoint64F MouseMovement();
+
+	/**
+	 * Returns true if the mouse button passed in was just pressed this frame
+	 * @param button		Number identifying the mouse button to check
+	 **/
+	EEBool32 MouseHit(EEMouseButton button);
+
+	/**
+	 * Returns true if the mouse button passed in is currently pressed
+	 * @param button		Number identifying the mouse button to check
+	 **/
+	EEBool32 MouseDown(EEMouseButton button);
 	
 	/**
 	 * Returns an orthogonal left handed projection matrix for 2d rendering with the current

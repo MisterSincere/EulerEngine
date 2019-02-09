@@ -77,6 +77,8 @@ namespace EE {
 			double mouseY;
 			double mouseXDelta;
 			double mouseYDelta;
+			uint32_t mouseDown;
+			uint32_t mouseHit;
 		} input;
 
 		/* @brief User data that is needed in glfw callbacks */

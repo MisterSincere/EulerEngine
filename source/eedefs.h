@@ -70,6 +70,12 @@ enum EEFormat {
 	EE_FORMAT_R8G8B8A8_UNORM,
 };
 
+enum EEMouseButton {
+	EE_MOUSE_BUTTON_RIGHT		= 0x01,
+	EE_MOUSE_BUTTON_MIDDLE	= 0x02,
+	EE_MOUSE_BUTTON_LEFT		= 0x04,
+};
+
 enum EERenderType {
 	EE_RENDER_TYPE_2D = 0x01,
 	EE_RENDER_TYPE_3D = 0x02,
@@ -142,6 +148,11 @@ struct EEPoint32 {
 struct EEPoint32F {
 	float x;
 	float y;
+};
+
+struct EEPoint64F {
+	double x;
+	double y;
 };
 
 struct EEShaderInputDesc {

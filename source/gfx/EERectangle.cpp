@@ -134,3 +134,14 @@ bool GFX::EERectangle::Intersect(EEPoint32F const& pos)
 	return t1 > 0.0f && t1 < m_size.width * scaleX
 				&& t2 > 0.0f && t2 < m_size.height * scaleY;
 }
+
+bool GFX::EERectangle::Intersect(EEPoint64F const& pos)
+{
+	EERect32U curExtent = m_pApp->GetWindowExtent();
+	double scaleX = (double)curExtent.width / m_initialWindowExtent.width;
+	double scaleY = (double)curExtent.height / m_initialWindowExtent.height;
+	double t1 = pos.x - m_position.x;
+	double t2 = pos.y - m_position.y;
+	return t1 > 0 && t1 < m_size.width * scaleX
+		&& t2 > 0 && t2 < m_size.height * scaleY;
+}

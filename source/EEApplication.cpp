@@ -203,15 +203,24 @@ bool EEApplication::KeyPressed(EEKey key)
 	return m_pWindow->input.keysPressed[key];
 }
 
-void EEApplication::MousePosition(EEPoint32F& pos)
+EEPoint64F EEApplication::MousePosition()
 {
-	pos = { (float)m_pWindow->input.mouseX, (float)m_pWindow->input.mouseY };
+	return { m_pWindow->input.mouseX, m_pWindow->input.mouseY };
 }
 
-void EEApplication::MouseMovement(double & dX, double & dY)
+EEPoint64F EEApplication::MouseMovement()
 {
-	dX = m_pWindow->input.mouseXDelta;
-	dX = m_pWindow->input.mouseXDelta;
+	return { m_pWindow->input.mouseXDelta, m_pWindow->input.mouseXDelta };
+}
+
+EEBool32 EEApplication::MouseHit(EEMouseButton button)
+{
+	return (m_pWindow->input.mouseHit & button);
+}
+
+EEBool32 EEApplication::MouseDown(EEMouseButton button)
+{
+	return (m_pWindow->input.mouseDown & button);
 }
 
 DirectX::XMMATRIX EEApplication::AcquireOrthoMatrixLH()

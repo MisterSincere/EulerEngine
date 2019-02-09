@@ -44,6 +44,30 @@ void glfw_cursorPos(GLFWwindow* window, double xpos, double ypos) {
 	eewindow->input.mouseY = ypos;
 }
 
+void glfw_mouseButton(GLFWwindow* window, int button, int action, int mods)
+{
+	Window* eewindow = reinterpret_cast<Window::UserData*>(glfwGetWindowUserPointer(window))->window;
+
+	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+		if (action == GLFW_PRESS) {
+			eewindow->input.mouseDown |= EE_MOUSE_BUTTON_RIGHT;
+			eewindow->input.mouseHit |= EE_MOUSE_BUTTON_RIGHT;
+		} else eewindow->input.mouseDown &= (EE_MOUSE_BUTTON_MIDDLE | EE_MOUSE_BUTTON_LEFT);
+
+	} else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+		if (action == GLFW_PRESS) {
+			eewindow->input.mouseDown |= EE_MOUSE_BUTTON_MIDDLE;
+			eewindow->input.mouseHit|= EE_MOUSE_BUTTON_MIDDLE;
+		} else eewindow->input.mouseDown &= (EE_MOUSE_BUTTON_RIGHT | EE_MOUSE_BUTTON_LEFT);
+
+	} else if(button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (action == GLFW_PRESS) {
+			eewindow->input.mouseDown |= EE_MOUSE_BUTTON_LEFT;
+			eewindow->input.mouseHit |= EE_MOUSE_BUTTON_LEFT;
+		} else eewindow->input.mouseDown &= (EE_MOUSE_BUTTON_RIGHT | EE_MOUSE_BUTTON_MIDDLE);
+	}
+}
+
 
 Window::Window()
 {
@@ -67,6 +91,7 @@ Window::Window()
 	// Initialize the input values
 	input.keysPressed = new bool[GLFW_KEY_LAST];
 	input.keysHit = new bool[GLFW_KEY_LAST];
+	input.mouseDown = input.mouseHit = 0u;
 	assert(input.keysPressed && input.keysHit);
 	memset(input.keysPressed, 0, sizeof(bool) * GLFW_KEY_LAST);
 	memset(input.keysHit, 0, sizeof(bool) * GLFW_KEY_LAST);
@@ -120,6 +145,7 @@ EEBool32 Window::Create(EEApplicationCreateInfo const& windowCInfo, EE::fpEEWind
 	glfwSetWindowSizeCallback(window, glfw_onResize);
 	glfwSetKeyCallback(window, glfw_keyEvent);
 	glfwSetCursorPosCallback(window, glfw_cursorPos);
+	glfwSetMouseButtonCallback(window, glfw_mouseButton);
 
 	return EE_TRUE;
 }
@@ -140,7 +166,7 @@ bool Window::PollEvents()
 {
 	// Reset input values
 	memset(input.keysHit, 0, sizeof(bool) * GLFW_KEY_LAST);
-	input.mouseXDelta = input.mouseYDelta = 0;
+	input.mouseXDelta = input.mouseYDelta = input.mouseHit = 0;
 
 	glfwPollEvents();
 
