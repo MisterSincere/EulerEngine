@@ -78,6 +78,12 @@ void EERectangle::Update()
 	XMStoreFloat4x4(&m_vertexUniformBufferContent.baseView, m_pApp->AcquireBaseViewLH());
 	m_pApp->UpdateBuffer(m_vertexUniformBuffer, &m_vertexUniformBufferContent);
 
+	// Choose hover color if the mouse is currently hovering this rectangle
+	if (m_hoverEnabled && Intersect(m_pApp->MousePosition()))
+		m_fragmentUniformBufferContent.fillColor = { m_hoverColor.r, m_hoverColor.g , m_hoverColor.b , m_hoverColor.a };
+	else
+		m_fragmentUniformBufferContent.fillColor = { m_bgColor.r, m_bgColor.g , m_bgColor.b , m_bgColor.a };
+		
 	m_pApp->UpdateBuffer(m_fragmentUniformBuffer, &m_fragmentUniformBufferContent);
 }
 
@@ -116,7 +122,19 @@ void EERectangle::SetSize(EERect32U const& size)
 
 void EERectangle::SetBackgroundColor(EEColor const& color)
 {
-	m_fragmentUniformBufferContent.fillColor = { color.r, color.g, color.b, color.a };
+	m_bgColor = color;
+	//m_fragmentUniformBufferContent.fillColor = { color.r, color.g, color.b, color.a };
+}
+
+void EERectangle::EnableHover(EEColor const& color)
+{
+	m_hoverEnabled = EE_TRUE;
+	m_hoverColor = color;
+}
+
+void EERectangle::DisableHover()
+{
+	m_hoverEnabled = EE_FALSE;
 }
 
 void GFX::EERectangle::SetVisibility(EEBool32 visible)

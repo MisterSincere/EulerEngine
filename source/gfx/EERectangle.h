@@ -33,6 +33,8 @@ namespace GFX
 		void SetPosition(EEPoint32F const& pos);
 		void SetSize(EERect32U const& size);
 		void SetBackgroundColor(EEColor const& color);
+		void EnableHover(EEColor const& color);
+		void DisableHover();
 		void SetVisibility(EEBool32 visible);
 		bool Intersect(EEPoint32F const& pos);
 		bool Intersect(EEPoint64F const& pos);
@@ -42,6 +44,9 @@ namespace GFX
 		EEPoint32F m_position;
 		EERect32U m_size;
 		EERect32U m_initialWindowExtent;
+		EEColor m_bgColor;
+		EEColor m_hoverColor;
+		EEBool32 m_hoverEnabled{ EE_FALSE };
 
 		EEShader m_shader;
 		EEMesh m_mesh;
