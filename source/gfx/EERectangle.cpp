@@ -69,6 +69,8 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 
 EERectangle::~EERectangle()
 {
+	m_pApp->ReleaseObject(m_object);
+	m_pApp->ReleaseMesh(m_mesh);
 }
 
 void EERectangle::Update()
@@ -78,11 +80,17 @@ void EERectangle::Update()
 	XMStoreFloat4x4(&m_vertexUniformBufferContent.baseView, m_pApp->AcquireBaseViewLH());
 	m_pApp->UpdateBuffer(m_vertexUniformBuffer, &m_vertexUniformBufferContent);
 
-	// Choose hover color if the mouse is currently hovering this rectangle
-	if (m_hoverEnabled && Intersect(m_pApp->MousePosition()))
-		m_fragmentUniformBufferContent.fillColor = { m_hoverColor.r, m_hoverColor.g , m_hoverColor.b , m_hoverColor.a };
-	else
-		m_fragmentUniformBufferContent.fillColor = { m_bgColor.r, m_bgColor.g , m_bgColor.b , m_bgColor.a };
+	// Default background color that can be overwritten if rectangle is active/hovered
+	m_fragmentUniformBufferContent.fillColor = { m_bgColor.r, m_bgColor.g , m_bgColor.b , m_bgColor.a };
+
+	// Check for hover, overwrites default color
+	if (m_hoverEnabled && Intersect(m_pApp->MousePosition())) {
+		m_fragmentUniformBufferContent.fillColor = { m_hoverColor.r, m_hoverColor.g, m_hoverColor.b, m_hoverColor.a };
+	}
+	// Check for active, overwrites hover/default color
+	if (m_activeEnabled && m_pApp->MouseDown(EE_MOUSE_BUTTON_LEFT)) {
+		m_fragmentUniformBufferContent.fillColor = { m_activeColor.r, m_activeColor.g, m_activeColor.b, m_activeColor.a };
+	}
 		
 	m_pApp->UpdateBuffer(m_fragmentUniformBuffer, &m_fragmentUniformBufferContent);
 }
@@ -123,26 +131,36 @@ void EERectangle::SetSize(EERect32U const& size)
 void EERectangle::SetBackgroundColor(EEColor const& color)
 {
 	m_bgColor = color;
-	//m_fragmentUniformBufferContent.fillColor = { color.r, color.g, color.b, color.a };
 }
 
 void EERectangle::EnableHover(EEColor const& color)
 {
-	m_hoverEnabled = EE_TRUE;
+	m_hoverEnabled = true;
 	m_hoverColor = color;
 }
 
 void EERectangle::DisableHover()
 {
-	m_hoverEnabled = EE_FALSE;
+	m_hoverEnabled = false;
 }
 
-void GFX::EERectangle::SetVisibility(EEBool32 visible)
+void EERectangle::EnableActive(EEColor const & color)
+{
+	m_activeEnabled = true;
+	m_activeColor = color;
+}
+
+void EERectangle::DisableActive()
+{
+	m_activeEnabled = false;
+}
+
+void EERectangle::SetVisibility(EEBool32 visible)
 {
 	m_pApp->SetObjectVisibility(m_object, visible);
 }
 
-bool GFX::EERectangle::Intersect(EEPoint32F const& pos)
+bool EERectangle::Intersect(EEPoint32F const& pos)
 {
 	EERect32U currentExtent = m_pApp->GetWindowExtent();
 	float scaleX = (float)currentExtent.width / m_initialWindowExtent.width;
@@ -153,7 +171,7 @@ bool GFX::EERectangle::Intersect(EEPoint32F const& pos)
 				&& t2 > 0.0f && t2 < m_size.height * scaleY;
 }
 
-bool GFX::EERectangle::Intersect(EEPoint64F const& pos)
+bool EERectangle::Intersect(EEPoint64F const& pos)
 {
 	EERect32U curExtent = m_pApp->GetWindowExtent();
 	double scaleX = (double)curExtent.width / m_initialWindowExtent.width;
@@ -162,4 +180,9 @@ bool GFX::EERectangle::Intersect(EEPoint64F const& pos)
 	double t2 = pos.y - m_position.y;
 	return t1 > 0 && t1 < m_size.width * scaleX
 		&& t2 > 0 && t2 < m_size.height * scaleY;
+}
+
+bool EERectangle::Clicked(EEMouseButton button)
+{
+	return m_pApp->MouseHit(button) && Intersect(m_pApp->MousePosition());
 }

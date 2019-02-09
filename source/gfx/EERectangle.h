@@ -35,26 +35,31 @@ namespace GFX
 		void SetBackgroundColor(EEColor const& color);
 		void EnableHover(EEColor const& color);
 		void DisableHover();
+		void EnableActive(EEColor const& color);
+		void DisableActive();
 		void SetVisibility(EEBool32 visible);
 		bool Intersect(EEPoint32F const& pos);
 		bool Intersect(EEPoint64F const& pos);
+		bool Clicked(EEMouseButton button); 
 
 	private:
-		EEApplication* m_pApp;
-		EEPoint32F m_position;
-		EERect32U m_size;
-		EERect32U m_initialWindowExtent;
-		EEColor m_bgColor;
-		EEColor m_hoverColor;
-		EEBool32 m_hoverEnabled{ EE_FALSE };
+		EEApplication*	m_pApp;
+		EEPoint32F			m_position;
+		EERect32U				m_size;
+		EERect32U				m_initialWindowExtent;
+		EEColor					m_bgColor;
+		EEColor					m_hoverColor;
+		bool						m_hoverEnabled{ false };
+		EEColor					m_activeColor;
+		bool						m_activeEnabled{ false };
 
-		EEShader m_shader;
-		EEMesh m_mesh;
-		EEBuffer m_vertexUniformBuffer;
-		EEShaderColor2D::VertexUBO m_vertexUniformBufferContent;
-		EEBuffer m_fragmentUniformBuffer;
+		EEObject	m_object;
+		EEMesh		m_mesh;
+		EEShader	m_shader;
+		EEBuffer	m_vertexUniformBuffer;
+		EEBuffer	m_fragmentUniformBuffer;
+		EEShaderColor2D::VertexUBO	 m_vertexUniformBufferContent;
 		EEShaderColor2D::FragmentUBO m_fragmentUniformBufferContent;
-		EEObject m_object;
 	};
 
 }
