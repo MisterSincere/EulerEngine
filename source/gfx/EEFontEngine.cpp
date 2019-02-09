@@ -292,7 +292,39 @@ GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, char* text, EEPoint32F co
 
 void GFX::EEFontEngine::ReleaseText(EEText& text)
 {
-	// @TODO
+	if (!text) {
+		EE_PRINT("[EEFONTENGINE] Tried to release a text, that was was nullptr!\n");
+		return;
+	}
+
+	// Acquire the index and set the text pointer for the user to nullptr
+	uint32_t index = *text;
+	text = nullptr;
+
+	// Release the resources that only this text was using
+	m_pApp->ReleaseObject(m_currentTexts[index]->object);
+	m_pApp->ReleaseMesh(m_currentTexts[index]->mesh);
+
+	// Release the instance of EEInternText
+	delete m_currentTexts[index];
+	m_currentTexts.erase(m_currentTexts.begin() + index);
+
+	// Release the index/handle
+	delete m_iCurrentTexts[index];
+	m_iCurrentTexts.erase(m_iCurrentTexts.begin() + index);
+
+	EE_INVARIANT(m_currentTexts.size() == m_iCurrentTexts.size());
+
+	// Update the indices if necessary
+	for (size_t i = 0u; i < m_iCurrentTexts.size(); i++) {
+		if (*m_iCurrentTexts[i] > index) (*m_iCurrentTexts[i])--;
+		else if (*m_iCurrentTexts[i] == index) {
+			delete m_iCurrentTexts[i];
+			m_iCurrentTexts.erase(m_iCurrentTexts.begin() + i);
+		}
+	}
+
+	EE_INVARIANT(m_currentTexts.size() == m_iCurrentTexts.size());
 }
 
 EEBool32 GFX::EEFontEngine::ChangeText(EEText text, char* newText)

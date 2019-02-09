@@ -88,7 +88,7 @@ void EERectangle::Update()
 		m_fragmentUniformBufferContent.fillColor = { m_hoverColor.r, m_hoverColor.g, m_hoverColor.b, m_hoverColor.a };
 	}
 	// Check for active, overwrites hover/default color
-	if (m_activeEnabled && m_pApp->MouseDown(EE_MOUSE_BUTTON_LEFT)) {
+	if (m_activeEnabled && m_pApp->MouseDown(EE_MOUSE_BUTTON_LEFT) && Intersect(m_pApp->MousePosition())) {
 		m_fragmentUniformBufferContent.fillColor = { m_activeColor.r, m_activeColor.g, m_activeColor.b, m_activeColor.a };
 	}
 		
