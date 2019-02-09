@@ -75,6 +75,8 @@ namespace GFX
 			EEBuffer vertexBuffer;
 			EEBuffer fragmentBuffer;
 			EEObject object;
+			float size;
+			EEPoint32F position;
 
 			DirectX::XMFLOAT4 color;
 			DirectX::XMFLOAT4X4 world;
@@ -119,10 +121,11 @@ namespace GFX
 		 * @param position	Top left corner position of the text
 		 * @param size			Size of the text in pixel
 		 * @param color			Color of the text
+		 * @param wrapDim		Width and height borders the text will not exceed (defaults to -1 for no auto wrap)
 		 *
 		 * @return Handle to the created text, which can be used to modify/release the text
 		 **/
-		EEText RenderText(EEFont font, char* text, EEPoint32F const& position, float size, EEColor const& color);
+		EEText RenderText(EEFont font, std::string const& text, EEPoint32F const& position, float size, EEColor const& color);
 
 		/**
 		 * Frees the text passed in.
@@ -138,7 +141,19 @@ namespace GFX
 		 *
 		 * @return Could be false if the @note was not adhered to or the vertex buffer update failed.
 		 **/
-		EEBool32 ChangeText(EEText text, char* newText);
+		EEBool32 ChangeText(EEText text, std::string const& newText);
+
+		/**
+		 * Inserts new line characters for the text according to the font passed in where the text exceeds
+		 * the dimensions passed in.
+		 *
+		 * @param font			The font which properties will be used
+		 * @param text			The text that will be wrapped
+		 * @param wrapDim		Struct where x defines the maximum x coord and y respectively
+		 *
+		 * @return The wrapped text
+		 **/
+		std::string WrapText(EEFont font, std::string const& text, float size, EERect32U const& wrapDim);
 
 		/**
 		 * Changes the color of the text passed in
@@ -148,12 +163,24 @@ namespace GFX
 		/**
 		 * Changes the visibility of the object
 		 **/
-		void SetTextVisibility(EEText text, EEBool32 visibility);
+		void SetTextVisibility(EEText text, EEBool32 visibility) const;
+
+		/**
+		 * Changes the position of the text passed in
+		 * @param text		The text which position will be changed
+		 * @param pos			The new position
+		 **/
+		void SetTextPosition(EEText text, EEPoint32F const& pos);
 
 		/**
 		 * Please call every frame so the text can adjust to i.e. resizing
 		 **/
-		void Update();
+		void Update() const;
+
+		/**
+		 * @return The application this font engine operates on
+		 **/
+		EEApplication* GetApplication() const;
 
 	private:
 		/**
@@ -168,9 +195,19 @@ namespace GFX
 		 **/
 		EEBool32 ComputeMeshAccToFont(
 			EEInternFont*							font,
-			char*											text,
+			std::string const&				text,
 			std::vector<VertexInput>& verticesOut,
 			std::vector<uint32_t>&		indicesOut);
+
+		/**
+		 * Goes back from the specified index and replaces the first occurence
+		 * of a space char with a new line.
+		 * @param text		The text that the newline will be placed in
+		 * @param index		The position from where to go
+		 *
+		 * @return Amount of steps back that were needed to find a space
+		 **/
+		int InsertLineBreak(std::string& text, size_t index);
 
 	private:
 		/* @brief The application this font engine will use */

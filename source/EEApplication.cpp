@@ -148,6 +148,15 @@ void EEApplication::SetObjectVisibility(EEObject object, EEBool32 visible)
 	m_pGraphics->currentObjects[*object]->isVisible = visible;
 }
 
+bool EEApplication::IsWindowFocused()
+{
+	if (!isCreated) {
+		EE_PRINT("[EEAPPLICATION] Tried to check if window is focused without a created application...!\n");
+		EE_INVARIANT(isCreated);
+	}
+	return m_pWindow->isFocused;
+}
+
 void EEApplication::ReleaseObject(EEObject& object)
 {
 	if (!isCreated) {

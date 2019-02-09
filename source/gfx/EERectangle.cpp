@@ -75,7 +75,15 @@ EERectangle::~EERectangle()
 
 void EERectangle::Update()
 {
-	// Update the uniform buffers
+	if (i_changes & SIZE_CHANGE || i_changes & POSITION_CHANGE) {
+		// Update world matrix
+		EERect32U wExtent = i_pApp->GetWindowExtent();
+		XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
+		world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
+		XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
+	}
+
+	// Update the vertex uniform buffer
 	XMStoreFloat4x4(&i_vertexUniformBufferContent.ortho, i_pApp->AcquireOrthoMatrixLH());
 	XMStoreFloat4x4(&i_vertexUniformBufferContent.baseView, i_pApp->AcquireBaseViewLH());
 	i_pApp->UpdateBuffer(i_vertexUniformBuffer, &i_vertexUniformBufferContent);
@@ -91,8 +99,11 @@ void EERectangle::Update()
 	if (i_activeEnabled && i_pApp->MouseDown(EE_MOUSE_BUTTON_LEFT) && Intersect(i_pApp->MousePosition())) {
 		i_fragmentUniformBufferContent.fillColor = { i_activeColor.r, i_activeColor.g, i_activeColor.b, i_activeColor.a };
 	}
-		
+	// Update fragment uniform buffer storing the background color
 	i_pApp->UpdateBuffer(i_fragmentUniformBuffer, &i_fragmentUniformBufferContent);
+
+	// Reset changes, since all are uploaded now
+	i_changes = 0u;
 }
 
 void EERectangle::SetPositionAligned(EECenterFlags f) {
@@ -102,20 +113,13 @@ void EERectangle::SetPositionAligned(EECenterFlags f) {
 		(f&HORIZONTAL) ? (wExtent.width - i_size.width) / 2.0f : i_position.x,
 		(f&VERTICAL) ? (wExtent.height - i_size.height) / 2.0f : i_position.y
 	};
-	// Update world matrix
-	XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
-	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
+	i_changes |= POSITION_CHANGE;
 }
 
 void EERectangle::SetPosition(EEPoint32F const& pos)
 {
 	i_position = pos;
-	// Update world matrix
-	EERect32U wExtent = i_pApp->GetWindowExtent();
-	XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
-	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
+	i_changes |= POSITION_CHANGE;
 }
 
 EEPoint32F const& GFX::EERectangle::GetPosition()
@@ -131,11 +135,7 @@ EERect32U const& GFX::EERectangle::GetSize()
 void EERectangle::SetSize(EERect32U const& size)
 {
 	i_size = size;
-	// Update world matrix
-	EERect32U wExtent = i_pApp->GetWindowExtent();
-	XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
-	world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
+	i_changes |= SIZE_CHANGE;
 }
 
 void EERectangle::SetBackgroundColor(EEColor const& color)
@@ -145,8 +145,8 @@ void EERectangle::SetBackgroundColor(EEColor const& color)
 
 void EERectangle::EnableHover(EEColor const& color)
 {
-	i_hoverEnabled = true;
 	i_hoverColor = color;
+	i_hoverEnabled = true;
 }
 
 void EERectangle::DisableHover()
@@ -156,8 +156,8 @@ void EERectangle::DisableHover()
 
 void EERectangle::EnableActive(EEColor const & color)
 {
-	i_activeEnabled = true;
 	i_activeColor = color;
+	i_activeEnabled = true;
 }
 
 void EERectangle::DisableActive()

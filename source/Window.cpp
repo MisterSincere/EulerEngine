@@ -68,6 +68,12 @@ void glfw_mouseButton(GLFWwindow* window, int button, int action, int mods)
 	}
 }
 
+void glfw_focus(GLFWwindow* window, int gainedFocus)
+{
+	Window* eewindow = reinterpret_cast<Window::UserData*>(glfwGetWindowUserPointer(window))->window;
+
+	eewindow->isFocused = gainedFocus;
+}
 
 Window::Window()
 {
@@ -146,6 +152,7 @@ EEBool32 Window::Create(EEApplicationCreateInfo const& windowCInfo, EE::fpEEWind
 	glfwSetKeyCallback(window, glfw_keyEvent);
 	glfwSetCursorPosCallback(window, glfw_cursorPos);
 	glfwSetMouseButtonCallback(window, glfw_mouseButton);
+	glfwSetWindowFocusCallback(window, glfw_focus);
 
 	return EE_TRUE;
 }

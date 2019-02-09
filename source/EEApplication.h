@@ -136,6 +136,11 @@ public:
 	void SetObjectVisibility(EEObject object, EEBool32 visible);
 
 	/**
+	 * @return Is true if the window is currently focused
+	 **/
+	bool IsWindowFocused();
+
+	/**
 	 * RELEASES the objects data (descriptor sets for instance). Will wait till queue is idle.
 	 * The shader and meshes that this object used will NOT be released.
 	 *

@@ -728,6 +728,20 @@ void vulkan::Renderer::RecordDrawCommands(std::vector<Object*> const& objects, E
 
 void vulkan::Renderer::Draw() const
 {
+#ifdef _DEBUG
+	static bool lastTimeFocused{ true };
+	if (!pSwapchain->pWindow->isFocused) {
+		if (lastTimeFocused) {
+			lastTimeFocused = false;
+			EE_PRINT("[VULKAN_RENDERER] Window is not focused, stopped rendering!\n");
+		}
+		return;
+	}
+	lastTimeFocused = true;
+#else
+	if (!pSwapchain->pWindow->isFocused) return;
+#endif
+
 	uint32_t imageIndex;
 	pSwapchain->AcquireNextImage(semaphores.imageAvailable, &imageIndex);
 

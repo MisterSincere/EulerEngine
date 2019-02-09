@@ -69,6 +69,9 @@ namespace EE {
 			const char* title;
     } settings;
 
+		/* @brief Indicates wether the window is in the foreground */
+		bool isFocused{ true };
+
 		// Holds input values
 		struct {
 			bool* keysHit;

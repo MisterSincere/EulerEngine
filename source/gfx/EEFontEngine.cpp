@@ -15,6 +15,9 @@ using namespace DirectX;
 #define MIN(x, y) ((x < y) ? x : y)
 #define LAST_ELEMENT(vec) (vec[vec.size() - 1])
 
+#define SPACE_DISTANCE 0.5f
+#define ABS_LETTER_HEIGHT 1.0f
+
 GFX::EEFontEngine::EEFontEngine(EEApplication* pApp, uint32_t amountTexts)
 	: m_pApp(pApp)
 {
@@ -229,10 +232,8 @@ void GFX::EEFontEngine::ReleaseFont(EEFont & font)
 	// @TODO
 }
 
-GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, char* text, EEPoint32F const& position, float size, EEColor const& color)
+GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, std::string const& text, EEPoint32F const& position, float size, EEColor const& color)
 {
-	assert(text);
-
 	// Get the font
 	EEInternFont* curFont = m_currentFonts[*font];
 
@@ -243,6 +244,8 @@ GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, char* text, EEPoint32F co
 	// Store color and font
 	pText->color = { color.r, color.g, color.b, color.a };
 	pText->pFont = curFont;
+	pText->size = size;
+	pText->position = position;
 
 	// Get the mesh for the text
 	std::vector<VertexInput> vertices;
@@ -274,9 +277,9 @@ GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, char* text, EEPoint32F co
 
 	EERect32U wExtent = m_pApp->GetWindowExtent();
 	XMMATRIX world = XMMatrixTransformation2D(
-		{ 0.0f, 0.0f }, 0.0f, { size, size }, //< Scale to desired size
+		{ 0.0f, 0.0f }, 0.0f, { pText->size, pText->size}, //< Scale to desired size
 		{ 0.0f, 0.0f }, 0.0f,										//< No rotation supported until now
-		{ -(wExtent.width / 2.0f) + position.x, -(wExtent.height / 2.0f) + position.y } //< Translate depending on position
+		{ -(wExtent.width / 2.0f) + pText->position.x, -(wExtent.height / 2.0f) + pText->position.y } //< Translate depending on position
 	);
 	XMStoreFloat4x4(&(pText->world), world);
 
@@ -293,7 +296,7 @@ GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, char* text, EEPoint32F co
 void GFX::EEFontEngine::ReleaseText(EEText& text)
 {
 	if (!text) {
-		EE_PRINT("[EEFONTENGINE] Tried to release a text, that was was nullptr!\n");
+		EE_PRINT("[EEFONTENGINE] Tried to release a text, that was already nullptr!\n");
 		return;
 	}
 
@@ -327,7 +330,7 @@ void GFX::EEFontEngine::ReleaseText(EEText& text)
 	EE_INVARIANT(m_currentTexts.size() == m_iCurrentTexts.size());
 }
 
-EEBool32 GFX::EEFontEngine::ChangeText(EEText text, char* newText)
+EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::string const& newText)
 {
 	if (!text) {
 		EE_PRINT("[EEFONTENGINE] Text handle that was passed into ChangeText was nullptr!\n");
@@ -344,6 +347,54 @@ EEBool32 GFX::EEFontEngine::ChangeText(EEText text, char* newText)
 	return EE_TRUE;
 }
 
+std::string GFX::EEFontEngine::WrapText(EEFont font, std::string const& text, float size, EERect32U const& wrapDim)
+{
+	if (wrapDim.width < size || wrapDim.height < size) {
+		EE_PRINT("[EEFONTENGINE] Choose bigger wrap dimensions, at least > than passed in size!\n");
+		return text;
+	}
+
+	assert(font);
+	EEInternFont* pFont = m_currentFonts[*font];
+	assert(pFont);
+
+	float maxWidth		 { (float)wrapDim.width },
+				maxHeight		 { (float)wrapDim.height },
+				currentSpaceX{ maxWidth },
+				currentSpaceY{ maxHeight };
+	
+	std::string output(text);
+
+	for (size_t i = 0u; i < text.size(); i++) {
+		if (text[i] == '\n') {
+			currentSpaceX = maxWidth;
+			currentSpaceY -= ABS_LETTER_HEIGHT * size;
+		}
+		else if(text[i] == ' ') {
+			currentSpaceX -= SPACE_DISTANCE * size;
+		}
+		else {
+			currentSpaceX -= size * pFont->letterDetails.at(text[i]).width / pFont->maxLetterWidth;
+		}
+		
+		//EE_PRINT("%s :: %f, %f\n", &text[i], currentSpaceX, currentSpaceY);
+
+		if (currentSpaceX < 0.0f) {
+			i -= InsertLineBreak(output, i);
+			currentSpaceX = maxWidth;
+			currentSpaceY -= ABS_LETTER_HEIGHT * size;
+		}
+		// Check if there is still space for another line
+		if (currentSpaceY < ABS_LETTER_HEIGHT * size) {
+			output.erase(output.begin() + i, output.end());
+			break;
+		}
+	}
+
+
+	return output;
+}
+
 void GFX::EEFontEngine::ChangeTextColor(EEText text, EEColor const& newColor)
 {
 	if (!text) {
@@ -358,12 +409,24 @@ void GFX::EEFontEngine::ChangeTextColor(EEText text, EEColor const& newColor)
 	m_pApp->UpdateBuffer(pText->fragmentBuffer, &(pText->color));
 }
 
-void GFX::EEFontEngine::SetTextVisibility(EEText text, EEBool32 visibility)
+void GFX::EEFontEngine::SetTextVisibility(EEText text, EEBool32 visibility) const
 {
 	m_pApp->SetObjectVisibility(m_currentTexts[*text]->object, visibility);
 }
 
-void GFX::EEFontEngine::Update()
+void GFX::EEFontEngine::SetTextPosition(EEText text, EEPoint32F const& pos)
+{
+	EEInternText* handle = m_currentTexts[*text];
+	EERect32U wExtent = m_pApp->GetWindowExtent();
+	handle->position = pos;
+	XMStoreFloat4x4(&handle->world, XMMatrixTransformation2D(
+		{ 0.0f, 0.0f }, 0.0f, { handle->size, handle->size }, //< Scale to desired size
+		{ 0.0f, 0.0f }, 0.0f,										//< No rotation supported until now
+		{ -(wExtent.width / 2.0f) + handle->position.x, -(wExtent.height / 2.0f) + handle->position.y } //< Translate depending on position
+	));
+}
+
+void GFX::EEFontEngine::Update() const
 {
 	// Fragment buffer gets updated if changed for the vertex buffer we do not
 	// know when the ortho/baseView matrix may have changed so we update it every frame
@@ -377,22 +440,28 @@ void GFX::EEFontEngine::Update()
 	}
 }
 
-EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, char* text, std::vector<VertexInput>& vertices, std::vector<uint32_t>& indices)
+EEApplication* GFX::EEFontEngine::GetApplication() const
+{
+	return m_pApp;
+}
+
+EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::string const& text,
+	std::vector<VertexInput>& vertices, std::vector<uint32_t>& indices)
 {
 	// Settings of the per letter dimensions
-	float letterWidth{ 1.0f }, letterHeight{ 1.0f }, letterSpacing{ 1.0f }, penX{ 0.0f }, penY{ 0.0f };
+	float letterWidth{ 1.0f }, letterHeight{ ABS_LETTER_HEIGHT }, letterSpacing{ 1.0f }, penX{ 0.0f }, penY{ 0.0f };
 
 	Letter curLetter; //< Stored the letter for each loop iteration
 	uint32_t topLeftIndex, topRightIndex, bottomRightIndex, bottomLeftIndex; //< Stores the current indices
-	for (size_t i = 0u; i < strlen(text); i++) {
+	for (size_t i = 0u; i < text.size(); i++) {
 
 		// Handle first special characters, but for every else character use the font
 		if (text[i] == '\n') {
-			penY += 1.0f;
+			penY += letterHeight;
 			penX = 0.0f;
 			continue;
 		} else if (text[i] == ' ') {
-			penX += .5f;
+			penX += SPACE_DISTANCE;
 			continue;
 		}
 
@@ -401,7 +470,7 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, char* text
 		try {
 			curLetter = pFont->letterDetails.at(text[i]);
 		} catch (std::out_of_range const& oor) {
-			EE_PRINT("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n%s", oor.what());
+			EE_PRINT("[EEFONTENGINE] Invalid character! The desired text contains at least on character that was not defined in the charset of the font.\n%s", oor.what());
 			EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n");
 			return EE_FALSE;
 		}
@@ -437,3 +506,12 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, char* text
 
 	return EE_TRUE;
 }
+
+int GFX::EEFontEngine::InsertLineBreak(std::string& text, size_t index)
+{
+	size_t tempIndex{ index };
+	while (index > 1 && text[index] != ' ') index--;
+	text.replace(index, 1, "\n");
+	return tempIndex - index;
+}
+
