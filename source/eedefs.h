@@ -140,6 +140,16 @@ struct EERect32U {
 	uint32_t height;
 };
 
+struct EERect32F {
+	float width;
+	float height;
+};
+
+struct EERect64F {
+	double width;
+	double height;
+};
+
 struct EEPoint32 {
 	int32_t x;
 	int32_t y;

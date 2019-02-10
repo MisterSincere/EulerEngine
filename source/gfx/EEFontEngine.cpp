@@ -250,7 +250,7 @@ GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, std::string const& text, 
 	// Get the mesh for the text
 	std::vector<VertexInput> vertices;
 	std::vector<uint32_t> indices;
-	if (!ComputeMeshAccToFont(curFont, text, vertices, indices)) return nullptr;
+	if (!ComputeMeshAccToFont(curFont, text, vertices, indices, pText->maxTextDimensions)) return nullptr;
 	pText->mesh = m_pApp->CreateMesh(vertices.data(), sizeof(VertexInput) * vertices.size(), indices);
 
 	// Create the ubos
@@ -337,17 +337,19 @@ EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::string const& newText)
 		return EE_FALSE;
 	}
 	
+	EEInternText* pText = m_currentTexts[*text];
+
 	// Compute new mesh
 	std::vector<VertexInput> vertices;
 	std::vector<uint32_t> indices;
-	ComputeMeshAccToFont(m_currentTexts[*text]->pFont, newText, vertices, indices);
+	ComputeMeshAccToFont(pText->pFont, newText, vertices, indices, pText->maxTextDimensions);
 
-	m_pApp->UpdateMesh(m_currentTexts[*text]->mesh, vertices.data(), sizeof(VertexInput) * vertices.size(), indices);
+	m_pApp->UpdateMesh(pText->mesh, vertices.data(), sizeof(VertexInput) * vertices.size(), indices);
 
 	return EE_TRUE;
 }
 
-std::string GFX::EEFontEngine::WrapText(EEFont font, std::string const& text, float size, EERect32U const& wrapDim)
+std::string GFX::EEFontEngine::WrapText(EEFont font, std::string const& text, float size, EERect32F const& wrapDim)
 {
 	if (wrapDim.width < size || wrapDim.height < size) {
 		EE_PRINT("[EEFONTENGINE] Choose bigger wrap dimensions, at least > than passed in size!\n");
@@ -426,6 +428,12 @@ void GFX::EEFontEngine::SetTextPosition(EEText text, EEPoint32F const& pos)
 	));
 }
 
+void GFX::EEFontEngine::SetCharacterSize(EEText text, float charSize)
+{
+	EE_PRINT("[EEFONTENGINE] SetCharacterSize::TODO\n");
+	// TODO
+}
+
 void GFX::EEFontEngine::Update() const
 {
 	// Fragment buffer gets updated if changed for the vertex buffer we do not
@@ -440,16 +448,31 @@ void GFX::EEFontEngine::Update() const
 	}
 }
 
+EERect32F GFX::EEFontEngine::GetTextDimensions(EEText text)
+{
+	if (!text) {
+		EE_PRINT("[EEFONTENGINE] Tried to get text dimensions of a nullptr!\n");
+		assert(text);
+		return EERect32F();
+	}
+	EEInternText* pText = m_currentTexts[*text];
+	assert(pText);
+
+	return { pText->size * pText->maxTextDimensions.width, pText->size * pText->maxTextDimensions.height };
+}
+
 ::EEApplication* GFX::EEFontEngine::GetApplication() const
 {
 	return m_pApp;
 }
 
 EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::string const& text,
-	std::vector<VertexInput>& vertices, std::vector<uint32_t>& indices)
+	std::vector<VertexInput>& vertices, std::vector<uint32_t>& indices, EERect32F& maxTextDims)
 {
 	// Settings of the per letter dimensions
 	float letterWidth{ 1.0f }, letterHeight{ ABS_LETTER_HEIGHT }, letterSpacing{ 1.0f }, penX{ 0.0f }, penY{ 0.0f };
+	maxTextDims = { 0.0f, 0.0f }; //< Initialize to zero so the max check works correctly
+
 
 	Letter curLetter; //< Stored the letter for each loop iteration
 	uint32_t topLeftIndex, topRightIndex, bottomRightIndex, bottomLeftIndex; //< Stores the current indices
@@ -457,8 +480,13 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::strin
 
 		// Handle first special characters, but for every else character use the font
 		if (text[i] == '\n') {
+			// New line means this is as big as it gets with this line
+			// so store the width if it is new maximum. Then reset penX  
+			// and increase penY to indicate thew new line
+			maxTextDims.width = MAX(maxTextDims.width, penX);
 			penY += letterHeight;
 			penX = 0.0f;
+
 			continue;
 		} else if (text[i] == ' ') {
 			penX += SPACE_DISTANCE;
@@ -504,6 +532,9 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::strin
 		penX += letterWidth;
 	}
 
+	maxTextDims.width = MAX(maxTextDims.width, penX); //< Also check if last (or only) line is biggest
+	maxTextDims.height = penY + letterHeight; //< We won't make a new line
+
 	return EE_TRUE;
 }
 
@@ -512,6 +543,6 @@ int GFX::EEFontEngine::InsertLineBreak(std::string& text, size_t index)
 	size_t tempIndex{ index };
 	while (index > 1 && text[index] != ' ') index--;
 	text.replace(index, 1, "\n");
-	return tempIndex - index;
+	return (int)tempIndex - index;
 }
 

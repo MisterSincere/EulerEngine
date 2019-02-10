@@ -77,6 +77,7 @@ namespace GFX
 			EEObject object;
 			float size;
 			EEPoint32F position;
+			EERect32F maxTextDimensions;
 
 			DirectX::XMFLOAT4 color;
 			DirectX::XMFLOAT4X4 world;
@@ -153,7 +154,7 @@ namespace GFX
 		 *
 		 * @return The wrapped text
 		 **/
-		std::string WrapText(EEFont font, std::string const& text, float size, EERect32U const& wrapDim);
+		std::string WrapText(EEFont font, std::string const& text, float size, EERect32F const& wrapDim);
 
 		/**
 		 * Changes the color of the text passed in
@@ -173,9 +174,21 @@ namespace GFX
 		void SetTextPosition(EEText text, EEPoint32F const& pos);
 
 		/**
+		 * Changes the size in pixels of the text passed in
+		 * @param text			The text to change
+		 * @param charSize	New desired size in pixels of the text
+		 **/
+		void SetCharacterSize(EEText text, float charSize);
+
+		/**
 		 * Please call every frame so the text can adjust to i.e. resizing
 		 **/
 		void Update() const;
+
+		/**
+		 * @return The pixel width/height the text takes
+		 **/
+		EERect32F GetTextDimensions(EEText text);
 
 		/**
 		 * @return The application this font engine operates on
@@ -190,6 +203,7 @@ namespace GFX
 		 * @param text				The desired text to compute vertices/indices for
 		 * @param verticesOut	Will be filled with the computed vertex data
 		 * @param indicesOut	Will be filled with the indices according to the vertex data
+		 * @param maxTextDims The maximum width and height in pixels the text needs
 		 *
 		 * @return Is false if a desired character was not declared to be in the charset
 		 **/
@@ -197,7 +211,8 @@ namespace GFX
 			EEInternFont*							font,
 			std::string const&				text,
 			std::vector<VertexInput>& verticesOut,
-			std::vector<uint32_t>&		indicesOut);
+			std::vector<uint32_t>&		indicesOut,
+			EERect32F&								maxTextDims);
 
 		/**
 		 * Goes back from the specified index and replaces the first occurence

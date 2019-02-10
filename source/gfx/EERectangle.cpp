@@ -8,6 +8,8 @@
 #include <EEApplication.h>
 #include <string>
 
+#include "vkcore/vulkanTools.h"
+
 using namespace GFX;
 using namespace DirectX;
 
@@ -134,6 +136,7 @@ EERect32U const& GFX::EERectangle::GetSize()
 
 void EERectangle::SetSize(EERect32U const& size)
 {
+	EE_INFO("[EERECTANGLE] New size: %d, %d\n", size.width, size.height);
 	i_size = size;
 	i_changes |= SIZE_CHANGE;
 }

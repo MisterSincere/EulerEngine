@@ -20,8 +20,7 @@ namespace GFX
 	{
 	public:
 		EETextBox(EEFontEngine* pFontEngine, std::string const& text, EEFont font,
-			float charSize = { 30.f }, EEColor const& textColor = { .9f, .9f, .9f, 1.f },
-			EEPoint32F const& pos = { 0.0f, 0.0f }, EERect32U const& size = { 200u, 200u });
+			float charSize = { 30.f }, EEPoint32F const& pos = { 0.0f, 0.0f }, EEColor const& textColor = { .9f, .9f, .9f, 1.f });
 		EETextBox(EETextBox const&) = delete;
 		EETextBox(EETextBox&&) = delete;
 		~EETextBox();

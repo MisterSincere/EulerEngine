@@ -5,23 +5,41 @@
 
 
 
-GFX::EETextBox::EETextBox(EEFontEngine* pFontEngine, std::string const& text, EEFont font, float charSize, EEColor const& textColor,
-													EEPoint32F const& pos, EERect32U const& size)
-	: EERectangle(pFontEngine->GetApplication(), pos, size)
+GFX::EETextBox::EETextBox(EEFontEngine* pFontEngine, std::string const& text,
+	EEFont font, float charSize, EEPoint32F const& pos, EEColor const& textColor)
+	: EERectangle(pFontEngine->GetApplication(), pos)
 	, m_pFontEngine(pFontEngine)
 	, m_textColor(textColor)
 	, m_characterSize(charSize)
 	, m_text(text)
 	, m_font(font)
 {
-	// Store the text with newline characters where the end of box was reached
-	m_textAutoWrapped = m_pFontEngine->WrapText(m_font, m_text, m_characterSize,
-		{ i_size.width - (uint32_t)(m_paddingLeft - m_paddingRight), i_size.height - (uint32_t)(m_paddingTop - m_paddingBottom) });
-	
-	m_renderText = m_pFontEngine->RenderText(m_font, m_textAutoWrapped,
-																					 { i_position.x + m_paddingLeft, i_position.y + m_paddingTop },
-																					 m_characterSize, m_textColor);
+	m_textAutoWrapped = m_text; // No auto wrap we adjust the box size to the maximum text width/height
+	m_renderText = m_pFontEngine->RenderText(m_font, m_textAutoWrapped, i_position, charSize, textColor);
+
+	EERect32F textSize = m_pFontEngine->GetTextDimensions(m_renderText);
+	SetSize({ (uint32_t)std::ceilf(textSize.width), (uint32_t)std::ceilf(textSize.height) });
+
+
 }
+//
+//GFX::EETextBox::EETextBox(EEFontEngine* pFontEngine, std::string const& text, EEFont font, float charSize, EEColor const& textColor,
+//													EEPoint32F const& pos, EERect32U const& size)
+//	: EERectangle(pFontEngine->GetApplication(), pos, size)
+//	, m_pFontEngine(pFontEngine)
+//	, m_textColor(textColor)
+//	, m_characterSize(charSize)
+//	, m_text(text)
+//	, m_font(font)
+//{
+//	// Store the text with newline characters where the end of box was reached
+//	m_textAutoWrapped = m_pFontEngine->WrapText(m_font, m_text, m_characterSize,
+//		{ (float)i_size.width - m_paddingLeft - m_paddingRight, (float)i_size.height - m_paddingTop - m_paddingBottom });
+//	
+//	m_renderText = m_pFontEngine->RenderText(m_font, m_textAutoWrapped,
+//																					 { i_position.x + m_paddingLeft, i_position.y + m_paddingTop },
+//																					 m_characterSize, m_textColor);
+//}
 
 GFX::EETextBox::~EETextBox()
 {
@@ -35,7 +53,7 @@ void GFX::EETextBox::Update()
 	}
 	if (i_changes & TEXT_CHANGE || i_changes & SIZE_CHANGE || i_changes & PADDING_CHANGE) {
 		std::string newTextWrapped = m_pFontEngine->WrapText(m_font, m_text, m_characterSize,
-			{ i_size.width - (uint32_t)(m_paddingLeft - m_paddingRight), i_size.height - (uint32_t)(m_paddingTop - m_paddingBottom) });
+			{ (float)i_size.width - m_paddingLeft - m_paddingRight, (float)i_size.height - m_paddingTop - m_paddingBottom });
 		if (m_pFontEngine->ChangeText(m_renderText, newTextWrapped)) {
 			m_textAutoWrapped = newTextWrapped;
 			m_previousText = m_text;
