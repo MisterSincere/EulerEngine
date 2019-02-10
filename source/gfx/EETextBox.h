@@ -33,6 +33,8 @@ namespace GFX
 		void SetPadding(float left, float top, float right, float bottom, bool expand = false);
 		void SetTextColor(EEColor const& textColor);
 		void SetText(std::string const& newText);
+		void SetVisibility(bool isVisible) override;
+
 		std::string GetText();
 
 		EETextBox& operator=(EETextBox const&) = delete;

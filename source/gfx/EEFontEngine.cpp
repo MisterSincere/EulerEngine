@@ -440,7 +440,7 @@ void GFX::EEFontEngine::Update() const
 	}
 }
 
-EEApplication* GFX::EEFontEngine::GetApplication() const
+::EEApplication* GFX::EEFontEngine::GetApplication() const
 {
 	return m_pApp;
 }

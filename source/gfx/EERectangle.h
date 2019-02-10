@@ -45,7 +45,7 @@ namespace GFX
 		void DisableHover();
 		void EnableActive(EEColor const& color);
 		void DisableActive();
-		void SetVisibility(EEBool32 visible);
+		virtual void SetVisibility(bool visible);
 		bool Intersect(EEPoint64F const& pos);
 		bool Clicked(EEMouseButton button); 
 

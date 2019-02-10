@@ -165,7 +165,7 @@ void EERectangle::DisableActive()
 	i_activeEnabled = false;
 }
 
-void EERectangle::SetVisibility(EEBool32 visible)
+void EERectangle::SetVisibility(bool visible)
 {
 	i_pApp->SetObjectVisibility(i_object, visible);
 }

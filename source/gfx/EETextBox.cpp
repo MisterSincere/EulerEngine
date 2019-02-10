@@ -104,6 +104,12 @@ void GFX::EETextBox::SetText(std::string const& newText)
 	i_changes |= TEXT_CHANGE;
 }
 
+void GFX::EETextBox::SetVisibility(bool isVisible)
+{
+	EERectangle::SetVisibility(isVisible);
+	m_pFontEngine->SetTextVisibility(m_renderText, isVisible);
+}
+
 std::string GFX::EETextBox::GetText()
 {
 	return m_text;

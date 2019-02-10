@@ -180,7 +180,7 @@ namespace GFX
 		/**
 		 * @return The application this font engine operates on
 		 **/
-		EEApplication* GetApplication() const;
+		::EEApplication* GetApplication() const;
 
 	private:
 		/**
