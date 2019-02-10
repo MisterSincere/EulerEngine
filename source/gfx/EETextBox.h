@@ -16,16 +16,33 @@ namespace GFX {
 
 namespace GFX
 {
+	struct EETextBoxCreateInfo {
+		std::string		text						{ "" };
+		EEFont				font						{ nullptr };
+		float					characterSize		{ 30.f };
+		EEPoint32F		position				{ 0.f, 0.f };
+		EECenterFlags positionFlags		{ NONE };
+		EERect32F			size						{ 200.f, 200.f };
+		EEColor				backgroundColor	{ .1f, .1f, .1f, 1.f };
+		EEColor				textColor				{ .9f, .9f, .9f, 1.f };
+		float					padding[4]			{ 0.f, 0.f, 0.f, 0.f };
+		bool					visible					{ true };
+		EEColor				hoverColor			{	-1.f, -1.f, -1.f, -1.f };
+		EEColor				activeColor			{ -1.f, -1.f, -1.f, -1.f };
+	};
+
 	class EETextBox : public EERectangle
 	{
 	public:
+		EETextBox(EEFontEngine* pFontEngine) : EETextBox(pFontEngine, EETextBoxCreateInfo()) {}
+		EETextBox(EEFontEngine* pFontEngine, EETextBoxCreateInfo const& cinfo);
 		EETextBox(EEFontEngine* pFontEngine, std::string const& text, EEFont font,
 			float charSize = { 30.f }, EEPoint32F const& pos = { 0.0f, 0.0f }, EEColor const& textColor = { .9f, .9f, .9f, 1.f });
 		EETextBox(EETextBox const&) = delete;
 		EETextBox(EETextBox&&) = delete;
-		~EETextBox();
+		virtual ~EETextBox();
 
-		void Update() override;
+		virtual void Update() override;
 
 		void SetFont(EEFont font); // TODO
 		void SetCharacterSize(float size); // TODO
@@ -39,17 +56,17 @@ namespace GFX
 		EETextBox& operator=(EETextBox const&) = delete;
 		EETextBox& operator=(EETextBox&&) = delete;
 
-	private:
-		EEFontEngine* m_pFontEngine;
-		EEColor m_textColor;
-		float m_characterSize;
-		float m_paddingLeft{ 0.0f }, m_paddingTop{ 0.0f }, m_paddingRight{ 0.0f }, m_paddingBottom{ 0.0f };
+	protected:
+		EEFontEngine* i_pFontEngine;
+		EEColor				i_textColor;
+		float					i_characterSize;
+		float					i_paddingLeft{ 0.0f }, i_paddingTop{ 0.0f }, i_paddingRight{ 0.0f }, i_paddingBottom{ 0.0f };
 
-		std::string m_text;
-		std::string m_previousText;
-		std::string m_textAutoWrapped;
+		std::string i_text;
+		std::string i_previousText;
+		std::string i_textAutoWrapped;
 
-		EEFont m_font;
-		EEText m_renderText;
+		EEFont i_font;
+		EEText i_renderText;
 	};
 }

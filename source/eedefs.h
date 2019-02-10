@@ -129,40 +129,39 @@ enum EEWindowFlags {
 // STRUCTS //
 /////////////
 struct EEColor {
-	float r;
-	float g; 
-	float b;
-	float a;
+	float r, g, b, a;
 };
 
 struct EERect32U {
-	uint32_t width;
-	uint32_t height;
+	uint32_t width, height;
+};
+
+struct EERect64U {
+	uint64_t width, height;
 };
 
 struct EERect32F {
-	float width;
-	float height;
+	float width, height;
 };
 
 struct EERect64F {
-	double width;
-	double height;
+	double width, height;
 };
 
 struct EEPoint32 {
-	int32_t x;
-	int32_t y;
+	int32_t x, y;
+};
+
+struct EEPoint64 {
+	int64_t x, y;
 };
 
 struct EEPoint32F {
-	float x;
-	float y;
+	float x, y;
 };
 
 struct EEPoint64F {
-	double x;
-	double y;
+	double x, y;
 };
 
 struct EEShaderInputDesc {

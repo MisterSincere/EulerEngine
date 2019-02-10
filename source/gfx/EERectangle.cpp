@@ -15,7 +15,7 @@ using namespace DirectX;
 
 
 
-EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 0.0f }*/, EERect32U const& size /*= { 0.0f, 0.0f }*/)
+EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 0.0f }*/, EERect32F const& size /*= { 0.0f, 0.0f }*/)
 	: i_pApp(pApp)
 	, i_position(pos)
 	, i_size(size)
@@ -80,7 +80,7 @@ void EERectangle::Update()
 	if (i_changes & SIZE_CHANGE || i_changes & POSITION_CHANGE) {
 		// Update world matrix
 		EERect32U wExtent = i_pApp->GetWindowExtent();
-		XMMATRIX world = XMMatrixScaling((float)i_size.width, (float)i_size.height, 1.0f);
+		XMMATRIX world = XMMatrixScaling(i_size.width, i_size.height, 1.0f);
 		world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
 		XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
 	}
@@ -129,12 +129,12 @@ EEPoint32F const& GFX::EERectangle::GetPosition()
 	return i_position;
 }
 
-EERect32U const& GFX::EERectangle::GetSize()
+EERect32F const& GFX::EERectangle::GetSize()
 {
 	return i_size;
 }
 
-void EERectangle::SetSize(EERect32U const& size)
+void EERectangle::SetSize(EERect32F const& size)
 {
 	EE_INFO("[EERECTANGLE] New size: %d, %d\n", size.width, size.height);
 	i_size = size;

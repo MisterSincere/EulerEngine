@@ -368,15 +368,26 @@ std::string GFX::EEFontEngine::WrapText(EEFont font, std::string const& text, fl
 	std::string output(text);
 
 	for (size_t i = 0u; i < text.size(); i++) {
+
+		// Check first for special characters
 		if (text[i] == '\n') {
 			currentSpaceX = maxWidth;
 			currentSpaceY -= ABS_LETTER_HEIGHT * size;
-		}
-		else if(text[i] == ' ') {
+
+		} else if(text[i] == ' ') {
 			currentSpaceX -= SPACE_DISTANCE * size;
-		}
-		else {
-			currentSpaceX -= size * pFont->letterDetails.at(text[i]).width / pFont->maxLetterWidth;
+
+		// no special character so get the font-dependent letter information
+		// @note if this character was not defined when creating the font, the function will return
+		//			 the passed in std string.
+		} else {
+			try {
+				currentSpaceX -= size * pFont->letterDetails.at(text[i]).width / pFont->maxLetterWidth;
+			} catch (std::out_of_range oor) {
+				EE_PRINT("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font (current:%s).\n%s", &text[i], oor.what());
+				EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n");
+				return text;
+			}
 		}
 		
 		//EE_PRINT("%s :: %f, %f\n", &text[i], currentSpaceX, currentSpaceY);
@@ -543,6 +554,6 @@ int GFX::EEFontEngine::InsertLineBreak(std::string& text, size_t index)
 	size_t tempIndex{ index };
 	while (index > 1 && text[index] != ' ') index--;
 	text.replace(index, 1, "\n");
-	return (int)tempIndex - index;
+	return (int)(tempIndex - index);
 }
 
