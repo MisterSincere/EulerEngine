@@ -164,6 +164,10 @@ struct EEPoint64F {
 	double x, y;
 };
 
+struct EEPadding {
+	float left, top, right, bottom;
+};
+
 struct EEShaderInputDesc {
 	uint32_t location;
 	EEFormat format;

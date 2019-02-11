@@ -27,10 +27,23 @@ namespace GFX
 		COMPLETE	 = HORIZONTAL | VERTICAL
 	};
 
+	struct EERectangleCreateInfo {
+		EEPoint32F			position				{ 0.f, 0.f };
+		EECenterFlags		positionFlags		{ NONE };
+		EERect32F				size						{ 200.0f, 200.0f };
+		EEColor					backgroundColor	{ 0.f, 0.f, 0.f, 1.f };
+		bool						enableHover			{ false };
+		EEColor					hoverColor			{ 0.f, 0.f, 0.f, 0.f };
+		bool						enableActive		{ false };
+		EEColor					activeColor			{ 0.f, 0.f, 0.f, 0.f };
+		bool						visibility			{ true };
+	};
+
 	class EERectangle
 	{
 	public:
-		EERectangle(EEApplication* pApp, EEPoint32F const& pos = { 0.0f, 0.0f }, EERect32F const& size = { 200u, 200u });
+		EERectangle(EEApplication* pApp);
+		EERectangle(EEApplication* pApp, EERectangleCreateInfo const&);
 		EERectangle(EERectangle const&) = delete;
 		EERectangle(EERectangle&&) = delete;
 		virtual ~EERectangle();
@@ -50,8 +63,8 @@ namespace GFX
 		bool Intersect(EEPoint64F const& pos);
 		bool Clicked(EEMouseButton button); 
 
-		EEPoint32F const& GetPosition();
-		EERect32F const& GetSize();
+		EEPoint32F GetPosition();
+		EERect32F GetSize();
 
 		EERectangle& operator=(EERectangle const&) = delete;
 		EERectangle& operator=(EERectangle&&) = delete;
@@ -63,9 +76,9 @@ namespace GFX
 		EERect32U				i_initialWindowExtent;
 		EEColor					i_bgColor;
 		EEColor					i_hoverColor;
-		bool						i_hoverEnabled{ false };
+		bool						i_hoverEnabled;
 		EEColor					i_activeColor;
-		bool						i_activeEnabled{ false };
+		bool						i_activeEnabled;
 
 		uint32_t				i_changes{ 0u };
 
@@ -76,6 +89,8 @@ namespace GFX
 		EEBuffer	i_fragmentUniformBuffer;
 		EEShaderColor2D::VertexUBO	 i_vertexUniformBufferContent;
 		EEShaderColor2D::FragmentUBO i_fragmentUniformBufferContent;
+
+		bool i_isCreated{ false };
 	};
 
 }

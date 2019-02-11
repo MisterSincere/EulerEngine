@@ -4,7 +4,6 @@
 
 #include <string>
 
-
 ///////////////////////////
 // FOREWARD DECLARATIONS //
 ///////////////////////////
@@ -17,27 +16,20 @@ namespace GFX {
 namespace GFX
 {
 	struct EETextBoxCreateInfo {
-		std::string		text						{ "" };
-		EEFont				font						{ nullptr };
-		float					characterSize		{ 30.f };
-		EEPoint32F		position				{ 0.f, 0.f };
-		EECenterFlags positionFlags		{ NONE };
-		EERect32F			size						{ 200.f, 200.f };
-		EEColor				backgroundColor	{ .1f, .1f, .1f, 1.f };
-		EEColor				textColor				{ .9f, .9f, .9f, 1.f };
-		float					padding[4]			{ 0.f, 0.f, 0.f, 0.f };
-		bool					visible					{ true };
-		EEColor				hoverColor			{	-1.f, -1.f, -1.f, -1.f };
-		EEColor				activeColor			{ -1.f, -1.f, -1.f, -1.f };
+		std::string						text						{ "hello world" };
+		EEFont								font						{ nullptr };
+		float									characterSize		{ 30.f };
+		bool									adjustBoxSize		{ true };
+		EEColor								textColor				{ .9f, .9f, .9f, 1.f };
+		EEPadding							padding					{ 0.f, 0.f, 0.f, 0.f };
+		EERectangleCreateInfo boxInfo;
 	};
 
 	class EETextBox : public EERectangle
 	{
 	public:
-		EETextBox(EEFontEngine* pFontEngine) : EETextBox(pFontEngine, EETextBoxCreateInfo()) {}
+		EETextBox(EEFontEngine* pFontEngine);
 		EETextBox(EEFontEngine* pFontEngine, EETextBoxCreateInfo const& cinfo);
-		EETextBox(EEFontEngine* pFontEngine, std::string const& text, EEFont font,
-			float charSize = { 30.f }, EEPoint32F const& pos = { 0.0f, 0.0f }, EEColor const& textColor = { .9f, .9f, .9f, 1.f });
 		EETextBox(EETextBox const&) = delete;
 		EETextBox(EETextBox&&) = delete;
 		virtual ~EETextBox();
@@ -64,9 +56,11 @@ namespace GFX
 
 		std::string i_text;
 		std::string i_previousText;
-		std::string i_textAutoWrapped;
+		std::string i_textWrapped;
 
 		EEFont i_font;
 		EEText i_renderText;
+
+		bool i_textBoxCreated{ false };
 	};
 }

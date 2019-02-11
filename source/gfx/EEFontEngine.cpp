@@ -133,7 +133,7 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 	}
 
 	// Set the size of the font face
-	error = FT_Set_Pixel_Sizes(pFont->face, 256, 256);
+	error = FT_Set_Pixel_Sizes(pFont->face, 40, 45);
 	if (error) {
 		delete pFont;
 		EE_PRINT("[EEFONTENGINE] Failed to set up font (size)!\n");
@@ -160,20 +160,21 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 		if (error) continue;
 
 		// Store informations about the position of this character in the final image for the shader
-		letterWidth = glyph->bitmap.width + 2*glyph->bitmap_left;
+		letterWidth = glyph->bitmap.width + MAX(0, 2*glyph->bitmap_left);
 		pFont->letterDetails[charSet[i]] = {
 			fontImgWidth,
 			letterWidth,
 			glyph->bitmap.rows,
-			uint32_t(glyph->bitmap_left),
-			uint32_t(glyph->bitmap_top)
+			uint32_t(MAX(0, glyph->bitmap_left)),
+			uint32_t(MAX(0, glyph->bitmap_top))
 		};
 
 		// Update the final font image dimensions
 		pFont->maxLetterWidth = MAX(letterWidth, pFont->maxLetterWidth);
 		fontImgWidth += letterWidth;
-		maxTopBearingY = MAX((uint32_t)glyph->bitmap_top, maxTopBearingY);
-		maxBelowBearingY = MAX((uint32_t)glyph->bitmap.rows - MIN(glyph->bitmap.rows, (uint32_t)glyph->bitmap_top), maxBelowBearingY);
+		maxTopBearingY = MAX(MAX(0, glyph->bitmap_top), maxTopBearingY);
+		maxBelowBearingY = MAX(uint32_t(glyph->bitmap.rows) - MIN(glyph->bitmap.rows, MAX(0, glyph->bitmap_top)),
+													 maxBelowBearingY);
 	}
 
 	fontImgHeight = maxTopBearingY + maxBelowBearingY;

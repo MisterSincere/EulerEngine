@@ -106,7 +106,7 @@ namespace GFX
 		 *
 		 * @return Handle to the created font
 		 **/
-		EEFont CreateFont(char const* fileName, char const* charSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZßäüö0123456789€$,.;:_-!?<>()[]");
+		EEFont CreateFont(char const* fileName, char const* charSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZäüöß0123456789€$,.;:_-!?<>()[]");
 
 		/**
 		 * Frees the font passed in

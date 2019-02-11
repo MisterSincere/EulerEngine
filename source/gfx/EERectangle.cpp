@@ -5,9 +5,9 @@
 /////////////////////////////////////////////////////////////////////
 #include "EERectangle.h"
 
-#include <EEApplication.h>
 #include <string>
 
+#include "EEApplication.h"
 #include "vkcore/vulkanTools.h"
 
 using namespace GFX;
@@ -15,17 +15,30 @@ using namespace DirectX;
 
 
 
-EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 0.0f }*/, EERect32F const& size /*= { 0.0f, 0.0f }*/)
+EERectangle::EERectangle(EEApplication* pApp)
+	: EERectangle(pApp, EERectangleCreateInfo())
+{}
+
+EERectangle::EERectangle(EEApplication* pApp, EERectangleCreateInfo const& cinfo)
 	: i_pApp(pApp)
-	, i_position(pos)
-	, i_size(size)
+	, i_position(cinfo.position)
+	, i_size(cinfo.size)
+	, i_initialWindowExtent(pApp->GetWindowExtent())
+	, i_bgColor(cinfo.backgroundColor)
+	, i_hoverColor(cinfo.hoverColor)
+	, i_hoverEnabled(cinfo.enableHover)
+	, i_activeColor(cinfo.activeColor)
+	, i_activeEnabled(cinfo.enableActive)
 {
 	if (!pApp) {
 		EE_PRINT("[EERectangle] Passed in application is invalid!\n");
 		return;
 	}
 
-	i_shader = pApp->AcquireShaderColor2D();
+	if (cinfo.positionFlags & GFX::HORIZONTAL) i_position.x = (i_initialWindowExtent.width - i_size.width) / 2.f;
+	if (cinfo.positionFlags & GFX::VERTICAL) i_position.y = (i_initialWindowExtent.height - i_size.height) / 2.f;
+
+	i_shader = i_pApp->AcquireShaderColor2D();
 
 	std::vector<EEShaderColor2D::VertexInputType> vertices = {
 		{{0.0f, 1.0f, 0.0f}}, //< TOP LEFT
@@ -37,11 +50,11 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 		0, 1, 2,
 		0, 2, 3
 	};
-	i_mesh = pApp->CreateMesh(vertices.data(), sizeof(EEShaderColor2D::VertexInputType) * vertices.size(), indices);
+	i_mesh = i_pApp->CreateMesh(vertices.data(), sizeof(EEShaderColor2D::VertexInputType) * vertices.size(), indices);
 
 	// RESOURCES
-	i_vertexUniformBuffer = pApp->CreateBuffer(sizeof(EEShaderColor2D::VertexUBO));
-	i_fragmentUniformBuffer = pApp->CreateBuffer(sizeof(EEShaderColor2D::FragmentUBO));
+	i_vertexUniformBuffer = i_pApp->CreateBuffer(sizeof(EEShaderColor2D::VertexUBO));
+	i_fragmentUniformBuffer = i_pApp->CreateBuffer(sizeof(EEShaderColor2D::FragmentUBO));
 
 	// OBJECT
 	std::vector<EEObjectResourceBinding> bindings(2);
@@ -53,27 +66,44 @@ EERectangle::EERectangle(EEApplication* pApp, EEPoint32F const& pos /*= { 0.0f, 
 	bindings[1].binding = 1u;
 	bindings[1].resource = i_fragmentUniformBuffer;
 
-	i_object = pApp->CreateObject(i_shader, i_mesh, bindings);
+	i_object = i_pApp->CreateObject(i_shader, i_mesh, bindings);
 
 
 	// Initialize vertex buffer content
 	XMStoreFloat4x4(&i_vertexUniformBufferContent.ortho, i_pApp->AcquireOrthoMatrixLH());
 	XMStoreFloat4x4(&i_vertexUniformBufferContent.baseView, i_pApp->AcquireBaseViewLH());
 	// Create world matrix with passed in size and position
-	i_initialWindowExtent = pApp->GetWindowExtent();
-	XMMATRIX world = XMMatrixScaling((float)size.width, (float)size.height, 1.0f);
-	world *= XMMatrixTranslation(-(i_initialWindowExtent.width / 2.0f) + pos.x, -(i_initialWindowExtent.height / 2.0f) + pos.y, 0.0f);
+	XMMATRIX world = XMMatrixScaling(i_size.width, i_size.height, 1.0f);
+	world *= XMMatrixTranslation(-(i_initialWindowExtent.width / 2.0f) + i_position.x,
+		-(i_initialWindowExtent.height / 2.0f) + i_position.y, 0.0f);
 	XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
 
 	// Initialize fragment buffer content
 	XMStoreFloat4(&i_fragmentUniformBufferContent.fillColor, XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f));
+
+	i_isCreated = true;
 }
+
+
 
 EERectangle::~EERectangle()
 {
-	i_pApp->ReleaseObject(i_object);
-	i_pApp->ReleaseMesh(i_mesh);
+	if (i_isCreated) {
+		i_pApp->ReleaseObject(i_object);
+		i_pApp->ReleaseMesh(i_mesh);
+
+		i_isCreated = false;
+	}
 }
+
+
+
+
+
+
+
+
+
 
 void EERectangle::Update()
 {
@@ -108,7 +138,21 @@ void EERectangle::Update()
 	i_changes = 0u;
 }
 
-void EERectangle::SetPositionAligned(EECenterFlags f) {
+
+
+
+
+
+
+
+
+void EERectangle::SetPositionAligned(EECenterFlags f)
+{
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING CHANGE POSITION YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
 	EERect32U wExtent = i_pApp->GetWindowExtent();
 	// Compute new position
 	i_position = {
@@ -116,26 +160,29 @@ void EERectangle::SetPositionAligned(EECenterFlags f) {
 		(f&VERTICAL) ? (wExtent.height - i_size.height) / 2.0f : i_position.y
 	};
 	i_changes |= POSITION_CHANGE;
+
+	EE_INFO("[EERECTANGLE] New position: %f, %f\n", i_position.x, i_position.y);
 }
 
 void EERectangle::SetPosition(EEPoint32F const& pos)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING CHANGE POSITION YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
+	EE_INFO("[EERECTANGLE] New position: %f, %f\n", pos.x, pos.y);
 	i_position = pos;
 	i_changes |= POSITION_CHANGE;
 }
 
-EEPoint32F const& GFX::EERectangle::GetPosition()
-{
-	return i_position;
-}
-
-EERect32F const& GFX::EERectangle::GetSize()
-{
-	return i_size;
-}
-
 void EERectangle::SetSize(EERect32F const& size)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING GET POSITION YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
 	EE_INFO("[EERECTANGLE] New size: %d, %d\n", size.width, size.height);
 	i_size = size;
 	i_changes |= SIZE_CHANGE;
@@ -143,38 +190,83 @@ void EERectangle::SetSize(EERect32F const& size)
 
 void EERectangle::SetBackgroundColor(EEColor const& color)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING CHANGE BG COLOR YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
+	EE_INFO("[EERECTANGLE] New bgcolor: %f, %f, %f, %f\n", color.r, color.g, color.b, color.a);
 	i_bgColor = color;
 }
 
 void EERectangle::EnableHover(EEColor const& color)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING ENABLE HOVER YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
+	EE_INFO("[EERECTANGLE] New hovercolor: %f, %f, %f, %f\n", color.r, color.g, color.b, color.a);
 	i_hoverColor = color;
 	i_hoverEnabled = true;
 }
 
 void EERectangle::DisableHover()
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING DISABLE HOVER YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
+	EE_INFO("[EERECTANGLE] Disabled hover effect\n");
 	i_hoverEnabled = false;
 }
 
 void EERectangle::EnableActive(EEColor const & color)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING ENABLE ACTIVE YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
+	EE_INFO("[EERECTANGLE] New activecolor: %f, %f, %f, %f\n", color.r, color.g, color.b, color.a);
 	i_activeColor = color;
 	i_activeEnabled = true;
 }
 
 void EERectangle::DisableActive()
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING DISABLE ACTIVE YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
+	EE_INFO("[EERECTANGLE] Disabled active effect\n");
 	i_activeEnabled = false;
 }
 
 void EERectangle::SetVisibility(bool visible)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING CHANGE VISIBILITY YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return;
+	}
+
 	i_pApp->SetObjectVisibility(i_object, visible);
 }
 
+
+
+
+
+
 bool EERectangle::Intersect(EEPoint64F const& pos)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING CHECK INTERSECTION YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return false;
+	}
+
 	EERect32U curExtent = i_pApp->GetWindowExtent();
 	double scaleX = (double)curExtent.width / i_initialWindowExtent.width;
 	double scaleY = (double)curExtent.height / i_initialWindowExtent.height;
@@ -186,5 +278,33 @@ bool EERectangle::Intersect(EEPoint64F const& pos)
 
 bool EERectangle::Clicked(EEMouseButton button)
 {
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING CHECK IF CLICKED YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return false;
+	}
+
 	return i_pApp->MouseHit(button) && Intersect(i_pApp->MousePosition());
+}
+
+
+
+
+EEPoint32F EERectangle::GetPosition()
+{
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING GET POSITION YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return { -1.f, -1.f };
+	}
+
+	return i_position;
+}
+
+EERect32F EERectangle::GetSize()
+{
+	if (!i_isCreated) {
+		EE_PRINT("[EERECTANGLE] WHY BOTHER TO FUCKING GET SIZE YOU RETARD!! RECT WASNT CREATED YET!!!!!\n");
+		return { -1.f, -1.f };
+	}
+
+	return i_size;
 }
