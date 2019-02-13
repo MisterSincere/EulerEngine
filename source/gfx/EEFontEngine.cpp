@@ -172,9 +172,10 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 		// Update the final font image dimensions
 		pFont->maxLetterWidth = MAX(letterWidth, pFont->maxLetterWidth);
 		fontImgWidth += letterWidth;
-		maxTopBearingY = MAX(MAX(0, glyph->bitmap_top), maxTopBearingY);
-		maxBelowBearingY = MAX(uint32_t(glyph->bitmap.rows) - MIN(glyph->bitmap.rows, MAX(0, glyph->bitmap_top)),
-													 maxBelowBearingY);
+		maxTopBearingY = MAX(uint32_t(MAX(0, glyph->bitmap_top)), maxTopBearingY);
+		maxBelowBearingY = MAX(uint32_t(glyph->bitmap.rows)
+														 - MIN(glyph->bitmap.rows, uint32_t(MAX(0, glyph->bitmap_top)))
+													 , maxBelowBearingY);
 	}
 
 	fontImgHeight = maxTopBearingY + maxBelowBearingY;

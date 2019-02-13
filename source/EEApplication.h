@@ -188,6 +188,11 @@ public:
 	bool KeyPressed(EEKey key);
 
 	/**
+	 * @return The code point of the character (text) in UTF-8 pressed this frame
+	 **/
+	uint32_t TextInput();
+
+	/**
 	 * Returns the current position
 	 **/
 	EEPoint64F MousePosition();

@@ -8,6 +8,8 @@
 #include "vkcore/vulkanTools.h"
 
 #include <cassert>
+#include <iostream>
+#include <string>
 
 using namespace EE;
 
@@ -74,6 +76,35 @@ void glfw_focus(GLFWwindow* window, int gainedFocus)
 
 	eewindow->isFocused = gainedFocus;
 }
+
+void glfw_charMods(GLFWwindow* window, unsigned int codePoint, int mods)
+{
+	EE::Window* eewindow = reinterpret_cast<EE::Window::UserData*>(glfwGetWindowUserPointer(window))->window;
+	eewindow->input.textUTF8 = codePoint;
+	/*if (codePoint <= 0x7f)
+	{
+		out.append(1, static_cast<char>(codePoint));
+	}
+	else if (codePoint <= 0x7ff)
+	{
+		out.append(1, static_cast<char>(0xc0 | ((codePoint >> 6) & 0x1f)));
+		out.append(1, static_cast<char>(0x80 | (codePoint & 0x3f)));
+	}
+	else if (codePoint <= 0xffff)
+	{
+		out.append(1, static_cast<char>(0xe0 | ((codePoint >> 12) & 0x0f)));
+		out.append(1, static_cast<char>(0x80 | ((codePoint >> 6) & 0x3f)));
+		out.append(1, static_cast<char>(0x80 | (codePoint & 0x3f)));
+	}
+	else
+	{
+		out.append(1, static_cast<char>(0xf0 | ((codePoint >> 18) & 0x07)));
+		out.append(1, static_cast<char>(0x80 | ((codePoint >> 12) & 0x3f)));
+		out.append(1, static_cast<char>(0x80 | ((codePoint >> 6) & 0x3f)));
+		out.append(1, static_cast<char>(0x80 | (codePoint & 0x3f)));
+	}*/
+}
+
 
 Window::Window()
 {
@@ -153,6 +184,7 @@ EEBool32 Window::Create(EEApplicationCreateInfo const& windowCInfo, EE::fpEEWind
 	glfwSetCursorPosCallback(window, glfw_cursorPos);
 	glfwSetMouseButtonCallback(window, glfw_mouseButton);
 	glfwSetWindowFocusCallback(window, glfw_focus);
+	glfwSetCharModsCallback(window, glfw_charMods);
 
 	return EE_TRUE;
 }
@@ -173,7 +205,8 @@ bool Window::PollEvents()
 {
 	// Reset input values
 	memset(input.keysHit, 0, sizeof(bool) * GLFW_KEY_LAST);
-	input.mouseXDelta = input.mouseYDelta = input.mouseHit = 0;
+	input.mouseXDelta = input.mouseYDelta = 0.0;
+	input.mouseHit = input.textUTF8 = 0ui32;
 
 	glfwPollEvents();
 

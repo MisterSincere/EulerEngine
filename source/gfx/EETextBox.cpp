@@ -14,7 +14,7 @@ EETextBox::EETextBox(EEFontEngine* pFontEngine)
 {}
 
 EETextBox::EETextBox(EEFontEngine* pFontEngine, EETextBoxCreateInfo const& cinfo)
-	: EERectangle(pFontEngine->GetApplication(), cinfo.boxInfo)
+	: EERectangle(pFontEngine->GetApplication(), *ACQUIRE_RECT_INFO(&cinfo))
 	, i_pFontEngine(pFontEngine)
 	, i_textColor(cinfo.textColor)
 	, i_characterSize(cinfo.characterSize)
@@ -26,7 +26,6 @@ EETextBox::EETextBox(EEFontEngine* pFontEngine, EETextBoxCreateInfo const& cinfo
 	, i_paddingBottom(cinfo.padding.bottom)
 {
 	assert(i_font);
-
 
 	// Get a version of the passed in text that has newline characters at positions
 	// that would exceed the desired width/height if we are limited to the box size
@@ -47,6 +46,12 @@ EETextBox::EETextBox(EEFontEngine* pFontEngine, EETextBoxCreateInfo const& cinfo
 	if (cinfo.adjustBoxSize) {
 		EERect32F textSize = i_pFontEngine->GetTextDimensions(i_renderText);
 		SetSize({ textSize.width + i_paddingLeft + i_paddingRight + EPSILON, textSize.height + i_paddingTop + i_paddingBottom + EPSILON });
+		// Now center the pox aligned if desired
+		if (cinfo.positionFlags) SetPositionAligned(cinfo.positionFlags);
+	}
+
+	if (!cinfo.visibility) {
+		i_pFontEngine->SetTextVisibility(i_renderText, EE_FALSE);
 	}
 
 	i_textBoxCreated = true;

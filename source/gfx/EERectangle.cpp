@@ -81,6 +81,11 @@ EERectangle::EERectangle(EEApplication* pApp, EERectangleCreateInfo const& cinfo
 	// Initialize fragment buffer content
 	XMStoreFloat4(&i_fragmentUniformBufferContent.fillColor, XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f));
 
+	// Hide rectangle if desired
+	if (!cinfo.visibility) {
+		i_pApp->SetObjectVisibility(i_object, EE_FALSE);
+	}
+
 	i_isCreated = true;
 }
 

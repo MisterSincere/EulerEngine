@@ -26,7 +26,8 @@ set	(VULKANCORE	vkcore/vulkanRenderer.h		vkcore/vulkanRenderer.cpp
 
 set (GFX		gfx/EERectangle.h		gfx/EERectangle.cpp
 				gfx/EEFontEngine.h		gfx/EEFontEngine.cpp
-				gfx/EETextBox.h			gfx/EETextBox.cpp)
+				gfx/EETextBox.h			gfx/EETextBox.cpp
+				gfx/EEInputBox.h		gfx/EEInputBox.cpp)
 
 set (EULERENGINEINTERN  Window.h		Window.cpp
 						Graphics.h		Graphics.cpp)

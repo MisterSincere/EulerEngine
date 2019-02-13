@@ -212,6 +212,11 @@ bool EEApplication::KeyPressed(EEKey key)
 	return m_pWindow->input.keysPressed[key];
 }
 
+uint32_t EEApplication::TextInput()
+{
+	return m_pWindow->input.textUTF8;
+}
+
 EEPoint64F EEApplication::MousePosition()
 {
 	return { m_pWindow->input.mouseX, m_pWindow->input.mouseY };
