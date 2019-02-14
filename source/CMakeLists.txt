@@ -32,6 +32,7 @@ set (GFX		gfx/EERectangle.h				gfx/EERectangle.cpp
 set (CORETOOLS	coretools/Window.h				coretools/Window.cpp
 				coretools/Graphics.h			coretools/Graphics.cpp
 				coretools/AutoComplete.h		coretools/AutoComplete.cpp
+				coretools/IHandler.h
 				coretools/Command.h)
 
 set (EEOUT		eedefs.h						keycodes.h

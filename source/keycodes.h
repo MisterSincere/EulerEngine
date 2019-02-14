@@ -1,5 +1,10 @@
-// File showing the shitty key convenion of glfw
-
+/////////////////////////////////////////////////////////////////////
+// Filename: keycodes.h
+//
+// File showing the shitty key convention of glfw
+//
+// (C) Copyright 2019 Madness Studio. All Rights Reserved
+/////////////////////////////////////////////////////////////////////
 #pragma once
 
 enum EEKey {

@@ -1,3 +1,8 @@
+/////////////////////////////////////////////////////////////////////
+// Filename: EEInputBox.h
+//
+// (C) Copyright 2019 Madness Studio. All Rights Reserved
+/////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "EETextBox.h"
@@ -5,8 +10,8 @@
 
 
 #define ACQUIRE_TEXT_INFO(valPtr)	(reinterpret_cast<::GFX::EETextBoxCreateInfo const*>(	\
-																		reinterpret_cast<char const*>(valPtr)						\
-																		+ offsetof(::GFX::EEInputBoxCreateInfo, text)			\
+																		reinterpret_cast<char const*>(valPtr)								\
+																		+ offsetof(::GFX::EEInputBoxCreateInfo, text)				\
 																	))
 
 namespace CORETOOLS {

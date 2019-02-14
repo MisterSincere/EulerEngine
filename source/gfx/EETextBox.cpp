@@ -1,10 +1,15 @@
+/////////////////////////////////////////////////////////////////////
+// Filename: EETextBox.cpp
+//
+// (C) Copyright 2019 Madness Studio. All Rights Reserved
+/////////////////////////////////////////////////////////////////////
 #include "EETextBox.h"
 
 #include "EEFontEngine.h"
 
 using namespace GFX;
 
-#define EPSILON 0.1f
+#define EPSILON .1f
 
 
 
