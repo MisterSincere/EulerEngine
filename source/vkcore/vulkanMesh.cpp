@@ -66,13 +66,21 @@ void EE::Mesh::Create(void const* pData, size_t bufferSize, std::vector<uint32_t
 
 	// Create the vertex buffer
 	CUR_VERTEX_BUFFER.bufferSize = static_cast<VkDeviceSize>(bufferSize);
-	EEDEVICE->CreateDeviceLocalBuffer(pData, CUR_VERTEX_BUFFER.bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-																		&(CUR_VERTEX_BUFFER.buffer), &(CUR_VERTEX_BUFFER.memory));
+	if (CUR_VERTEX_BUFFER.bufferSize) {
+		EEDEVICE->CreateDeviceLocalBuffer(pData, CUR_VERTEX_BUFFER.bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+																			&(CUR_VERTEX_BUFFER.buffer), &(CUR_VERTEX_BUFFER.memory));
+	} else {
+		changeVertexBuffer = true;
+	}
 	
 	// Create the index buffer
 	CUR_INDEX_BUFFER.bufferSize = static_cast<VkDeviceSize>(sizeof(uint32_t) * CUR_INDEX_BUFFER.count);
-	EEDEVICE->CreateDeviceLocalBuffer(indices.data(), CUR_INDEX_BUFFER.bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-																		&(CUR_INDEX_BUFFER.buffer), &(CUR_INDEX_BUFFER.memory));
+	if (CUR_INDEX_BUFFER.bufferSize) {
+		EEDEVICE->CreateDeviceLocalBuffer(indices.data(), CUR_INDEX_BUFFER.bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+																			&(CUR_INDEX_BUFFER.buffer), &(CUR_INDEX_BUFFER.memory));
+	} else {
+		changeIndexBuffer = true;
+	}
 
 	// Indicate that this mesh can now be used/recorded
 	isCreated = true;
