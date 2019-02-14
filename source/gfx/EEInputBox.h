@@ -8,21 +8,17 @@
 #include "EETextBox.h"
 #include "coretools/Command.h"
 
-
-#define ACQUIRE_TEXT_INFO(valPtr)	(reinterpret_cast<::GFX::EETextBoxCreateInfo const*>(	\
-																		reinterpret_cast<char const*>(valPtr)								\
-																		+ offsetof(::GFX::EEInputBoxCreateInfo, text)				\
-																	))
-
 namespace CORETOOLS {
 	class EEAutoComplete;
+	class ITextHandler;
 }
 
 namespace GFX
 {
-
 	struct EEInputBoxCreateInfo {
+		::CORETOOLS::CmdList	cmdList					{ ::CORETOOLS::CmdList() };
 		std::string						prefix					{ "" };
+		bool									clearOnReturn		{ true };
 		std::string						text						{ "" };
 		EEFont								font						{ nullptr };
 		float									characterSize		{ 20.f };
@@ -49,7 +45,11 @@ namespace GFX
 
 		void Update() override;
 
+		void AddHandler(::CORETOOLS::ITextHandler*);
+		void RemoveHandler(::CORETOOLS::ITextHandler*);
+
 		void SetCommandList(::CORETOOLS::CmdList const&);
+		void AddCommandToList(::CORETOOLS::Cmd const&);
 		void Clear();
 
 	private:
@@ -57,7 +57,11 @@ namespace GFX
 
 		::CORETOOLS::EEAutoComplete* m_pAutoCompleter{ nullptr };
 
+		std::vector<::CORETOOLS::ITextHandler*> m_handlers;
+
 		std::vector<::CORETOOLS::Cmd> m_autoCompleteCmds;
 		uint32_t m_autoCompleteCmdIndex{ 0u };
+
+		bool m_clearOnReturn;
 	};
 }

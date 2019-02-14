@@ -9,6 +9,8 @@
 #include <cassert>
 #include <vector>
 
+#include "eedefs.h"
+
 
 namespace CORETOOLS
 {
@@ -58,11 +60,22 @@ namespace CORETOOLS
 		CmdList operator+=(std::string const& cmd) { p_cmds.emplace_back(cmd); return *this; }
 		CmdList operator+=(Cmd const& cmd) { p_cmds.push_back(cmd); return *this; }
 
+		/// -= operator to be able to remove commands identified by string/cstring/cmd
+		CmdList operator-=(char const* cmd) {
+			auto el = std::find(p_cmds.begin(), p_cmds.end(), cmd);
+			if (el != p_cmds.end()) p_cmds.erase(el);
+			else EE_PRINT("[CMDLIST] Element %s not found to be removed!\n", cmd);
+			return *this;
+		}
+		CmdList operator-=(std::string const& cmd) { return operator-=(cmd.c_str()); }
+		CmdList operator-=(Cmd const& cmd) { return operator-=(cmd.get()); }
+
 		/// Wrapper for vector iterators
 		auto begin() const { return p_cmds.begin(); }
 		auto end() const { return p_cmds.end(); }
 
 		size_t size() const { return p_cmds.size(); }
+		bool empty() const { return p_cmds.empty(); }
 
 		std::vector<Cmd> p_cmds;
 	};

@@ -43,6 +43,16 @@ namespace CORETOOLS
 		 **/
 		std::vector<::CORETOOLS::Cmd> MultiComplete(std::string const& toBeCompleted, uint32_t minimum = 1ui32);
 
+		/**
+		 * Allows to set a whole new command list
+		 **/
+		void SetCommandList(::CORETOOLS::CmdList const&);
+
+		/**
+		 * Allows to add a single command to the list
+		 **/
+		void AddCommandToList(::CORETOOLS::Cmd const&);
+
 		EEAutoComplete& operator=(EEAutoComplete const&) = delete;
 		EEAutoComplete& operator=(EEAutoComplete&&) = delete;
 

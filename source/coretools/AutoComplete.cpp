@@ -60,6 +60,16 @@ std::vector<CORETOOLS::Cmd> CORETOOLS::EEAutoComplete::MultiComplete(std::string
 	return equalityMap;
 }
 
+void CORETOOLS::EEAutoComplete::SetCommandList(::CORETOOLS::CmdList const& cmds)
+{
+	m_availableCmds = cmds;
+}
+
+void CORETOOLS::EEAutoComplete::AddCommandToList(::CORETOOLS::Cmd const& cmd)
+{
+	m_availableCmds += cmd;
+}
+
 uint32_t CORETOOLS::EEAutoComplete::GetEquals(char const* string1, char const* string2)
 {
 	uint32_t equals{ 0u };
