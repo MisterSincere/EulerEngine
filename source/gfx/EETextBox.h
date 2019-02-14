@@ -13,9 +13,9 @@ namespace GFX {
 	typedef uint32_t* EEText;
 }
 
-#define ACQUIRE_RECT_INFO(valPtr)	(reinterpret_cast<EERectangleCreateInfo const*>(	\
+#define ACQUIRE_RECT_INFO(valPtr)	(reinterpret_cast<::GFX::EERectangleCreateInfo const*>(	\
 																		reinterpret_cast<char const*>(valPtr)						\
-																		+ offsetof(EETextBoxCreateInfo, position)			\
+																		+ offsetof(::GFX::EETextBoxCreateInfo, position)			\
 																	))
 
 namespace GFX
