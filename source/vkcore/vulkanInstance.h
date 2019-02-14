@@ -6,7 +6,7 @@
 #pragma once
 
 #include "vulkanTools.h"
-#include "Window.h"
+#include "coretools/Window.h"
 
 namespace EE
 {

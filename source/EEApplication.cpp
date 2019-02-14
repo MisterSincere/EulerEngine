@@ -13,8 +13,8 @@
 /////////////////
 // MY INCLUDES //
 /////////////////
-#include "Window.h"
-#include "Graphics.h"
+#include "coretools/Window.h"
+#include "coretools/Graphics.h"
 #include "vkcore/vulkanObject.h"
 
 using namespace DirectX;

@@ -1,12 +1,17 @@
 #pragma once
 
 #include "EETextBox.h"
+#include "coretools/Command.h"
 
 
 #define ACQUIRE_TEXT_INFO(valPtr)	(reinterpret_cast<::GFX::EETextBoxCreateInfo const*>(	\
 																		reinterpret_cast<char const*>(valPtr)						\
 																		+ offsetof(::GFX::EEInputBoxCreateInfo, text)			\
 																	))
+
+namespace CORETOOLS {
+	class EEAutoComplete;
+}
 
 namespace GFX
 {
@@ -35,12 +40,19 @@ namespace GFX
 	public:
 		EEInputBox(GFX::EEFontEngine* pFontEngine);
 		EEInputBox(GFX::EEFontEngine* pFontEngine, GFX::EEInputBoxCreateInfo const&);
+		~EEInputBox();
 
 		void Update() override;
 
+		void SetCommandList(::CORETOOLS::CmdList const&);
 		void Clear();
 
 	private:
 		std::string m_prefix;
+
+		::CORETOOLS::EEAutoComplete* m_pAutoCompleter{ nullptr };
+
+		std::vector<::CORETOOLS::Cmd> m_autoCompleteCmds;
+		uint32_t m_autoCompleteCmdIndex{ 0u };
 	};
 }

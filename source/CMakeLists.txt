@@ -8,44 +8,47 @@ cmake_minimum_required(VERSION 3.2.3)
 # Source Files
 set (EXTERNS vkcore/stb_image.h)
 
-set (SHADER ../assets/shader/color2D.vert ../assets/shader/color2D.frag
-			../assets/shader/font.vert	  ../assets/shader/font.frag)
+set (SHADER		../assets/shader/color2D.vert ../assets/shader/color2D.frag
+				../assets/shader/font.vert	  ../assets/shader/font.frag)
 
-set (VULKAN		vkcore/vulkanObject.h		vkcore/vulkanObject.cpp
-				vkcore/vulkanShader.h		vkcore/vulkanShader.cpp
-				vkcore/vulkanPipeline.h		vkcore/vulkanPipeline.cpp
-				vkcore/vulkanMesh.h			vkcore/vulkanMesh.cpp
-				vkcore/vulkanResources.h	vkcore/vulkanResources.cpp)	
-set	(VULKANCORE	vkcore/vulkanRenderer.h		vkcore/vulkanRenderer.cpp
-				vkcore/vulkanSwapchain.h	vkcore/vulkanSwapchain.cpp
-				vkcore/vulkanDebug.h		vkcore/vulkanDebug.cpp
-				vkcore/vulkanDevice.h		vkcore/vulkanDevice.cpp
-				vkcore/vulkanInstance.h		vkcore/vulkanInstance.cpp
-				vkcore/vulkanTools.h		vkcore/vulkanTools.cpp
+set (VULKAN		vkcore/vulkanObject.h			vkcore/vulkanObject.cpp
+				vkcore/vulkanShader.h			vkcore/vulkanShader.cpp
+				vkcore/vulkanPipeline.h			vkcore/vulkanPipeline.cpp
+				vkcore/vulkanMesh.h				vkcore/vulkanMesh.cpp
+				vkcore/vulkanResources.h		vkcore/vulkanResources.cpp)	
+set	(VULKANCORE	vkcore/vulkanRenderer.h			vkcore/vulkanRenderer.cpp
+				vkcore/vulkanSwapchain.h		vkcore/vulkanSwapchain.cpp
+				vkcore/vulkanDebug.h			vkcore/vulkanDebug.cpp
+				vkcore/vulkanDevice.h			vkcore/vulkanDevice.cpp
+				vkcore/vulkanInstance.h			vkcore/vulkanInstance.cpp
+				vkcore/vulkanTools.h			vkcore/vulkanTools.cpp
 				vkcore/vulkanInitializers.h)
 
-set (GFX		gfx/EERectangle.h		gfx/EERectangle.cpp
-				gfx/EEFontEngine.h		gfx/EEFontEngine.cpp
-				gfx/EETextBox.h			gfx/EETextBox.cpp
-				gfx/EEInputBox.h		gfx/EEInputBox.cpp)
+set (GFX		gfx/EERectangle.h				gfx/EERectangle.cpp
+				gfx/EEFontEngine.h				gfx/EEFontEngine.cpp
+				gfx/EETextBox.h					gfx/EETextBox.cpp
+				gfx/EEInputBox.h				gfx/EEInputBox.cpp)
 
-set (EULERENGINEINTERN  Window.h		Window.cpp
-						Graphics.h		Graphics.cpp)
-set (EULERENGINEOUT		eedefs.h		keycodes.h
-						EEApplication.h	EEApplication.cpp)
+set (CORETOOLS	coretools/Window.h				coretools/Window.cpp
+				coretools/Graphics.h			coretools/Graphics.cpp
+				coretools/AutoComplete.h		coretools/AutoComplete.cpp
+				coretools/Command.h)
+
+set (EEOUT		eedefs.h						keycodes.h
+				EEApplication.h					EEApplication.cpp)
 
 # Filter
 source_group ("EXTERNS" FILES ${EXTERNS})
 source_group ("GFX" FILES ${GFX})
 source_group ("GFX\\SHADER" FILES ${SHADER})
-source_group ("INTERN" FILES ${EULERENGINEINTERN})
+source_group ("CORETOOLS" FILES ${CORETOOLS})
 source_group ("VULKAN" FILES ${VULKAN})
 source_group ("VULKAN\\CORE" FILES ${VULKANCORE})
-source_group ("" FILES ${EULERENGINEOUT})
+source_group ("" FILES ${EEOUT})
 
 # Add target
-add_library (EulerEngine ${EULERENGINEOUT}
-						 ${EULERENGINEINTERN}
+add_library (EulerEngine ${EEOUT}
+						 ${CORETOOLS}
 						 ${VULKAN}
 						 ${VULKANCORE}
 						 ${EXTERNS}
