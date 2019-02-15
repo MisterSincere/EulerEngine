@@ -150,40 +150,36 @@ public:
 
 	/**
 	 * RELEASES the mesh's data (buffer, memory...)
-	 *
 	 * @param mesh			Handle to the mesh that is desired to be released
 	 **/
 	void ReleaseMesh(EEMesh& mesh);
 
 	/**
 	 * RELEASES the shaders' data. Will NOT release the textures that were pased in for a descriptor.
-	 *
 	 * @param shader		Handle to the shader that is desired to be released
 	 **/
 	void ReleaseShader(EEShader& shader);
 
 	/**
 	 * RELEASES the textures' data. Teh data loaded from the image will be freed.
-	 *
 	 * @param texture		Handle to the texture that is desired to be released
 	 **/
 	void ReleaseTexture(EETexture& texture);
 
 	/**
 	 * RELEASES the buffers' data and its memory.
-	 *
 	 * @param buffer		Handle to the buffer that is desired to be released
 	 **/
 	void ReleaseBuffer(EEBuffer& buffer);
 
 	/**
-	 * Returns true if the key was just hit. If they key was hit the previous frame
+	 * @return Is true if the key was just hit. If they key was already hit the previous frame
 	 * this method returns false.
 	 **/
 	bool KeyHit(EEKey key);
 
 	/**
-	 * Returns true if the key is currently held down.
+	 * @return Is true if the key is currently held down.
 	 **/
 	bool KeyPressed(EEKey key);
 
@@ -193,13 +189,13 @@ public:
 	uint32_t TextInput();
 
 	/**
-	 * Returns the current position
+	 * @return The current position
 	 **/
 	EEPoint64F MousePosition();
 
 	/**
-	 * Returns the movement of the mouse since the previous frame in
-	 * the point structure where x/y is dx/dy.
+	 * @return The movement of the mouse since the previous frame in
+	 * the point structure where x/y represents dx/dy.
 	 **/
 	EEPoint64F MouseMovement();
 
@@ -222,7 +218,7 @@ public:
 	DirectX::XMMATRIX AcquireOrthoMatrixLH();
 
 	/**
-	 * Returns an orthogonal right handed projection matrix for 2d rendering with the current
+	 * @return Matrix for an orthogonal right handed projection for 2d rendering with the current
 	 * window's extent.
 	 **/
 	DirectX::XMMATRIX AcquireOrthoMatrixRH();

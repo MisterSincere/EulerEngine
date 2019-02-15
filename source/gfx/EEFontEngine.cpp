@@ -231,9 +231,41 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, wchar_t const* c
 	return LAST_ELEMENT(m_iCurrentFonts);
 }
 
-void GFX::EEFontEngine::ReleaseFont(EEFont & font)
+void GFX::EEFontEngine::ReleaseFont(EEFont& font)
 {
-	// @TODO
+	if (!font) {
+		EE_PRINT("[EEFONTENGINE] Tried to release a font, that was already nullptr!\n");
+		return;
+	}
+
+	// Acquire the index and set the font pointer for the user to nullptr
+	uint32_t index = *font;
+	font = nullptr;
+
+	// Release the resources that only this font was using
+	m_pApp->ReleaseTexture(m_currentFonts[index]->texture);
+	FT_Done_Face(m_currentFonts[index]->face);
+
+	// Release the instance of EEInternFont
+	delete m_currentFonts[index];
+	m_currentFonts.erase(m_currentFonts.begin() + index);
+
+	// Release the index/handle
+	delete m_iCurrentFonts[index];
+	m_iCurrentFonts.erase(m_iCurrentFonts.begin() + index);
+
+	EE_INVARIANT(m_currentFonts.size() == m_iCurrentFonts.size());
+
+	// Update the indices if necessary
+	for (size_t i = 0u; i < m_iCurrentFonts.size(); i++) {
+		if (*m_iCurrentFonts[i] > index) (*m_iCurrentFonts[i])--;
+		else if (*m_iCurrentFonts[i] == index) {
+			delete m_iCurrentFonts[i];
+			m_iCurrentFonts.erase(m_iCurrentFonts.begin() + i);
+		}
+	}
+
+	EE_INVARIANT(m_currentFonts.size() == m_iCurrentFonts.size());
 }
 
 GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, std::wstring const& text, EEPoint32F const& position, float size, EEColor const& color)
@@ -353,7 +385,7 @@ EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::wstring const& newText)
 	return EE_TRUE;
 }
 
-std::wstring GFX::EEFontEngine::WrapText(EEFont font, std::wstring const& text, float size, EERect32F const& wrapDim)
+std::wstring GFX::EEFontEngine::WrapText(EEFont font, std::wstring const& text, float size, EERect32F const& wrapDim) const
 {
 	if (wrapDim.width < size || wrapDim.height < size) {
 		EE_PRINT("[EEFONTENGINE] Choose bigger wrap dimensions, at least > than passed in size!\n");
@@ -388,7 +420,7 @@ std::wstring GFX::EEFontEngine::WrapText(EEFont font, std::wstring const& text, 
 			try {
 				currentSpaceX -= size * pFont->letterDetails.at(text[i]).width / pFont->maxLetterWidth;
 			} catch (std::out_of_range oor) {
-				EE_PRINT("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font (current:%s).\n%s", &text[i], oor.what());
+				EE_PRINT("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font (current:%s).\n%lls", &text[i], oor.what());
 				EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n");
 				return text;
 			}
@@ -553,7 +585,7 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::wstri
 	return EE_TRUE;
 }
 
-int GFX::EEFontEngine::InsertLineBreak(std::wstring& text, size_t index)
+int GFX::EEFontEngine::InsertLineBreak(std::wstring& text, size_t index) const
 {
 	size_t tempIndex{ index };
 	while (index > 1 && text[index] != ' ') index--;

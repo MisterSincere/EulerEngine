@@ -14,6 +14,7 @@
 
 GFX::EEInputBox::EEInputBox(GFX::EEFontEngine* pFontEngine)
 	: EETextBox(pFontEngine)
+	, m_clearOnReturn(true)
 {}
 
 GFX::EEInputBox::EEInputBox(GFX::EEFontEngine* pFontEngine, GFX::EEInputBoxCreateInfo const& cinfo)
@@ -71,7 +72,7 @@ void GFX::EEInputBox::Update()
 			i_text.append(1, static_cast<char>(0x80 | (codePoint & 0x3f)));
 		}
 		i_changes |= TEXT_CHANGE;
-		m_autoCompleteCmds.clear();	//< Text changed so new autocomplete results needed
+		m_curAutoCompletes.clear();	//< Text changed so new autocomplete results needed
 
 	/// Simple backspace to remove single char or with ctrl all chars
 	} else if (i_pApp->KeyHit(EE_KEY_BACKSPACE) && i_text.size() > m_prefix.size()) {
@@ -82,24 +83,24 @@ void GFX::EEInputBox::Update()
 			i_text.erase(i_text.end() - 1);
 		}
 		i_changes |= TEXT_CHANGE;
-		m_autoCompleteCmds.clear();	//< Text changed so new autocomplete results needed
+		m_curAutoCompletes.clear();	//< Text changed so new autocomplete results needed
 
 	/// Auto complete the current text
 	} else if (i_pApp->KeyHit(EE_KEY_TAB) && i_text.size() > m_prefix.size() && m_pAutoCompleter) {
 		
 		// If we have no currently auto complete suggestions get some
-		if (m_autoCompleteCmds.empty()) {
+		if (m_curAutoCompletes.empty()) {
 			std::wstring cont(i_text.begin() + m_prefix.size(), i_text.end());
-			m_autoCompleteCmds = m_pAutoCompleter->MultiComplete(cont);
+			m_curAutoCompletes = m_pAutoCompleter->MultiComplete(cont);
 			m_autoCompleteCmdIndex = 0u;
-			if (!m_autoCompleteCmds.empty()) {
-				i_text = m_prefix + m_autoCompleteCmds[0u].get();
+			if (!m_curAutoCompletes.empty()) {
+				i_text = m_prefix + m_curAutoCompletes[0u].get();
 			}
 
 		// ... otherwise query through them
 		} else {
-			m_autoCompleteCmdIndex = ++m_autoCompleteCmdIndex % m_autoCompleteCmds.size();
-			i_text = m_prefix + m_autoCompleteCmds[m_autoCompleteCmdIndex].get();
+			m_autoCompleteCmdIndex = ++m_autoCompleteCmdIndex % m_curAutoCompletes.size();
+			i_text = m_prefix + m_curAutoCompletes[m_autoCompleteCmdIndex].get();
 		}
 		i_changes |= TEXT_CHANGE;
 
@@ -153,4 +154,14 @@ void GFX::EEInputBox::AddCommandToList(::CORETOOLS::Cmd const& cmd)
 void GFX::EEInputBox::Clear()
 {
 	SetText(m_prefix);
+}
+
+void GFX::EEInputBox::SetFocused(bool focus)
+{
+	m_focused = focus;
+}
+
+bool GFX::EEInputBox::GetFocused() const
+{
+	return m_focused;
 }

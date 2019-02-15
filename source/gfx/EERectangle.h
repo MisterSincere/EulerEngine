@@ -20,16 +20,9 @@ class EEApplication;
 
 namespace GFX
 {
-	enum EECenterFlags {
-		NONE			 = 0x00,
-		HORIZONTAL = 0x01,
-		VERTICAL	 = 0x02,
-		COMPLETE	 = HORIZONTAL | VERTICAL
-	};
-
 	struct EERectangleCreateInfo {
 		EEPoint32F			position				{ 0.f, 0.f };
-		EECenterFlags		positionFlags		{ NONE };
+		EECenterFlags		positionFlags		{ EE_CENTER_NONE };
 		EERect32F				size						{ 200.0f, 200.0f };
 		EEColor					backgroundColor	{ 0.f, 0.f, 0.f, 1.f };
 		bool						enableHover			{ false };

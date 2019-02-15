@@ -55,6 +55,13 @@ EE_DEFINE_HANDLE(EEBuffer);
 ///////////
 // ENUMS //
 ///////////
+enum EECenterFlags {
+	EE_CENTER_NONE				= 0x00,
+	EE_CENTER_HORIZONTAL	= 0x01,
+	EE_CENTER_VERTICAL		= 0x02,
+	EE_CENTER_COMPLETE		= EE_CENTER_HORIZONTAL | EE_CENTER_VERTICAL
+};
+
 enum EEDescriptorType {
 	EE_DESCRIPTOR_TYPE_SAMPLER,
 	EE_DESCRIPTOR_TYPE_UNIFORM_BUFFER
@@ -77,8 +84,8 @@ enum EEMouseButton {
 };
 
 enum EERenderType {
-	EE_RENDER_TYPE_2D = 0x01,
-	EE_RENDER_TYPE_3D = 0x02,
+	EE_RENDER_TYPE_2D		= 0x01,
+	EE_RENDER_TYPE_3D		= 0x02,
 	EE_RENDER_TYPE_BOTH = 0x03
 };
 
@@ -108,7 +115,7 @@ enum EESplitscreen {
 	EE_SPLITSCREEN_TOP_RIGHT		= EE_SPLITSCREEN_TOP		| EE_SPLITSCREEN_RIGHT,
 	EE_SPLITSCREEN_BOTTOM_LEFT	= EE_SPLITSCREEN_BOTTOM | EE_SPLITSCREEN_LEFT,
 	EE_SPLITSCREEN_BOTTOM_RIGHT = EE_SPLITSCREEN_BOTTOM | EE_SPLITSCREEN_RIGHT,
-	EE_SPLITSCREEN_UNDEFINED		// Forbidden if splitscreen mode was enabled in EEGraphicsCreateInfo
+	EE_SPLITSCREEN_UNDEFINED		//< Forbidden if splitscreen mode was enabled in EEGraphicsCreateInfo
 };
 
 enum EESplitscreenMode {
@@ -220,6 +227,7 @@ struct EEApplicationCreateInfo {
 struct EEShaderCreateInfo {
 	char const*								vertexFileName;
 	char const*								fragmentFileName;
+	char const*								geometryFileName;	//< TODO
 	uint32_t									amountObjects;		//< amount objects that will use this shader
 	EEShaderInputType					shaderInputType;	//< if not EE_SHADER_INPUT_TYPE_CUSTOM this shader should only be used for obj file read meshes
 	EEVertexInput const*			pVertexInput;

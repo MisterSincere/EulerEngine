@@ -64,7 +64,7 @@ namespace CORETOOLS
 		CmdList operator-=(wchar_t const* cmd) {
 			auto el = std::find(p_cmds.begin(), p_cmds.end(), cmd);
 			if (el != p_cmds.end()) p_cmds.erase(el);
-			else EE_PRINT("[CMDLIST] Element %s not found to be removed!\n", cmd);
+			else EE_PRINT("[CMDLIST] Element %lls not found to be removed!\n", cmd);
 			return *this;
 		}
 		CmdList operator-=(std::wstring const& cmd) { return operator-=(cmd.c_str()); }

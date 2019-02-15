@@ -35,8 +35,8 @@ EERectangle::EERectangle(EEApplication* pApp, EERectangleCreateInfo const& cinfo
 		return;
 	}
 
-	if (cinfo.positionFlags & GFX::HORIZONTAL) i_position.x = (i_initialWindowExtent.width - i_size.width) / 2.f;
-	if (cinfo.positionFlags & GFX::VERTICAL) i_position.y = (i_initialWindowExtent.height - i_size.height) / 2.f;
+	if (cinfo.positionFlags & EE_CENTER_HORIZONTAL) i_position.x = (i_initialWindowExtent.width - i_size.width) / 2.f;
+	if (cinfo.positionFlags & EE_CENTER_VERTICAL) i_position.y = (i_initialWindowExtent.height - i_size.height) / 2.f;
 
 	i_shader = i_pApp->AcquireShaderColor2D();
 
@@ -161,8 +161,8 @@ void EERectangle::SetPositionAligned(EECenterFlags f)
 	EERect32U wExtent = i_pApp->GetWindowExtent();
 	// Compute new position
 	i_position = {
-		(f&HORIZONTAL) ? (wExtent.width - i_size.width) / 2.0f : i_position.x,
-		(f&VERTICAL) ? (wExtent.height - i_size.height) / 2.0f : i_position.y
+		(f&EE_CENTER_HORIZONTAL) ? (wExtent.width - i_size.width) / 2.0f : i_position.x,
+		(f&EE_CENTER_VERTICAL) ? (wExtent.height - i_size.height) / 2.0f : i_position.y
 	};
 	i_changes |= POSITION_CHANGE;
 

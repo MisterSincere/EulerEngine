@@ -154,7 +154,7 @@ namespace GFX
 		 *
 		 * @return The wrapped text
 		 **/
-		std::wstring WrapText(EEFont font, std::wstring const& text, float size, EERect32F const& wrapDim);
+		std::wstring WrapText(EEFont font, std::wstring const& text, float size, EERect32F const& wrapDim) const;
 
 		/**
 		 * Changes the color of the text passed in
@@ -185,9 +185,7 @@ namespace GFX
 		 **/
 		void Update() const;
 
-		/**
-		 * @return The pixel width/height the text takes
-		 **/
+		/* @brief Returns the pixel width/height of the whole text */
 		EERect32F GetTextDimensions(EEText text);
 
 		/**
@@ -222,7 +220,7 @@ namespace GFX
 		 *
 		 * @return Amount of steps back that were needed to find a space
 		 **/
-		int InsertLineBreak(std::wstring& text, size_t index);
+		int InsertLineBreak(std::wstring& text, size_t index) const;
 
 	private:
 		/* @brief The application this font engine will use */
