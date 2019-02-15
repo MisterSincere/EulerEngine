@@ -17,9 +17,9 @@ namespace GFX
 {
 	struct EEInputBoxCreateInfo {
 		::CORETOOLS::CmdList	cmdList					{ ::CORETOOLS::CmdList() };
-		std::string						prefix					{ "" };
+		std::wstring					prefix					{ L"" };
 		bool									clearOnReturn		{ true };
-		std::string						text						{ "" };
+		std::wstring					text						{ L"" };
 		EEFont								font						{ nullptr };
 		float									characterSize		{ 20.f };
 		bool									adjustBoxSize		{ true };
@@ -53,7 +53,7 @@ namespace GFX
 		void Clear();
 
 	private:
-		std::string m_prefix;
+		std::wstring m_prefix;
 
 		::CORETOOLS::EEAutoComplete* m_pAutoCompleter{ nullptr };
 

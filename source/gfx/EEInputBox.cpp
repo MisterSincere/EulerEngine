@@ -18,7 +18,7 @@ GFX::EEInputBox::EEInputBox(GFX::EEFontEngine* pFontEngine)
 
 GFX::EEInputBox::EEInputBox(GFX::EEFontEngine* pFontEngine, GFX::EEInputBoxCreateInfo const& cinfo)
 	: EETextBox(pFontEngine,  {
-														std::string(cinfo.prefix + cinfo.text)
+														std::wstring(cinfo.prefix + cinfo.text)
 														, cinfo.font
 														, cinfo.characterSize
 														, cinfo.adjustBoxSize
@@ -89,7 +89,7 @@ void GFX::EEInputBox::Update()
 		
 		// If we have no currently auto complete suggestions get some
 		if (m_autoCompleteCmds.empty()) {
-			std::string cont(i_text.begin() + m_prefix.size(), i_text.end());
+			std::wstring cont(i_text.begin() + m_prefix.size(), i_text.end());
 			m_autoCompleteCmds = m_pAutoCompleter->MultiComplete(cont);
 			m_autoCompleteCmdIndex = 0u;
 			if (!m_autoCompleteCmds.empty()) {
@@ -105,7 +105,7 @@ void GFX::EEInputBox::Update()
 
 	/// On return let the registered handlers the text passed in
 	} else if (i_pApp->KeyHit(EE_KEY_ENTER) && i_text.size() > m_prefix.size() && m_handlers.size()) {
-		std::string cont(i_text.begin() + m_prefix.size(), i_text.end());
+		std::wstring cont(i_text.begin() + m_prefix.size(), i_text.end());
 		for (auto const& curHandle : m_handlers) curHandle->Handle(cont.c_str());
 		if (m_clearOnReturn) SetText(m_prefix);
 	}

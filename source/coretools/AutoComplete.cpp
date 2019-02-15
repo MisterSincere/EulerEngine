@@ -14,11 +14,11 @@ CORETOOLS::EEAutoComplete::EEAutoComplete(::CORETOOLS::CmdList const& cmds)
 	: m_availableCmds(CmdList(cmds))
 {}
 
-uint32_t CORETOOLS::EEAutoComplete::Complete(std::string const& toBeCompleted, std::string& completed)
+uint32_t CORETOOLS::EEAutoComplete::Complete(std::wstring const& toBeCompleted, std::wstring& completed)
 {
 	// Holds the result after all iterations
 	uint32_t maxAttachedEquals{ 0u };
-	std::string completedString{ toBeCompleted };
+	std::wstring completedString{ toBeCompleted };
 	uint32_t curAttachedEquals;
 
 	for (Cmd const& curCmd : m_availableCmds) {
@@ -26,7 +26,7 @@ uint32_t CORETOOLS::EEAutoComplete::Complete(std::string const& toBeCompleted, s
 
 		// Result check, if new best one and if it is not the same (only new commands will be used)
 		if(curAttachedEquals > maxAttachedEquals
-			&& strcmp(curCmd.get(), toBeCompleted.c_str())) {
+			&& wcscmp(curCmd.get(), toBeCompleted.c_str())) {
 			completedString = curCmd.get();
 			maxAttachedEquals = curAttachedEquals;
 		}
@@ -43,7 +43,7 @@ struct greater {
 	bool operator()(T const& a, T const& b) const { return a > b; }
 };
 
-std::vector<CORETOOLS::Cmd> CORETOOLS::EEAutoComplete::MultiComplete(std::string const& toBeCompleted, uint32_t minimum)
+std::vector<CORETOOLS::Cmd> CORETOOLS::EEAutoComplete::MultiComplete(std::wstring const& toBeCompleted, uint32_t minimum)
 {
 	std::vector<Cmd> equalityMap;
 
@@ -70,10 +70,10 @@ void CORETOOLS::EEAutoComplete::AddCommandToList(::CORETOOLS::Cmd const& cmd)
 	m_availableCmds += cmd;
 }
 
-uint32_t CORETOOLS::EEAutoComplete::GetEquals(char const* string1, char const* string2)
+uint32_t CORETOOLS::EEAutoComplete::GetEquals(wchar_t const* string1, wchar_t const* string2)
 {
 	uint32_t equals{ 0u };
-	for (size_t i = 0u; i < strlen(string1) && i < strlen(string2); i++) {
+	for (size_t i = 0u; i < wcslen(string1) && i < wcslen(string2); i++) {
 		if (string1[i] == string2[i]) equals++;
 		else break;
 	}

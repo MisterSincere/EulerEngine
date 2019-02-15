@@ -26,7 +26,7 @@ namespace GFX {
 namespace GFX
 {
 	struct EETextBoxCreateInfo {
-		std::string						text						{ "hello world" };
+		std::wstring					text						{ L"hello world" };
 		EEFont								font						{ nullptr };
 		float									characterSize		{ 30.f };
 		bool									adjustBoxSize		{ true };
@@ -58,10 +58,10 @@ namespace GFX
 		void SetCharacterSize(float size); // TODO
 		void SetPadding(float left, float top, float right, float bottom, bool expand = false);
 		void SetTextColor(EEColor const& textColor);
-		void SetText(std::string const& newText);
+		void SetText(std::wstring const& newText);
 		void SetVisibility(bool isVisible) override;
 
-		std::string GetText();
+		std::wstring GetText();
 
 		EETextBox& operator=(EETextBox const&) = delete;
 		EETextBox& operator=(EETextBox&&) = delete;
@@ -72,9 +72,9 @@ namespace GFX
 		float					i_characterSize;
 		float					i_paddingLeft{ 0.0f }, i_paddingTop{ 0.0f }, i_paddingRight{ 0.0f }, i_paddingBottom{ 0.0f };
 
-		std::string i_text;
-		std::string i_previousText;
-		std::string i_textWrapped;
+		std::wstring i_text;
+		std::wstring i_previousText;
+		std::wstring i_textWrapped;
 
 		EEFont i_font;
 		EEText i_renderText;

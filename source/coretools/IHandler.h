@@ -18,10 +18,10 @@ namespace CORETOOLS
 	};
 
 	/// Abstract text handler class definition
-	class ITextHandler : public IHandler<bool, char const*>
+	class ITextHandler : public IHandler<bool, wchar_t const*>
 	{
 	public:
-		virtual bool Handle(char const*) override = 0;
+		virtual bool Handle(wchar_t const*) override = 0;
 
 		::CORETOOLS::CmdList GetCommands() const { return i_commands; }
 

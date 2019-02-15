@@ -64,7 +64,7 @@ namespace GFX
 			EETexture texture;
 			uint32_t width;
 			uint32_t height;
-			std::map<char, Letter> letterDetails;
+			std::map<wchar_t, Letter> letterDetails;
 			uint32_t maxLetterWidth;
 		};
 
@@ -106,7 +106,7 @@ namespace GFX
 		 *
 		 * @return Handle to the created font
 		 **/
-		EEFont CreateFont(char const* fileName, char const* charSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZäüöß0123456789€$,.;:_-!?<>()[]");
+		EEFont CreateFont(char const* fileName, wchar_t const* charSet = L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZäüöß0123456789€$,.;:_-!?<>()[]");
 
 		/**
 		 * Frees the font passed in
@@ -126,7 +126,7 @@ namespace GFX
 		 *
 		 * @return Handle to the created text, which can be used to modify/release the text
 		 **/
-		EEText RenderText(EEFont font, std::string const& text, EEPoint32F const& position, float size, EEColor const& color);
+		EEText RenderText(EEFont font, std::wstring const& text, EEPoint32F const& position, float size, EEColor const& color);
 
 		/**
 		 * Frees the text passed in.
@@ -142,7 +142,7 @@ namespace GFX
 		 *
 		 * @return Could be false if the @note was not adhered to or the vertex buffer update failed.
 		 **/
-		EEBool32 ChangeText(EEText text, std::string const& newText);
+		EEBool32 ChangeText(EEText text, std::wstring const& newText);
 
 		/**
 		 * Inserts new line characters for the text according to the font passed in where the text exceeds
@@ -154,7 +154,7 @@ namespace GFX
 		 *
 		 * @return The wrapped text
 		 **/
-		std::string WrapText(EEFont font, std::string const& text, float size, EERect32F const& wrapDim);
+		std::wstring WrapText(EEFont font, std::wstring const& text, float size, EERect32F const& wrapDim);
 
 		/**
 		 * Changes the color of the text passed in
@@ -209,7 +209,7 @@ namespace GFX
 		 **/
 		EEBool32 ComputeMeshAccToFont(
 			EEInternFont*							font,
-			std::string const&				text,
+			std::wstring const&				text,
 			std::vector<VertexInput>& verticesOut,
 			std::vector<uint32_t>&		indicesOut,
 			EERect32F&								maxTextDims);
@@ -222,7 +222,7 @@ namespace GFX
 		 *
 		 * @return Amount of steps back that were needed to find a space
 		 **/
-		int InsertLineBreak(std::string& text, size_t index);
+		int InsertLineBreak(std::wstring& text, size_t index);
 
 	private:
 		/* @brief The application this font engine will use */

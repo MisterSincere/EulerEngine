@@ -17,15 +17,15 @@ namespace CORETOOLS
 
 	struct Cmd {
 		/// Constructors for string and cstring
-		Cmd(std::string const& cmd) : p_text(cmd.c_str()) {}
-		Cmd(char const* cmd) : p_text(cmd) {}
+		Cmd(std::wstring const& cmd) : p_text(cmd.c_str()) {}
+		Cmd(wchar_t const* cmd) : p_text(cmd) {}
 
 		/// Get the cstring data
-		char const* get() const { return p_text; }
+		wchar_t const* get() const { return p_text; }
 
 		/// Assignment for string and cstring
-		Cmd operator=(std::string const& cmd) { p_text = cmd.c_str(); }
-		Cmd operator=(char const* cmd) { p_text = cmd; }
+		Cmd operator=(std::wstring const& cmd) { p_text = cmd.c_str(); }
+		Cmd operator=(wchar_t const* cmd) { p_text = cmd; }
 
 		/// Comparison operators for equality amounts
 		template<typename T> bool operator==(T equals) const { return equals == p_equals; }
@@ -35,39 +35,39 @@ namespace CORETOOLS
 		template<typename T> bool operator<(T equals) const { return equals < p_equals; }
 
 		/// Equal operators for Command, string and cstring
-		bool operator==(Cmd const& cmd) const { return (strcmp(p_text, cmd.get()) == 0); }
-		bool operator==(std::string const& cmd) const { return (strcmp(p_text, cmd.c_str()) == 0); }
-		bool operator==(char const* cmd) const { return (strcmp(p_text, cmd) == 0); }
+		bool operator==(Cmd const& cmd) const { return (wcscmp(p_text, cmd.get()) == 0); }
+		bool operator==(std::wstring const& cmd) const { return (wcscmp(p_text, cmd.c_str()) == 0); }
+		bool operator==(wchar_t const* cmd) const { return (wcscmp(p_text, cmd) == 0); }
 
-		char operator[](unsigned int index) const { return p_text[index]; }
+		wchar_t operator[](unsigned int index) const { return p_text[index]; }
 
-		char const* p_text;
+		wchar_t const* p_text;
 		uint32_t		p_equals{ 0u };
 	};
 
 	struct CmdList {
 		/// [] operator	for string / cstring comparison and simple index acquiring
 		Cmd operator[](unsigned int i) const { return p_cmds[i]; }
-		Cmd operator[](std::string const& cmd) const { return operator[](cmd.c_str()); }
-		Cmd operator[](char const* cmd) const {
+		Cmd operator[](std::wstring const& cmd) const { return operator[](cmd.c_str()); }
+		Cmd operator[](wchar_t const* cmd) const {
 			auto el = std::find(p_cmds.begin(), p_cmds.end(), cmd);
 			if (el == p_cmds.end()) assert(false);
 			return *el;
 		}
 
 		/// += operator to be able to add commands with string / cstring
-		CmdList operator+=(char const* cmd) { p_cmds.emplace_back(cmd); return *this; }
-		CmdList operator+=(std::string const& cmd) { p_cmds.emplace_back(cmd); return *this; }
+		CmdList operator+=(wchar_t const* cmd) { p_cmds.emplace_back(cmd); return *this; }
+		CmdList operator+=(std::wstring const& cmd) { p_cmds.emplace_back(cmd); return *this; }
 		CmdList operator+=(Cmd const& cmd) { p_cmds.push_back(cmd); return *this; }
 
 		/// -= operator to be able to remove commands identified by string/cstring/cmd
-		CmdList operator-=(char const* cmd) {
+		CmdList operator-=(wchar_t const* cmd) {
 			auto el = std::find(p_cmds.begin(), p_cmds.end(), cmd);
 			if (el != p_cmds.end()) p_cmds.erase(el);
 			else EE_PRINT("[CMDLIST] Element %s not found to be removed!\n", cmd);
 			return *this;
 		}
-		CmdList operator-=(std::string const& cmd) { return operator-=(cmd.c_str()); }
+		CmdList operator-=(std::wstring const& cmd) { return operator-=(cmd.c_str()); }
 		CmdList operator-=(Cmd const& cmd) { return operator-=(cmd.get()); }
 
 		/// Wrapper for vector iterators

@@ -5,6 +5,8 @@
 /////////////////////////////////////////////////////////////////////
 #include "EEFontEngine.h"
 
+#include <wchar.h>
+
 #include "vkcore/vulkanTools.h"
 #include "EEApplication.h"
 
@@ -112,7 +114,7 @@ GFX::EEFontEngine::~EEFontEngine()
 	}
 }
 
-GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* charSet)
+GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, wchar_t const* charSet)
 {
 	// Allocate memory for the font internal details
 	EEInternFont* pFont = new EEInternFont;
@@ -142,7 +144,7 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, char const* char
 	}
 
 	// Acquire informations about the passed in character set
-	size_t numChars = strlen(charSet);
+	size_t numChars = wcslen(charSet);
 	uint32_t fontImgWidth{ 0u }, fontImgHeight{ 0u }, glyphIndex{ 0u };
 	uint32_t maxTopBearingY{ 0u }, maxBelowBearingY{ 0u };
 
@@ -234,7 +236,7 @@ void GFX::EEFontEngine::ReleaseFont(EEFont & font)
 	// @TODO
 }
 
-GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, std::string const& text, EEPoint32F const& position, float size, EEColor const& color)
+GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, std::wstring const& text, EEPoint32F const& position, float size, EEColor const& color)
 {
 	// Get the font
 	EEInternFont* curFont = m_currentFonts[*font];
@@ -332,7 +334,7 @@ void GFX::EEFontEngine::ReleaseText(EEText& text)
 	EE_INVARIANT(m_currentTexts.size() == m_iCurrentTexts.size());
 }
 
-EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::string const& newText)
+EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::wstring const& newText)
 {
 	if (!text) {
 		EE_PRINT("[EEFONTENGINE] Text handle that was passed into ChangeText was nullptr!\n");
@@ -351,7 +353,7 @@ EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::string const& newText)
 	return EE_TRUE;
 }
 
-std::string GFX::EEFontEngine::WrapText(EEFont font, std::string const& text, float size, EERect32F const& wrapDim)
+std::wstring GFX::EEFontEngine::WrapText(EEFont font, std::wstring const& text, float size, EERect32F const& wrapDim)
 {
 	if (wrapDim.width < size || wrapDim.height < size) {
 		EE_PRINT("[EEFONTENGINE] Choose bigger wrap dimensions, at least > than passed in size!\n");
@@ -367,7 +369,7 @@ std::string GFX::EEFontEngine::WrapText(EEFont font, std::string const& text, fl
 				currentSpaceX{ maxWidth },
 				currentSpaceY{ maxHeight };
 	
-	std::string output(text);
+	std::wstring output(text);
 
 	for (size_t i = 0u; i < text.size(); i++) {
 
@@ -479,7 +481,7 @@ EERect32F GFX::EEFontEngine::GetTextDimensions(EEText text)
 	return m_pApp;
 }
 
-EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::string const& text,
+EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::wstring const& text,
 	std::vector<VertexInput>& vertices, std::vector<uint32_t>& indices, EERect32F& maxTextDims)
 {
 	// Settings of the per letter dimensions
@@ -551,11 +553,11 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::strin
 	return EE_TRUE;
 }
 
-int GFX::EEFontEngine::InsertLineBreak(std::string& text, size_t index)
+int GFX::EEFontEngine::InsertLineBreak(std::wstring& text, size_t index)
 {
 	size_t tempIndex{ index };
 	while (index > 1 && text[index] != ' ') index--;
-	text.replace(index, 1, "\n");
+	text.replace(index, 1, L"\n");
 	return (int)(tempIndex - index);
 }
 

@@ -78,7 +78,7 @@ void EETextBox::Update()
 	}
 
 	if (i_changes & TEXT_CHANGE || i_changes & SIZE_CHANGE || i_changes & PADDING_CHANGE) {
-		std::string newTextWrapped = i_pFontEngine->WrapText(i_font, i_text, i_characterSize,
+		std::wstring newTextWrapped = i_pFontEngine->WrapText(i_font, i_text, i_characterSize,
 			{ i_size.width - i_paddingLeft - i_paddingRight, i_size.height - i_paddingTop - i_paddingBottom});
 		if (i_pFontEngine->ChangeText(i_renderText, newTextWrapped)) {
 			i_textWrapped = newTextWrapped;
@@ -154,7 +154,7 @@ void EETextBox::SetTextColor(EEColor const& textColor)
 	i_changes |= TEXTCOLOR_CHANGE;
 }
 
-void EETextBox::SetText(std::string const& newText)
+void EETextBox::SetText(std::wstring const& newText)
 {
 	if (!i_textBoxCreated) {
 		EE_PRINT("[EETEXTBOX] WHY BOTHER TO FUCKING SET A NEW TEXT YOU RETARD!! TEXT WASNT CREATED YET!!!!!\n");
@@ -185,7 +185,7 @@ void EETextBox::SetVisibility(bool isVisible)
 
 
 
-std::string EETextBox::GetText()
+std::wstring EETextBox::GetText()
 {
 	return i_text;
 }

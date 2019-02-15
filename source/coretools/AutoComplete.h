@@ -29,7 +29,7 @@ namespace CORETOOLS
 		 * 
 		 * @Deprecated it is recommended to use multicomplete instead
 		 **/
-		uint32_t Complete(std::string const& toBeCompleted, std::string& completed);
+		uint32_t Complete(std::wstring const& toBeCompleted, std::wstring& completed);
 
 		/**
 		 * Returns a list of commands that equal that /p toBeCompleted string with at
@@ -41,7 +41,7 @@ namespace CORETOOLS
 		 *
 		 * @return List of commands	that are fullfilling the above criteria sorted by amount of equal chars
 		 **/
-		std::vector<::CORETOOLS::Cmd> MultiComplete(std::string const& toBeCompleted, uint32_t minimum = 1ui32);
+		std::vector<::CORETOOLS::Cmd> MultiComplete(std::wstring const& toBeCompleted, uint32_t minimum = 1ui32);
 
 		/**
 		 * Allows to set a whole new command list
@@ -60,7 +60,7 @@ namespace CORETOOLS
 		/**
 		 * @return The amount of same characters until the first different character
 		 **/
-		uint32_t GetEquals(char const* string1, char const* string2);
+		uint32_t GetEquals(wchar_t const* string1, wchar_t const* string2);
 
 	private:
 		CmdList m_availableCmds;
