@@ -84,7 +84,7 @@ EE::Texture::Texture(vulkan::Renderer const* pRenderer, char const* fileName,
 	int width, height;
 	data.pixels = stbi_load(fileName, &width, &height, &data.channels, STBI_rgb_alpha);
 	if (!data.pixels) {
-		EE_PRINT("[TEXTURE] Image not found: %s\n", fileName);
+		EE_PRINT("[TEXTURE] Image not found: %hs \n", fileName);
 		tools::exitFatal("Failed to find image!\n");
 	}
 	// For some reason stbi_load sets channel to 3 although alpha is requested

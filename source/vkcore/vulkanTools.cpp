@@ -30,7 +30,7 @@ std::vector<char> tools::readFile(char const* fileName)
 	}
 	else
 	{
-		EE_PRINT("Failed to open file %s!\n", fileName);
+		EE_PRINTA("Failed to open file %s!\n", fileName);
 		exitFatal("Failed to open shader file!\n");
 		return std::vector<char>();
 	}
@@ -99,19 +99,19 @@ bool vulkan::tools::isStencilFormat(VkFormat format)
 char const* vulkan::tools::vkResultToStr(VkResult res)
 {
 	switch (res) {
-#define STR(val) case val: return #val;
-		STR(VK_ERROR_OUT_OF_HOST_MEMORY);
-		STR(VK_ERROR_OUT_OF_DEVICE_MEMORY);
-		STR(VK_ERROR_INITIALIZATION_FAILED);
-		STR(VK_ERROR_LAYER_NOT_PRESENT);
-		STR(VK_ERROR_EXTENSION_NOT_PRESENT);
-		STR(VK_ERROR_FEATURE_NOT_PRESENT);
-		STR(VK_ERROR_TOO_MANY_OBJECTS);
-		STR(VK_ERROR_DEVICE_LOST);
-		STR(VK_ERROR_INCOMPATIBLE_DRIVER);
-		STR(VK_ERROR_SURFACE_LOST_KHR);
-		STR(VK_ERROR_NATIVE_WINDOW_IN_USE_KHR);
-#undef STR
+#define CASE(val) case val: return #val;
+		CASE(VK_ERROR_OUT_OF_HOST_MEMORY);
+		CASE(VK_ERROR_OUT_OF_DEVICE_MEMORY);
+		CASE(VK_ERROR_INITIALIZATION_FAILED);
+		CASE(VK_ERROR_LAYER_NOT_PRESENT);
+		CASE(VK_ERROR_EXTENSION_NOT_PRESENT);
+		CASE(VK_ERROR_FEATURE_NOT_PRESENT);
+		CASE(VK_ERROR_TOO_MANY_OBJECTS);
+		CASE(VK_ERROR_DEVICE_LOST);
+		CASE(VK_ERROR_INCOMPATIBLE_DRIVER);
+		CASE(VK_ERROR_SURFACE_LOST_KHR);
+		CASE(VK_ERROR_NATIVE_WINDOW_IN_USE_KHR);
+#undef CASE
 	default:
 		return "UNKNOWN ERROR";
 	}

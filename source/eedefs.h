@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <string>
 #include <DirectXMath.h>
 
 #include "keycodes.h"
@@ -19,7 +20,30 @@
 
 #define EE_DEFINE_HANDLE(name) typedef uint32_t* name;
 
-#define EE_PRINT(val, ...) printf_s(val, __VA_ARGS__);
+// Avoid duplicate text wrapping definition, possible since they are equivalent by convention
+#if defined(STR)
+# undef STR
+#endif
+
+// wide- and ansi-cstring print to stdout wrapper
+#define EE_PRINTA(val, ...) printf_s(val, __VA_ARGS__);
+#define EE_PRINTW(val, ...) wprintf_s(L##val, __VA_ARGS__);
+
+#if defined(UNICODE) | defined(EE_USE_UNICODE)
+# define STR(str)								L##str
+# define __WS										%s
+# define __AS										%S
+# define EE_PRINT(val, ...)			EE_PRINTW(val, __VA_ARGS__)
+# define EE_STRCMP(str1, str2)	wcscmp(str1, str2)
+# define EE_STRLEN(str)					wcslen(str)
+#else
+# define STR(str)								str
+# define __WS										%S
+# define __AS										%s
+# define EE_PRINT(val, ...)			EE_PRINTA(val, __VA_ARGS__)
+# define EE_STRCMP(str1, str2)	strcmp(str1, str2)
+# define EE_STRLEN(str)					strlen(str)
+#endif
 
 #define EE_INVARIANT(expr) assert(expr);
 
@@ -39,8 +63,15 @@ struct GLFWwindow;
 //////////////
 typedef uint32_t EEFlags;
 typedef uint32_t EEBool32;
-typedef char const* EEcstr;
-typedef char* EEstr;
+#if defined(UNICODE) | defined(EE_USE_UNICODE)
+typedef wchar_t				EEchar;
+typedef std::wstring	EEstring;
+#else
+typedef char					EEchar;
+typedef std::string		EEstring;
+#endif
+typedef EEchar*				EEstr;
+typedef EEchar const* EEcstr;
 
 /////////////
 // HANDLES //

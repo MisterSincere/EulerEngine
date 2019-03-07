@@ -5,8 +5,6 @@
 /////////////////////////////////////////////////////////////////////
 #include "EEFontEngine.h"
 
-#include <wchar.h>
-
 #include "vkcore/vulkanTools.h"
 #include "EEApplication.h"
 
@@ -114,7 +112,7 @@ GFX::EEFontEngine::~EEFontEngine()
 	}
 }
 
-GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, wchar_t const* charSet)
+GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, EEcstr charSet)
 {
 	// Allocate memory for the font internal details
 	EEInternFont* pFont = new EEInternFont;
@@ -144,7 +142,7 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, wchar_t const* c
 	}
 
 	// Acquire informations about the passed in character set
-	size_t numChars = wcslen(charSet);
+	size_t numChars = EE_STRLEN(charSet);
 	uint32_t fontImgWidth{ 0u }, fontImgHeight{ 0u }, glyphIndex{ 0u };
 	uint32_t maxTopBearingY{ 0u }, maxBelowBearingY{ 0u };
 
@@ -268,7 +266,7 @@ void GFX::EEFontEngine::ReleaseFont(EEFont& font)
 	EE_INVARIANT(m_currentFonts.size() == m_iCurrentFonts.size());
 }
 
-GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, std::wstring const& text, EEPoint32F const& position, float size, EEColor const& color)
+GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, EEstring const& text, EEPoint32F const& position, float size, EEColor const& color)
 {
 	// Get the font
 	EEInternFont* curFont = m_currentFonts[*font];
@@ -366,7 +364,7 @@ void GFX::EEFontEngine::ReleaseText(EEText& text)
 	EE_INVARIANT(m_currentTexts.size() == m_iCurrentTexts.size());
 }
 
-EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::wstring const& newText)
+EEBool32 GFX::EEFontEngine::ChangeText(EEText text, EEstring const& newText)
 {
 	if (!text) {
 		EE_PRINT("[EEFONTENGINE] Text handle that was passed into ChangeText was nullptr!\n");
@@ -385,7 +383,7 @@ EEBool32 GFX::EEFontEngine::ChangeText(EEText text, std::wstring const& newText)
 	return EE_TRUE;
 }
 
-std::wstring GFX::EEFontEngine::WrapText(EEFont font, std::wstring const& text, float size, EERect32F const& wrapDim) const
+EEstring GFX::EEFontEngine::WrapText(EEFont font, EEstring const& text, float size, EERect32F const& wrapDim) const
 {
 	if (wrapDim.width < size || wrapDim.height < size) {
 		EE_PRINT("[EEFONTENGINE] Choose bigger wrap dimensions, at least > than passed in size!\n");
@@ -401,7 +399,7 @@ std::wstring GFX::EEFontEngine::WrapText(EEFont font, std::wstring const& text, 
 				currentSpaceX{ maxWidth },
 				currentSpaceY{ maxHeight };
 	
-	std::wstring output(text);
+	EEstring output(text);
 
 	for (size_t i = 0u; i < text.size(); i++) {
 
@@ -420,7 +418,7 @@ std::wstring GFX::EEFontEngine::WrapText(EEFont font, std::wstring const& text, 
 			try {
 				currentSpaceX -= size * pFont->letterDetails.at(text[i]).width / pFont->maxLetterWidth;
 			} catch (std::out_of_range oor) {
-				EE_PRINT("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font (current:%s).\n%lls", &text[i], oor.what());
+				EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n%s", oor.what());
 				EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n");
 				return text;
 			}
@@ -513,7 +511,7 @@ EERect32F GFX::EEFontEngine::GetTextDimensions(EEText text)
 	return m_pApp;
 }
 
-EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::wstring const& text,
+EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, EEstring const& text,
 	std::vector<VertexInput>& vertices, std::vector<uint32_t>& indices, EERect32F& maxTextDims)
 {
 	// Settings of the per letter dimensions
@@ -545,7 +543,7 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::wstri
 		try {
 			curLetter = pFont->letterDetails.at(text[i]);
 		} catch (std::out_of_range const& oor) {
-			EE_PRINT("[EEFONTENGINE] Invalid character! The desired text contains at least on character that was not defined in the charset of the font.\n%s", oor.what());
+			EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least on character that was not defined in the charset of the font.\n%s", oor.what());
 			EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n");
 			return EE_FALSE;
 		}
@@ -585,11 +583,11 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, std::wstri
 	return EE_TRUE;
 }
 
-int GFX::EEFontEngine::InsertLineBreak(std::wstring& text, size_t index) const
+int GFX::EEFontEngine::InsertLineBreak(EEstring& text, size_t index) const
 {
 	size_t tempIndex{ index };
 	while (index > 1 && text[index] != ' ') index--;
-	text.replace(index, 1, L"\n");
+	text.replace(index, 1, STR("\n"));
 	return (int)(tempIndex - index);
 }
 

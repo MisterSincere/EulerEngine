@@ -163,7 +163,7 @@ EEBool32 Window::Create(EEApplicationCreateInfo const& windowCInfo, EE::fpEEWind
 			}
 		}
 		if (!found) {
-			EE_PRINT("Failed to create the window: you do not support the required extension %s !\n", reqExtension);
+			EE_PRINTA("Failed to create the window: you do not support the required extension %s !\n", reqExtension);
 			tools::exitFatal("Failed to create the window. Required extensions not supported!");
 		}
 	}

@@ -278,7 +278,7 @@ VkResult vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures,
 		if (LayerSupported(curAdditionalLayer)) {
 			enabledLayers.push_back(curAdditionalLayer);
 		} else {
-			EE_PRINT("[DEVICE] Layer %s was requested but is not supported!\n", curAdditionalLayer);
+			EE_PRINTA("[DEVICE] Layer %s was requested but is not supported!\n", curAdditionalLayer);
 		}
 	}
 
@@ -295,7 +295,7 @@ VkResult vulkan::Device::Create(VkPhysicalDeviceFeatures const& desiredFeatures,
 			if (ExtensionSupported(curAdditionalExtension)) {
 				enabledExtensions.push_back(curAdditionalExtension);
 			} else {
-				EE_PRINT("[DEVICE] Extension %s was requested but is not supported!\n", curAdditionalExtension);
+				EE_PRINTA("[DEVICE] Extension %s was requested but is not supported!\n", curAdditionalExtension);
 			}
 		}
 	}

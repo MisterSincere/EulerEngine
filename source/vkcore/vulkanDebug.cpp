@@ -19,7 +19,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 	const char*                                 pMessage,
 	void*                                       pUserData)
 {
-	EE_PRINT("[DBG_REPORT] %s\n", pMessage);
+	EE_PRINTA("[DBG_REPORT] %s\n", pMessage);
 	return VK_FALSE;
 }
 

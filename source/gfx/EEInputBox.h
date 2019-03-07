@@ -73,9 +73,9 @@ namespace GFX
 	struct EEInputBoxCreateInfo {
 		::CORETOOLS::CmdList	cmdList					{ ::CORETOOLS::CmdList() };
 		bool									enableDefocus		{ false };
-		std::wstring					prefix					{ L"" };
+		EEstring							prefix					{ STR("") };
 		bool									clearOnReturn		{ true };
-		std::wstring					text						{ L"" };
+		EEstring							text						{ STR("") };
 		EEFont								font						{ nullptr };
 		float									characterSize		{ 20.f };
 		bool									adjustBoxSize		{ true };
@@ -141,7 +141,7 @@ namespace GFX
 		bool GetFocused() const;
 
 	private:
-		std::wstring m_prefix; //< inited on construct
+		EEstring m_prefix; //< inited on construct
 
 		std::vector<::CORETOOLS::ITextHandler*>		m_handlers;
 

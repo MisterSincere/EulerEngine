@@ -26,21 +26,21 @@ namespace GFX {
 namespace GFX
 {
 	struct EETextBoxCreateInfo {
-		std::wstring					text						{ L"hello world" };
-		EEFont								font						{ nullptr };
-		float									characterSize		{ 30.f };
-		bool									adjustBoxSize		{ true };
-		EEColor								textColor				{ .9f, .9f, .9f, 1.f };
-		EEPadding							padding					{ 0.f, 0.f, 0.f, 0.f };
-		EEPoint32F						position				{ 0.f, 0.f };
-		EECenterFlags					positionFlags		{ EE_CENTER_NONE };
-		EERect32F							size						{ 200.f, 200.f };
-		EEColor								backgroundColor	{ 0.f, 0.f, 0.f, 1.f };
-		bool									enableHover			{ false };
-		EEColor								hoverColor			{ 0.f, 0.f, 0.f, 0.f };
-		bool									enableActive		{ false };
-		EEColor								activeColor			{ 0.f, 0.f, 0.f, 0.f };
-		bool									visibility			{ true };
+		EEstring					text						{ STR("hello world") };
+		EEFont						font						{ nullptr };
+		float							characterSize		{ 30.f };
+		bool							adjustBoxSize		{ true };
+		EEColor						textColor				{ .9f, .9f, .9f, 1.f };
+		EEPadding					padding					{ 0.f, 0.f, 0.f, 0.f };
+		EEPoint32F				position				{ 0.f, 0.f };
+		EECenterFlags			positionFlags		{ EE_CENTER_NONE };
+		EERect32F					size						{ 200.f, 200.f };
+		EEColor						backgroundColor	{ 0.f, 0.f, 0.f, 1.f };
+		bool							enableHover			{ false };
+		EEColor						hoverColor			{ 0.f, 0.f, 0.f, 0.f };
+		bool							enableActive		{ false };
+		EEColor						activeColor			{ 0.f, 0.f, 0.f, 0.f };
+		bool							visibility			{ true };
 	};
 
 	class EETextBox : public EERectangle
@@ -58,10 +58,10 @@ namespace GFX
 		void SetCharacterSize(float size); // TODO
 		void SetPadding(float left, float top, float right, float bottom, bool expand = false);
 		void SetTextColor(EEColor const& textColor);
-		void SetText(std::wstring const& newText);
+		void SetText(EEstring const& newText);
 		void SetVisibility(bool isVisible) override;
 
-		std::wstring GetText();
+		EEstring GetText();
 
 		EETextBox& operator=(EETextBox const&) = delete;
 		EETextBox& operator=(EETextBox&&) = delete;
@@ -72,9 +72,9 @@ namespace GFX
 		float					i_characterSize;
 		float					i_paddingLeft{ 0.0f }, i_paddingTop{ 0.0f }, i_paddingRight{ 0.0f }, i_paddingBottom{ 0.0f };
 
-		std::wstring i_text;
-		std::wstring i_previousText;
-		std::wstring i_textWrapped;
+		EEstring i_text;
+		EEstring i_previousText;
+		EEstring i_textWrapped;
 
 		EEFont i_font;
 		EEText i_renderText;
