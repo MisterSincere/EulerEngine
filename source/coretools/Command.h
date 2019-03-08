@@ -8,11 +8,45 @@
 #include <cassert>
 #include <vector>
 
+#include "vkcore/vulkanTools.h"
 #include "eedefs.h"
 
 
 namespace CORETOOLS
 {
+
+	struct SpecificCmd {
+		SpecificCmd(EEcstr cmd) : raw(cmd) /* TODO may be unclean*/ {
+			std::vector<EEcstr> exp = ::EE::tools::explodeString(cmd);
+			this->cmd = exp[0];
+			params.insert(params.begin(), exp.begin() + 1, exp.end());
+		}
+		SpecificCmd(EEstring const& cmd) : SpecificCmd(cmd.c_str()) {}
+
+		/// Comparison for the main command string
+		bool operator==(EEcstr cmd)						const { return (EE_STRCMP(cmd, this->cmd)					== 0); }
+		bool operator==(EEstring const& cmd)	const { return (EE_STRCMP(cmd.c_str(), this->cmd) == 0); }
+
+		/// Checks if the cmd is the i-th param
+		bool operator()(EEcstr cmd, uint32_t i)	const {
+			return (i < params.size()) && (EE_STRCMP(cmd, params[i]) == 0);
+		}
+		bool operator()(EEstring const& cmd, uint32_t i) const { return operator()(cmd.c_str(), i); }
+
+		/// Checks if the param is defined in this command
+		bool operator()(EEcstr cmd) const {
+			for (const auto& cur : params) if (EE_STRCMP(cur, cmd) == 0) return true;
+			return false;
+		}
+		bool operator()(EEstring const& cmd) const { return operator()(cmd.c_str()); }
+
+		/// Returns the i-th param
+		EEcstr operator[](uint32_t i) const { return params[i]; }
+
+		EEcstr							raw;
+		EEcstr							cmd;
+		std::vector<EEcstr> params;
+	};
 
 	struct Cmd {
 		/// Constructors for string and cstring

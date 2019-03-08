@@ -6,6 +6,7 @@
 #pragma once
 
 #include "vulkanInitializers.h" //< includes vulkan.h
+#include "eedefs.h"
 #include <vector>
 
 #include <cstdio>
@@ -61,6 +62,8 @@ namespace EE {
 
 	namespace tools {
 		extern std::vector<char> readFile(char const* file);
+
+		extern std::vector<EEcstr> explodeString(EEcstr str, EEcstr del = STR(" "));
 
 		extern void exitFatal(char const* msg);
 

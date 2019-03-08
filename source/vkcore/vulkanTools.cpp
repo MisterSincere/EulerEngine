@@ -36,21 +36,35 @@ std::vector<char> tools::readFile(char const* fileName)
 	}
 }
 
+std::vector<EEcstr> EE::tools::explodeString(EEcstr str, EEcstr del)
+{
+	std::vector<EEcstr> res;
+	uint32_t l{ 0u };
+	for (size_t i = 0u; i <= EE_STRLEN(str); i++) {
+		if (i == EE_STRLEN(str) || EE_STRNCMP(&str[i], del, EE_STRLEN(del)) == 0) {
+			EEstr cur = new EEchar[l + 1];
+			assert(!memcpy_s(cur, l * sizeof(EEchar), &str[i - l], l * sizeof(EEchar)));
+			cur[l] = STR('\0');
+			res.push_back(cur);
+			i += EE_STRLEN(del) - 1;
+			l = 0u;
+		}
+		else {
+			l++;
+		}
+	}
+	return res;
+}
+
 void tools::exitFatal(char const* msg)
 {
-#ifdef UNICODE
-#define EE_STR_TEMP(val) L##val
-#else
-#define EE_STR_TEMP(val) val
-#endif
-	MessageBox(nullptr, EE_STR_TEMP(msg), EE_STR_TEMP("Fatal Error"), MB_OK | MB_ICONERROR);
+	MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR);
 	assert(false);
 }
 
 void tools::warning(char const* msg)
 {
-	MessageBox(nullptr, EE_STR_TEMP(msg), EE_STR_TEMP("WARNING"), MB_OK | MB_ICONERROR);
-#undef EE_STR_TEMP
+	MessageBoxA(nullptr, msg, "WARNING", MB_OK | MB_ICONERROR);
 }
 
 VkFormat tools::eeToVk(EEFormat format)
