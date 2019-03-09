@@ -31,7 +31,7 @@ EE::vulkan::Instance::Instance(EE::Window const& window, std::vector<char const*
 
 			// Push back desired layer if it is supported otherwise show notification
 			if (supported) enabledLayers.push_back(curDesiredLayer);
-			else EE_PRINT("[VulkanInstance] %s layer was requested but is not supported!\n", curDesiredLayer);
+			else EE_PRINTA("[VulkanInstance] %s layer was requested but is not supported!\n", curDesiredLayer);
 		}
 	}
 
@@ -56,7 +56,7 @@ EE::vulkan::Instance::Instance(EE::Window const& window, std::vector<char const*
 
 			// Push back desired extension if it is supported otherwise show notification
 			if (supported) enabledExtensions.push_back(curDesiredExtension);
-			else EE_PRINT("[VulkanInstance] %s extension was requested but is not supported!\n", curDesiredExtension);
+			else EE_PRINTA("[VulkanInstance] %s extension was requested but is not supported!\n", curDesiredExtension);
 		}
 
 		// Add required extensions from the window (checked at window creation)

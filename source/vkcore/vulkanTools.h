@@ -37,7 +37,7 @@
 #endif
 
 #define EE_INFO_EXEC_BUFFER(msg, ...) EE_INFO("[EXEC_BUFFER:%p] %s\n", this, msg, __VA_ARGS__)
-#define EE_PRINT_EXEC_BUFFER(msg, ...) EE_PRINT("[EXEC_BUFFER:%p] %s\n", this, msg, __VA_ARGS__)
+#define EE_PRINT_EXEC_BUFFER(msg, ...) EE_PRINTA("[EXEC_BUFFER:%p] %s\n", this, msg, __VA_ARGS__)
 
 /* @brief If no flag is set for example when passed as a param, this is more readable */
 #define VK_FLAGS_NONE 0
@@ -64,6 +64,7 @@ namespace EE {
 		extern std::vector<char> readFile(char const* file);
 
 		extern std::vector<EEcstr> explodeString(EEcstr str, EEcstr del = STR(" "));
+		extern std::vector<EEstring> explodeString(EEstring str, EEstring del = STR(" "));
 
 		extern void exitFatal(char const* msg);
 

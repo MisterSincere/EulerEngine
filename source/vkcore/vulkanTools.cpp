@@ -56,6 +56,21 @@ std::vector<EEcstr> EE::tools::explodeString(EEcstr str, EEcstr del)
 	return res;
 }
 
+std::vector<EEstring> EE::tools::explodeString(EEstring str, EEstring del)
+{
+	std::vector<EEstring> res;
+	size_t off{ 0u }, pre;
+	while (off < str.size()) {
+		pre = off;
+		off = str.find(del, off);
+		auto end = (off == std::string::npos) ? str.end() : str.begin() + off;
+		res.emplace_back(str.begin() + pre, end);
+		if (off == std::string::npos) break;
+		else off++;
+	}
+	return res;
+}
+
 void tools::exitFatal(char const* msg)
 {
 	MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR);
