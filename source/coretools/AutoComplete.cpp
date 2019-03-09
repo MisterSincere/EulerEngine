@@ -22,12 +22,12 @@ uint32_t CORETOOLS::EEAutoComplete::Complete(EEstring const& toBeCompleted, EEst
 	uint32_t curAttachedEquals;
 
 	for (Cmd const& curCmd : m_availableCmds) {
-		curAttachedEquals = GetEquals(curCmd.get(), toBeCompleted.c_str());
+		curAttachedEquals = GetEquals(curCmd.raw, toBeCompleted.c_str());
 
 		// Result check, if new best one and if it is not the same (only new commands will be used)
 		if(curAttachedEquals > maxAttachedEquals
-			&& EE_STRCMP(curCmd.get(), toBeCompleted.c_str())) {
-			completedString = curCmd.get();
+			&& EE_STRCMP(curCmd.raw, toBeCompleted.c_str())) {
+			completedString = curCmd.raw;
 			maxAttachedEquals = curAttachedEquals;
 		}
 	}
@@ -48,10 +48,10 @@ std::vector<CORETOOLS::Cmd> CORETOOLS::EEAutoComplete::MultiComplete(EEstring co
 	std::vector<Cmd> equalityMap;
 
 	for (Cmd curCmd : m_availableCmds) {
-		curCmd.p_equals = GetEquals(curCmd.get(), toBeCompleted.c_str());
+		curCmd.equals = GetEquals(curCmd.raw, toBeCompleted.c_str());
 
 		// Check if it fullfills minimum
-		if (curCmd.p_equals >= minimum) equalityMap.push_back(curCmd);
+		if (curCmd.equals >= minimum) equalityMap.push_back(curCmd);
 	}
 
 	// Sort the map in descending order of the equals amount

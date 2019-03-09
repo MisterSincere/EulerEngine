@@ -50,67 +50,71 @@ namespace CORETOOLS
 
 	struct Cmd {
 		/// Constructors for string and cstring
-		Cmd(EEstring const& cmd) : p_text(cmd.c_str()) {}
-		Cmd(EEcstr cmd)					 : p_text(cmd) {}
-
-		/// Get the cstring data
-		EEcstr get() const { return p_text; }
+		Cmd(EEstring const& cmd) : raw(cmd.c_str()) {}
+		Cmd(EEcstr cmd)					 : raw(cmd) {}
 
 		/// Assignment for string and cstring
-		Cmd operator=(EEstring const& cmd) { p_text = cmd.c_str(); }
-		Cmd operator=(EEcstr cmd)					 { p_text = cmd; }
+		Cmd operator=(EEstring const& cmd) { raw = cmd.c_str(); }
+		Cmd operator=(EEcstr cmd)					 { raw = cmd; }
 
 		/// Comparison operators for equality amounts
-		template<typename T> bool operator==(T equals) const { return equals == p_equals; }
-		template<typename T> bool operator>=(T equals) const { return equals >= p_equals; }
-		template<typename T> bool operator<=(T equals) const { return equals <= p_equals; }
-		template<typename T> bool operator>(T equals)  const { return equals > p_equals; }
-		template<typename T> bool operator<(T equals)  const { return equals < p_equals; }
+		template<typename T> bool operator==(T equals) const { return equals == this->equals; }
+		template<typename T> bool operator>=(T equals) const { return equals <= this->equals; }
+		template<typename T> bool operator<=(T equals) const { return equals >= this->equals; }
+		template<typename T> bool operator>(T equals)  const { return equals < this->equals; }
+		template<typename T> bool operator<(T equals)  const { return equals > this->equals; }
 
 		/// Equal operators for Command, string and cstring
-		bool operator==(Cmd const& cmd)			 const { return (EE_STRCMP(p_text, cmd.get())		== 0); }
-		bool operator==(EEstring const& cmd) const { return (EE_STRCMP(p_text, cmd.c_str()) == 0); }
-		bool operator==(EEcstr cmd)					 const { return (EE_STRCMP(p_text, cmd)					== 0); }
-
-		EEchar operator[](unsigned int index) const { return p_text[index]; }
-
-		EEcstr		p_text;
-		uint32_t	p_equals{ 0u };
+		bool operator==(Cmd const& cmd)			 const { return (EE_STRCMP(raw, cmd.raw)			== 0); }
+		bool operator==(EEstring const& cmd) const { return (EE_STRCMP(raw, cmd.c_str())	== 0); }
+		bool operator==(EEcstr cmd)					 const { return (EE_STRCMP(raw, cmd)					== 0); }
+		
+		EEcstr								raw;
+		uint32_t							equals{ 0u };
 	};
 
 	struct CmdList {
+		/// Creation with a list of commands
+		CmdList operator()(std::vector<Cmd> cmds) { this->cmds = cmds; return *this; }
+		CmdList operator=(std::vector<Cmd> cmds) { this->cmds = cmds; return *this; }
+
 		/// [] operator	for string / cstring comparison and simple index acquiring
-		Cmd operator[](unsigned int i) const { return p_cmds[i]; }
-		Cmd operator[](EEstring const& cmd) const { return operator[](cmd.c_str()); }
 		Cmd operator[](EEcstr cmd) const {
-			auto el = std::find(p_cmds.begin(), p_cmds.end(), cmd);
-			if (el == p_cmds.end()) EE_PRINT("[CMDLIST] Element %s not found!\n", cmd);
-			return *el;
+			for (const auto& curCmd : this->cmds) if (curCmd == cmd) return curCmd;
+			assert(false);
 		}
+		Cmd operator[](EEstring const& cmd) const { return operator[](cmd.c_str()); }
+		Cmd operator[](unsigned int i)			const { return cmds[i]; }
 
 		/// += operator to be able to add commands with string / cstring
-		CmdList operator+=(EEcstr cmd) { p_cmds.emplace_back(cmd); return *this; }
-		CmdList operator+=(EEstring const& cmd) { p_cmds.emplace_back(cmd); return *this; }
-		CmdList operator+=(Cmd const& cmd) { p_cmds.push_back(cmd); return *this; }
+		CmdList operator+=(EEcstr cmd) { cmds.emplace_back(cmd); return *this; }
+		CmdList operator+=(EEstring const& cmd) { cmds.emplace_back(cmd); return *this; }
+		CmdList operator+=(Cmd const& cmd) { cmds.push_back(cmd); return *this; }
 
 		/// -= operator to be able to remove commands identified by string/cstring/cmd
 		CmdList operator-=(EEcstr cmd) {
-			auto el = std::find(p_cmds.begin(), p_cmds.end(), cmd);
-			if (el != p_cmds.end()) p_cmds.erase(el);
+			auto el = std::find(cmds.begin(), cmds.end(), cmd);
+			if (el != cmds.end()) cmds.erase(el);
 			else EE_PRINT("[CMDLIST] Element %s not found to be removed!\n", cmd);
 			return *this;
 		}
 		CmdList operator-=(EEstring const& cmd) { return operator-=(cmd.c_str()); }
-		CmdList operator-=(Cmd const& cmd)			{ return operator-=(cmd.get()); }
+		CmdList operator-=(Cmd const& cmd)			{ return operator-=(cmd.raw); }
 
-		/// Wrapper for vector iterators
-		auto begin() const { return p_cmds.begin(); }
-		auto end()	 const { return p_cmds.end(); }
+		/// Checks if this cmdlist contains the main command of a specific command
+		bool operator>(SpecificCmd const& cmd) const {
+			for (auto const& curCmd : this->cmds) if (curCmd == cmd.cmd) return true;
+			return false;
+		}
+		bool operator<(SpecificCmd const& cmd) const { return !operator>(cmd); }
 
-		size_t size() const { return p_cmds.size(); }
-		bool empty()	const { return p_cmds.empty(); }
+		/// Wrapper for vector iterators and helpmethods
+		auto begin() const { return cmds.begin(); }
+		auto end()	 const { return cmds.end(); }
+		size_t size() const { return cmds.size(); }
+		bool empty()	const { return cmds.empty(); }
 
-		std::vector<Cmd> p_cmds;
+		std::vector<Cmd> cmds;
 	};
 
 }
