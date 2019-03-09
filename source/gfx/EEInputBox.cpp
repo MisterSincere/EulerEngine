@@ -78,7 +78,9 @@ void GFX::EEInputBox::Update()
 	} else if (i_pApp->KeyHit(EE_KEY_BACKSPACE) && i_text.size() > m_prefix.size()) {
 		i_previousText = i_text;
 		if (i_pApp->KeyPressed(EE_KEY_LEFT_CONTROL) || i_pApp->KeyPressed(EE_KEY_RIGHT_CONTROL)) {
+			std::vector<EEstring> exp = EE::tools::explodeString(i_text);
 			i_text = m_prefix;
+			for (size_t i = 1u; i < exp.size() - 1; i++) i_text += exp[i];
 		} else {
 			i_text.erase(i_text.end() - 1);
 		}
@@ -94,13 +96,13 @@ void GFX::EEInputBox::Update()
 			m_curAutoCompletes = m_pAutoCompleter->MultiComplete(cont);
 			m_autoCompleteCmdIndex = 0u;
 			if (!m_curAutoCompletes.empty()) {
-				i_text = m_prefix + m_curAutoCompletes[0u].get();
+				i_text = m_prefix + m_curAutoCompletes[0u].raw;
 			}
 
 		// ... otherwise query through them
 		} else {
 			m_autoCompleteCmdIndex = ++m_autoCompleteCmdIndex % m_curAutoCompletes.size();
-			i_text = m_prefix + m_curAutoCompletes[m_autoCompleteCmdIndex].get();
+			i_text = m_prefix + m_curAutoCompletes[m_autoCompleteCmdIndex].raw;
 		}
 		i_changes |= TEXT_CHANGE;
 
