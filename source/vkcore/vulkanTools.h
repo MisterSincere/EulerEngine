@@ -27,6 +27,7 @@
 # define VK_CHECK(f) f;
 #endif
 
+/* @brief Object specific */
 #define EE_INFO_EXEC_BUFFER(msg, ...) EE_INFO("[EXEC_BUFFER:%p] %s\n", this, msg, __VA_ARGS__)
 #define EE_PRINT_EXEC_BUFFER(msg, ...) EE_PRINTA("[EXEC_BUFFER:%p] %s\n", this, msg, __VA_ARGS__)
 

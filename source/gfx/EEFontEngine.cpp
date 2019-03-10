@@ -122,8 +122,8 @@ GFX::EEFont GFX::EEFontEngine::CreateFont(char const* fileName, EEcstr charSet)
 	FT_Error error = FT_New_Face(m_library, fileName, 0, &pFont->face);
 	if (error == FT_Err_Unknown_File_Format) {
 		delete pFont;
-		EE_PRINT("[EEFONTENGINE] The font file could noe be opened. Its format is probably not supported by freetype!\n");
-		EE::tools::warning("[EEFONTENGINE] The font file could noe be opened. Its format is probably not supported by freetype!\n");
+		EE_PRINT("[EEFONTENGINE] The font file could not be opened. Its format is probably not supported by freetype!\n");
+		EE::tools::warning("[EEFONTENGINE] The font file could not be opened. Its format is probably not supported by freetype!\n");
 		return nullptr;
 	} else if (error) { //< some other error
 		delete pFont;
@@ -418,7 +418,7 @@ EEstring GFX::EEFontEngine::WrapText(EEFont font, EEstring const& text, float si
 			try {
 				currentSpaceX -= size * pFont->letterDetails.at(text[i]).width / pFont->maxLetterWidth;
 			} catch (std::out_of_range oor) {
-				EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n%s", oor.what());
+				EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n%s\n", oor.what());
 				EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n");
 				return text;
 			}
@@ -543,7 +543,7 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, EEstring c
 		try {
 			curLetter = pFont->letterDetails.at(text[i]);
 		} catch (std::out_of_range const& oor) {
-			EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least on character that was not defined in the charset of the font.\n%s", oor.what());
+			EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least on character that was not defined in the charset of the font.\n%s\n", oor.what());
 			EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n");
 			return EE_FALSE;
 		}
