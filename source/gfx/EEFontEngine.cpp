@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "EEFontEngine.h"
 
-#include "vkcore/vulkanTools.h"
+#include "eehelper.h"
 #include "EEApplication.h"
 
 using namespace DirectX;

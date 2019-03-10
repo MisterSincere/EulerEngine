@@ -36,7 +36,8 @@ set (CORETOOLS	coretools/Window.h				coretools/Window.cpp
 				coretools/Command.h)
 
 set (EEOUT		eedefs.h						keycodes.h
-				EEApplication.h					EEApplication.cpp)
+				EEApplication.h					EEApplication.cpp
+				eehelper.h						eehelper.cpp)
 
 # Filter
 source_group ("EXTERNS" FILES ${EXTERNS})

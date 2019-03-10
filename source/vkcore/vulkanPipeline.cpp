@@ -5,8 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanPipeline.h"
 
-#include <cassert>
-
+#include "eehelper.h"
 #include "vulkanResources.h"
 
 /* @brief Defines for better code readibility */

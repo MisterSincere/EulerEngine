@@ -20,7 +20,7 @@
 
 #define EE_DEFINE_HANDLE(name) typedef uint32_t* name;
 
-// Avoid duplicate text wrapping definition, possible since they are equivalent by convention
+// Avoid duplicate text wrapping definition, not too bad since they are equivalent by convention
 #if defined(STR)
 # undef STR
 #endif
@@ -45,6 +45,19 @@
 # define EE_STRCMP(str1, str2)				strcmp(str1, str2)
 # define EE_STRNCMP(str1, str2, len)	strncmp(str1, str2, len)
 # define EE_STRLEN(str)								strlen(str)
+#endif
+
+/* @brief Prints informations if EE_PRINT_INFORMATIONS is defined */
+#if defined(EE_PRINT_INFORMATIONS)
+# define EE_INFO(val, ...) EE_PRINT(val, __VA_ARGS__)
+#else
+# define EE_INFO(val, ...)
+#endif
+
+#if defined(EE_PRINT_ERRORS)
+# define EE_ERROR(val, ...) EE_PRINT(val, __VA_ARGS__)
+#else
+# define EE_ERROR(val, ...)
 #endif
 
 #define EE_INVARIANT(expr) assert(expr);

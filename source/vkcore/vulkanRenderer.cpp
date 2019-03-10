@@ -5,8 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanRenderer.h"
 
-#include <cassert>
-
+#include "eehelper.h"
 #include "vulkanObject.h"
 
 using namespace EE;

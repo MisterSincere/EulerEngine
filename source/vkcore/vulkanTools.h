@@ -5,12 +5,10 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "vulkanInitializers.h" //< includes vulkan.h
-#include "eedefs.h"
 #include <vector>
 
-#include <cstdio>
-
+#include "vulkanInitializers.h" //< includes vulkan.h
+#include "eedefs.h"
 
 ////////////
 // MACROS //
@@ -21,19 +19,12 @@
 {\
   VkResult res = f;\
   if(res != VK_SUCCESS) {\
-    printf_s("VK_CHECK: VkResult is \"%s\" %d at line %d in %s\n", EE::vulkan::tools::vkResultToStr(res), res, __LINE__, __FILE__);\
+    printf_s("VK_CHECK: VkResult is \"%s\" %d at line %d in %s\n", ::EE::vulkan::tools::vkResultToStr(res), res, __LINE__, __FILE__);\
     assert(res == VK_SUCCESS);\
   }\
 }
 #else
 # define VK_CHECK(f) f;
-#endif
-
-/* @brief Prints informations if EE_PRINT_INFORMATIONS is defined */
-#if defined(EE_PRINT_INFORMATIONS)
-# define EE_INFO(val, ...) printf_s(val, __VA_ARGS__);
-#else
-# define EE_INFO(val, ...)
 #endif
 
 #define EE_INFO_EXEC_BUFFER(msg, ...) EE_INFO("[EXEC_BUFFER:%p] %s\n", this, msg, __VA_ARGS__)
@@ -60,23 +51,7 @@ enum EEDescriptorType;
 
 namespace EE {
 
-	namespace tools {
-		extern std::vector<char> readFile(char const* file);
-
-		extern std::vector<EEcstr> explodeString(EEcstr str, EEcstr del = STR(" "));
-		extern std::vector<EEstring> explodeString(EEstring str, EEstring del = STR(" "));
-
-		extern void exitFatal(char const* msg);
-
-		extern void warning(char const* msg);
-
-		extern VkFormat eeToVk(EEFormat format);
-		extern VkShaderStageFlags eeToVk(EEShaderStage shaderStage);
-		extern VkDescriptorType eeToVk(EEDescriptorType descriptorType);
-	}
-
 	namespace vulkan {
-
 		struct SurfaceDetails
 		{
 			VkSurfaceCapabilitiesKHR capabilities;
@@ -85,6 +60,10 @@ namespace EE {
 		};
 
 		namespace tools {
+
+			extern VkFormat eeToVk(EEFormat format);
+			extern VkShaderStageFlags eeToVk(EEShaderStage shaderStage);
+			extern VkDescriptorType eeToVk(EEDescriptorType descriptorType);
 
 			extern bool isStencilFormat(VkFormat format);
 

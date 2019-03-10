@@ -5,84 +5,11 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanTools.h"
 
-#include <Windows.h>
-#include <cassert>
-#include <fstream>
-
 #include "coretools/Graphics.h"
-#include "eedefs.h"
-
-using namespace EE;
+#include "eehelper.h"
 
 
-std::vector<char> tools::readFile(char const* fileName)
-{
-	std::ifstream file;
-	file.open(fileName, std::ios::binary | std::ios::ate);
-	if (file.is_open())
-	{
-		size_t size = static_cast<size_t>(file.tellg());
-		std::vector<char> fileBuffer(size);
-		file.seekg(0);
-		file.read(fileBuffer.data(), size);
-		file.close();
-		return fileBuffer;
-	}
-	else
-	{
-		EE_PRINTA("Failed to open file %s!\n", fileName);
-		exitFatal("Failed to open shader file!\n");
-		return std::vector<char>();
-	}
-}
-
-std::vector<EEcstr> EE::tools::explodeString(EEcstr str, EEcstr del)
-{
-	std::vector<EEcstr> res;
-	uint32_t l{ 0u };
-	for (size_t i = 0u; i <= EE_STRLEN(str); i++) {
-		if (i == EE_STRLEN(str) || EE_STRNCMP(&str[i], del, EE_STRLEN(del)) == 0) {
-			EEstr cur = new EEchar[l + 1];
-			assert(!memcpy_s(cur, l * sizeof(EEchar), &str[i - l], l * sizeof(EEchar)));
-			cur[l] = STR('\0');
-			res.push_back(cur);
-			i += EE_STRLEN(del) - 1;
-			l = 0u;
-		}
-		else {
-			l++;
-		}
-	}
-	return res;
-}
-
-std::vector<EEstring> EE::tools::explodeString(EEstring str, EEstring del)
-{
-	std::vector<EEstring> res;
-	size_t off{ 0u }, pre;
-	while (off < str.size()) {
-		pre = off;
-		off = str.find(del, off);
-		auto end = (off == std::string::npos) ? str.end() : str.begin() + off;
-		res.emplace_back(str.begin() + pre, end);
-		if (off == std::string::npos) break;
-		else off++;
-	}
-	return res;
-}
-
-void tools::exitFatal(char const* msg)
-{
-	MessageBoxA(nullptr, msg, "Fatal Error", MB_OK | MB_ICONERROR);
-	assert(false);
-}
-
-void tools::warning(char const* msg)
-{
-	MessageBoxA(nullptr, msg, "WARNING", MB_OK | MB_ICONERROR);
-}
-
-VkFormat tools::eeToVk(EEFormat format)
+VkFormat EE::vulkan::tools::eeToVk(EEFormat format)
 {
 #define FCASE(name) case EE_FORMAT_##name: return VK_FORMAT_##name;
 	switch (format)
@@ -98,7 +25,7 @@ VkFormat tools::eeToVk(EEFormat format)
 #undef FCASE
 }
 
-VkShaderStageFlags tools::eeToVk(EEShaderStage shaderStage)
+VkShaderStageFlags EE::vulkan::tools::eeToVk(EEShaderStage shaderStage)
 {
 #define SCASE(name) case EE_SHADER_STAGE_##name: return VK_SHADER_STAGE_##name##_BIT;
 	switch (shaderStage)
@@ -110,7 +37,7 @@ VkShaderStageFlags tools::eeToVk(EEShaderStage shaderStage)
 #undef SCASE
 }
 
-VkDescriptorType tools::eeToVk(EEDescriptorType type)
+VkDescriptorType EE::vulkan::tools::eeToVk(EEDescriptorType type)
 {
 	switch (type)
 	{
@@ -120,12 +47,12 @@ VkDescriptorType tools::eeToVk(EEDescriptorType type)
 	}
 }
 
-bool vulkan::tools::isStencilFormat(VkFormat format)
+bool EE::vulkan::tools::isStencilFormat(VkFormat format)
 {
 	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT || format == VK_FORMAT_D16_UNORM_S8_UINT;
 }
 
-char const* vulkan::tools::vkResultToStr(VkResult res)
+char const* EE::vulkan::tools::vkResultToStr(VkResult res)
 {
 	switch (res) {
 #define CASE(val) case val: return #val;
@@ -146,7 +73,7 @@ char const* vulkan::tools::vkResultToStr(VkResult res)
 	}
 }
 
-void vulkan::tools::imageBarrier(VkCommandBuffer cmdBuffer, VkImage image, VkImageAspectFlags aspectMask, uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout,
+void EE::vulkan::tools::imageBarrier(VkCommandBuffer cmdBuffer, VkImage image, VkImageAspectFlags aspectMask, uint32_t mipLevels, VkImageLayout oldLayout, VkImageLayout newLayout,
 	VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
 {
 	VkImageMemoryBarrier imageMemoryBarrier;
@@ -257,7 +184,7 @@ void vulkan::tools::imageBarrier(VkCommandBuffer cmdBuffer, VkImage image, VkIma
 	vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, 0, 0u, nullptr, 0u, nullptr, 1u, &imageMemoryBarrier);
 }
 
-void vulkan::tools::bufferImageCopy(VkCommandBuffer cmdBuffer, VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout,
+void EE::vulkan::tools::bufferImageCopy(VkCommandBuffer cmdBuffer, VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout,
 	VkImageAspectFlags aspectMask, uint32_t width, uint32_t height)
 {
 	VkBufferImageCopy copyRegion;
@@ -273,7 +200,7 @@ void vulkan::tools::bufferImageCopy(VkCommandBuffer cmdBuffer, VkBuffer srcBuffe
 	vkCmdCopyBufferToImage(cmdBuffer, srcBuffer, dstImage, dstImageLayout, 1u, &copyRegion);
 }
 
-void vulkan::tools::generateMipmaps(VkCommandBuffer cmdBuffer, VkImage image, VkFormat format, uint32_t width, uint32_t height, uint32_t mipLevels)
+void EE::vulkan::tools::generateMipmaps(VkCommandBuffer cmdBuffer, VkImage image, VkFormat format, uint32_t width, uint32_t height, uint32_t mipLevels)
 {
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

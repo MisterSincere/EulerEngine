@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+#include "eehelper.h"
+
 ///////////////
 // STB IMAGE //
 ///////////////

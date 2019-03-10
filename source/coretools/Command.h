@@ -8,8 +8,7 @@
 #include <cassert>
 #include <vector>
 
-#include "vkcore/vulkanTools.h"
-#include "eedefs.h"
+#include "eehelper.h"
 
 
 namespace CORETOOLS

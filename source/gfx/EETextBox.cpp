@@ -85,7 +85,7 @@ void EETextBox::Update()
 			i_previousText = i_text;
 		} else {
 			i_text = i_previousText; //< Revert will only do something if text was changed because of a textchange
-			EE_PRINT("[EETEXTBOX] Textbox text was not changed!\n");
+			EE_PRINT("[EETEXTBOX] Failed to change the text of the text box!\n");
 		}
 	}
 

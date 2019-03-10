@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "vulkanDevice.h"
 
-#include <cassert>
+#include "eehelper.h"
 
 using namespace EE;
 

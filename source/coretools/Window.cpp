@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #include "Window.h"
 
+#include "eehelper.h"
 #include "vkcore/vulkanTools.h"
 
 #include <cassert>
@@ -164,7 +165,7 @@ EEBool32 Window::Create(EEApplicationCreateInfo const& windowCInfo, EE::fpEEWind
 		}
 		if (!found) {
 			EE_PRINTA("Failed to create the window: you do not support the required extension %s !\n", reqExtension);
-			tools::exitFatal("Failed to create the window. Required extensions not supported!");
+			EE::tools::exitFatal("Failed to create the window. Required extensions not supported!");
 		}
 	}
 	delete[] availableExtensions;

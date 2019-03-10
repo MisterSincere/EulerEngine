@@ -40,7 +40,7 @@ namespace EE
 			} settings;
 
 			/* @brief Informations about the surface we are presenting on */
-			SurfaceDetails surfaceDetails;
+			vulkan::SurfaceDetails surfaceDetails;
 
 			/* @brief List of the buffers in the swapchain holding the image and image of each one */
 			std::vector<VkImage> images;

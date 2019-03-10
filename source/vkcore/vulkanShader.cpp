@@ -7,6 +7,7 @@
 
 #include <map>
 
+#include "eehelper.h"
 #include "vulkanResources.h"
 
 /* @brief Defines for better code readibility */
@@ -68,7 +69,7 @@ EE::Shader::Shader(vulkan::Renderer const* pRenderer, EEShaderCreateInfo const& 
 				aAttributeDescriptions[i].binding = 0;
 				aAttributeDescriptions[i].location = shaderCInfo.pVertexInput->pInputDescs[i].location;
 				aAttributeDescriptions[i].offset = shaderCInfo.pVertexInput->pInputDescs[i].offset;
-				aAttributeDescriptions[i].format = tools::eeToVk(shaderCInfo.pVertexInput->pInputDescs[i].format);
+				aAttributeDescriptions[i].format = vulkan::tools::eeToVk(shaderCInfo.pVertexInput->pInputDescs[i].format);
 			}
 
 			pPipeline->vertexInputCInfo.pVertexBindingDescriptions = bindingDescription;
@@ -79,7 +80,7 @@ EE::Shader::Shader(vulkan::Renderer const* pRenderer, EEShaderCreateInfo const& 
 		// Push constants
 		if (shaderCInfo.pPushConstant) {
 			pPipeline->pushConstants.resize(1);
-			pPipeline->pushConstants[0].stageFlags = tools::eeToVk(shaderCInfo.pPushConstant->shaderStage);
+			pPipeline->pushConstants[0].stageFlags = vulkan::tools::eeToVk(shaderCInfo.pPushConstant->shaderStage);
 			pPipeline->pushConstants[0].offset = 0u;
 			pPipeline->pushConstants[0].size = shaderCInfo.pPushConstant->size;
 		}
@@ -150,8 +151,8 @@ bool EE::Shader::Create()
 		// Will hold the desired type/shader stage for each iteration/descriptor
 		for (uint32_t i = 0u; i < settings.amountDescriptors; i++) {
 			aDescriptorSetLayoutBindings[i] = vulkan::initializers::descriptorSetLayoutBinding(
-				/*type*/				tools::eeToVk(settings.pDescriptors[i].type),
-				/*shaderStage*/	tools::eeToVk(settings.pDescriptors[i].shaderStage),
+				/*type*/				vulkan::tools::eeToVk(settings.pDescriptors[i].type),
+				/*shaderStage*/	vulkan::tools::eeToVk(settings.pDescriptors[i].shaderStage),
 				/*binding*/			settings.pDescriptors[i].binding
 			);
 		}
@@ -164,7 +165,7 @@ bool EE::Shader::Create()
 		descriptorSetLayoutCInfo.pBindings = aDescriptorSetLayoutBindings;
 		VK_CHECK(vkCreateDescriptorSetLayout(LDEVICE, &descriptorSetLayoutCInfo,
 																				 ALLOCATOR, &descriptorSetLayout));
-
+		
 		// Free the memory from the bindings array
 		delete[] aDescriptorSetLayoutBindings;
 	}
