@@ -419,8 +419,10 @@ EEstring GFX::EEFontEngine::WrapText(EEFont font, EEstring const& text, float si
 				currentSpaceX -= size * pFont->letterDetails.at(text[i]).width / pFont->maxLetterWidth;
 			} catch (std::out_of_range oor) {
 				EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n%s\n", oor.what());
+#if defined(_DEBUG)
 				EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text contains at least one character that was not defined in the charset of the font.\n");
-				return text;
+#endif
+				continue;
 			}
 		}
 		
@@ -545,7 +547,7 @@ EEBool32 GFX::EEFontEngine::ComputeMeshAccToFont(EEInternFont* pFont, EEstring c
 		} catch (std::out_of_range const& oor) {
 			EE_PRINTA("[EEFONTENGINE] Invalid character! The desired text contains at least on character that was not defined in the charset of the font.\n%s\n", oor.what());
 			EE::tools::warning("[EEFONTENGINE] Invalid character! The desired text containts at least on characters that was not defined in the charset of the font.\n");
-			return EE_FALSE;
+			continue;
 		}
 
 		letterWidth = (float)curLetter.width / pFont->maxLetterWidth;
