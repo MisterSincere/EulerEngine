@@ -17,7 +17,6 @@
 #include "coretools/Graphics.h"
 #include "vkcore/vulkanObject.h"
 
-using namespace DirectX;
 
 /* @brief Foreward declaration of the high level resize method and definition of the user data we pass in */
 void Resize(GLFWwindow* window, int w, int h, void* userData);
@@ -237,58 +236,58 @@ EEBool32 EEApplication::MouseDown(EEMouseButton button)
 	return (m_pWindow->input.mouseDown & button);
 }
 
-DirectX::XMMATRIX EEApplication::AcquireOrthoMatrixLH()
+glm::mat4 EEApplication::AcquireOrthoMatrixLH()
 {
 	if (!isCreated) {
 		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
 		EE_INVARIANT(isCreated);
 	}
-	return XMLoadFloat4x4(&(m_pGraphics->matrices.orthoLH));
+	return m_pGraphics->matrices.orthoLH;
 }
 
-DirectX::XMMATRIX EEApplication::AcquireOrthoMatrixRH()
+glm::mat4 EEApplication::AcquireOrthoMatrixRH()
 {
 	if (!isCreated) {
 		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
 		EE_INVARIANT(isCreated);
 	}
-	return XMLoadFloat4x4(&(m_pGraphics->matrices.orthoRH));
+	return m_pGraphics->matrices.orthoRH;
 }
 
-DirectX::XMMATRIX EEApplication::AcquirePerspectiveMatrixLH()
+glm::mat4 EEApplication::AcquirePerspectiveMatrixLH()
 {
 	if (!isCreated) {
 		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
 		EE_INVARIANT(isCreated);
 	}
-	return XMLoadFloat4x4(&(m_pGraphics->matrices.projLH));
+	return m_pGraphics->matrices.projLH;
 }
 
-DirectX::XMMATRIX EEApplication::AcquirePerspectiveMatrixRH()
+glm::mat4 EEApplication::AcquirePerspectiveMatrixRH()
 {
 	if (!isCreated) {
 		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
 		EE_INVARIANT(isCreated);
 	}
-	return XMLoadFloat4x4(&(m_pGraphics->matrices.projRH));
+	return m_pGraphics->matrices.projRH;
 }
 
-DirectX::XMMATRIX EEApplication::AcquireBaseViewLH()
+glm::mat4 EEApplication::AcquireBaseViewLH()
 {
 	if (!isCreated) {
 		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
 		EE_INVARIANT(isCreated);
 	}
-	return XMLoadFloat4x4(&(m_pGraphics->matrices.baseViewLH));
+	return m_pGraphics->matrices.baseViewLH;
 }
 
-DirectX::XMMATRIX EEApplication::AcquireBaseViewRH()
+glm::mat4 EEApplication::AcquireBaseViewRH()
 {
 	if (!isCreated) {
 		EE_PRINT("[EEAPPLICATION] Tried to get a drawing matrix without creating the application!\n");
 		EE_INVARIANT(isCreated);
 	}
-	return XMLoadFloat4x4(&(m_pGraphics->matrices.baseViewRH));
+	return m_pGraphics->matrices.baseViewRH;
 }
 
 EEShader EEApplication::AcquireShaderColor2D()

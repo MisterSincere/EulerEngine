@@ -12,10 +12,13 @@
 #include "vkcore/vulkanObject.h"
 #include "vkcore/vulkanResources.h"
 
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #define LAST_ELEMENT(vec) (vec[vec.size() - 1])
 
 using namespace EE;
-using namespace DirectX;
 
 
 Graphics::Graphics()
@@ -96,18 +99,18 @@ bool Graphics::Create(Window* pWindow, EEApplicationCreateInfo const& info)
 	vk_renderer(info);
 
 	// Initialize some drawing matrices
-	XMStoreFloat4x4(&matrices.orthoLH, XMMatrixOrthographicLH(float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
-	XMStoreFloat4x4(&matrices.orthoRH, XMMatrixOrthographicRH(float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
-
-	XMStoreFloat4x4(&matrices.projLH, XMMatrixPerspectiveFovLH(XM_PIDIV2, float(pSwapchain->settings.extent.width) / float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
-	XMStoreFloat4x4(&matrices.projRH, XMMatrixPerspectiveFovRH(XM_PIDIV2, float(pSwapchain->settings.extent.width) / float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
+  matrices.orthoLH = glm::orthoLH(0.0f, float(pSwapchain->settings.extent.width), 0.0f, float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
+  matrices.orthoRH =  glm::orthoLH(0.0f, float(pSwapchain->settings.extent.width), 0.0f, float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
+  
+  matrices.projLH = glm::perspectiveFovLH(glm::pi<float>()/2.0f, float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
+  matrices.projRH = glm::perspectiveFovRH(glm::pi<float>()/2.0f, float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
 
 	// base view matrices
-	XMVECTOR position = XMVectorSet(0.0f, 0.0f, -1.0f, 1.0f);
-	XMVECTOR target = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	XMStoreFloat4x4(&matrices.baseViewLH, XMMatrixLookAtLH(position, target, up));
-	XMStoreFloat4x4(&matrices.baseViewRH, XMMatrixLookAtRH(position, target, up));
+	glm::vec3 position = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 target = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+  matrices.baseViewLH = glm::lookAtLH(position, target, up);
+  matrices.baseViewRH = glm::lookAtRH(-position, target, up);
 
 	return true;
 }
@@ -123,18 +126,18 @@ void EE::Graphics::Resize()
 	pRenderer->Resize(currentObjects);
 
 	// Update the drawing matrices
-	XMStoreFloat4x4(&matrices.orthoLH, XMMatrixOrthographicLH(float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
-	XMStoreFloat4x4(&matrices.orthoRH, XMMatrixOrthographicRH(float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
+  matrices.orthoLH = glm::orthoLH(0.0f, float(pSwapchain->settings.extent.width), 0.0f, float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
+  matrices.orthoRH = glm::orthoRH(0.0f, float(pSwapchain->settings.extent.width), 0.0f, float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
 
-	XMStoreFloat4x4(&matrices.projLH, XMMatrixPerspectiveFovLH(XM_PIDIV2, float(pSwapchain->settings.extent.width) / float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
-	XMStoreFloat4x4(&matrices.projRH, XMMatrixPerspectiveFovRH(XM_PIDIV2, float(pSwapchain->settings.extent.width) / float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane));
+  matrices.projLH = glm::perspectiveFovLH(glm::pi<float>()/2.0f, float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
+  matrices.projRH = glm::perspectiveFovRH(glm::pi<float>()/2.0f, float(pSwapchain->settings.extent.width), float(pSwapchain->settings.extent.height), settings.nearPlane, settings.farPlane);
 
 	// base view matrices
-	XMVECTOR position = XMVectorSet(0.0f, 0.0f, -1.0f, 1.0f);
-	XMVECTOR target = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	XMStoreFloat4x4(&matrices.baseViewLH, XMMatrixLookAtLH(position, target, up));
-	XMStoreFloat4x4(&matrices.baseViewRH, XMMatrixLookAtRH(position, target, up));
+	glm::vec3 position = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 target = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+  matrices.baseViewLH = glm::lookAtLH(position, target, up);
+  matrices.baseViewRH = glm::lookAtRH(-position, target, up);
 }
 
 EEMesh EE::Graphics::CreateMesh(void const* pVertices, size_t amountVertices, std::vector<uint32_t> const & indices)

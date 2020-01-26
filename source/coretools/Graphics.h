@@ -34,12 +34,12 @@ namespace EE {
 
 		/* @brief Drawing matrices that are kept uptodate to the current extent */
 		struct {
-			DirectX::XMFLOAT4X4 orthoLH;
-			DirectX::XMFLOAT4X4 orthoRH;
-			DirectX::XMFLOAT4X4 projLH;
-			DirectX::XMFLOAT4X4 projRH;
-			DirectX::XMFLOAT4X4 baseViewLH;
-			DirectX::XMFLOAT4X4 baseViewRH;
+			glm::mat4 orthoLH;
+			glm::mat4 orthoRH;
+			glm::mat4 projLH;
+			glm::mat4 projRH;
+			glm::mat4 baseViewLH;
+			glm::mat4 baseViewRH;
 		} matrices;
 
 		/* @brief Holds settings for the vulkan handling */

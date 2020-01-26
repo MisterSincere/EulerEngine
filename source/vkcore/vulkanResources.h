@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <DirectXMath.h>
+#include <glm/glm.hpp>
 
 #include "vulkanRenderer.h"
 
@@ -13,15 +13,15 @@ namespace EE
 {
 	struct PredefinedVertex
 	{
-		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT3 col;
-		DirectX::XMFLOAT2 uv;
-		DirectX::XMFLOAT3 norm;
+		glm::vec3 pos;
+		glm::vec3 col;
+		glm::vec2 uv;
+		glm::vec3 norm;
 
-		PredefinedVertex(DirectX::XMFLOAT3 const& pos,
-										 DirectX::XMFLOAT3 const& color,
-										 DirectX::XMFLOAT2 const& uvCoord,
-										 DirectX::XMFLOAT3 const& normal)
+		PredefinedVertex(glm::vec3 const& pos,
+										 glm::vec3 const& color,
+										 glm::vec2 const& uvCoord,
+										 glm::vec3 const& normal)
 			: pos(pos)
 			, col(color)
 			, uv(uvCoord)

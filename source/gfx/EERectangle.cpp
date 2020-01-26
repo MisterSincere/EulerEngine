@@ -7,11 +7,15 @@
 
 #include <string>
 
+#define GLM_FORCE_RADIANS
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include "EEApplication.h"
 #include "vkcore/vulkanTools.h"
 
 using namespace GFX;
-using namespace DirectX;
 
 
 
@@ -69,17 +73,18 @@ EERectangle::EERectangle(EEApplication* pApp, EERectangleCreateInfo const& cinfo
 	i_object = i_pApp->CreateObject(i_shader, i_mesh, bindings);
 
 
-	// Initialize vertex buffer content
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.ortho, i_pApp->AcquireOrthoMatrixLH());
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.baseView, i_pApp->AcquireBaseViewLH());
+	// Initialize vertex buffer conten
+	i_vertexUniformBufferContent.ortho = i_pApp->AcquireOrthoMatrixLH();
+  i_vertexUniformBufferContent.baseView = i_pApp->AcquireBaseViewLH();
 	// Create world matrix with passed in size and position
-	XMMATRIX world = XMMatrixScaling(i_size.width, i_size.height, 1.0f);
-	world *= XMMatrixTranslation(-(i_initialWindowExtent.width / 2.0f) + i_position.x,
-		-(i_initialWindowExtent.height / 2.0f) + i_position.y, 0.0f);
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
+  glm::vec3 translation{-(i_initialWindowExtent.width / 2.0f) + i_position.x, -(i_initialWindowExtent.height / 2.0f) + i_position.y, 0.0f};
+  glm::vec3 scale{i_size.width, i_size.height, 1.0f};
+  i_vertexUniformBufferContent.world = glm::scale(scale);
+  i_vertexUniformBufferContent.world *= glm::translate(translation);
+  
 
 	// Initialize fragment buffer content
-	XMStoreFloat4(&i_fragmentUniformBufferContent.fillColor, XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f));
+  i_fragmentUniformBufferContent.fillColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	// Hide rectangle if desired
 	if (!cinfo.visibility) {
@@ -115,14 +120,15 @@ void EERectangle::Update()
 	if (i_changes & SIZE_CHANGE || i_changes & POSITION_CHANGE) {
 		// Update world matrix
 		EERect32U wExtent = i_pApp->GetWindowExtent();
-		XMMATRIX world = XMMatrixScaling(i_size.width, i_size.height, 1.0f);
-		world *= XMMatrixTranslation(-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f);
-		XMStoreFloat4x4(&i_vertexUniformBufferContent.world, world);
+    glm::vec3 translation{-(wExtent.width / 2.0f) + i_position.x, -(wExtent.height / 2.0f) + i_position.y, 0.0f};
+    glm::vec3 scale{i_size.width, i_size.height, 1.0f};
+    i_vertexUniformBufferContent.world = glm::scale(scale);
+    i_vertexUniformBufferContent.world *= glm::translate(translation);
 	}
 
 	// Update the vertex uniform buffer
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.ortho, i_pApp->AcquireOrthoMatrixLH());
-	XMStoreFloat4x4(&i_vertexUniformBufferContent.baseView, i_pApp->AcquireBaseViewLH());
+	i_vertexUniformBufferContent.ortho = i_pApp->AcquireOrthoMatrixLH();
+	i_vertexUniformBufferContent.baseView = i_pApp->AcquireBaseViewLH();
 	i_pApp->UpdateBuffer(i_vertexUniformBuffer, &i_vertexUniformBufferContent);
 
 	// Default background color that can be overwritten if rectangle is active/hovered

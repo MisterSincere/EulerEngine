@@ -86,7 +86,7 @@ EE::Texture::Texture(vulkan::Renderer const* pRenderer, char const* fileName,
 	int width, height;
 	data.pixels = stbi_load(fileName, &width, &height, &data.channels, STBI_rgb_alpha);
 	if (!data.pixels) {
-		EE_PRINT("[TEXTURE] Image not found: %hs \n", fileName);
+		EE_PRINT("[TEXTURE] Image not found %s \n", fileName);
 		tools::exitFatal("Failed to find image!\n");
 	}
 	// For some reason stbi_load sets channel to 3 although alpha is requested
@@ -167,7 +167,7 @@ EE::Texture::Texture(vulkan::Renderer const* pRenderer, EETextureCreateInfo cons
 	// Allocate memory for the data to be stored
 	uint64_t bufferSize = sizeof(unsigned char) * data.channels * data.width * data.height;
 	data.pixels = new unsigned char[bufferSize];
-	memcpy_s(data.pixels, bufferSize, textureCInfo.pData, bufferSize);
+	memcpy(data.pixels, textureCInfo.pData, bufferSize);
 
 	isInitialized = true;
 }

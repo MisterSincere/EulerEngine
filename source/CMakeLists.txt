@@ -57,6 +57,7 @@ add_library (EulerEngine ${EEOUT}
 						 ${GFX}
 						 ${SHADER})
 
+target_link_libraries (EulerEngine general ${Vulkan_LIBRARIES} ${GLFW_STATIC_LIBRARIES} ${FREETYPE_LIBRARIES} glm)
 						 
 add_definitions("-DEE_CMAKE_ASSETS_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/../assets/\"")
 #add_definitions("-DEE_PRINT_INFORMATIONS")
@@ -87,7 +88,7 @@ endfunction()
 
 
 # The default string including placeholders to replace with the shader in file and output file
-set(DEF_STRING "$ENV{EE_VULKAN_PATH}\\Bin\\glslangValidator.exe -V ${CMAKE_CURRENT_SOURCE_DIR}/__IN_FILE__  -o ${CMAKE_CURRENT_SOURCE_DIR}/../assets/shader/__OUT_FILE__.spv\n")
+set(DEF_STRING "./${Vulkan_INCLUDE_DIR}/../bin/glslangvalidator -V ${CMAKE_CURRENT_SOURCE_DIR}/__IN_FILE__  -o ${CMAKE_CURRENT_SOURCE_DIR}/../assets/shader/__OUT_FILE__.spv\n")
 
 foreach(CUR_SHADER ${SHADER})
 	if(index EQUAL 0)

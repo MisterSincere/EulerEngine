@@ -207,7 +207,7 @@ bool Window::PollEvents()
 	// Reset input values
 	memset(input.keysHit, 0, sizeof(bool) * GLFW_KEY_LAST);
 	input.mouseXDelta = input.mouseYDelta = 0.0;
-	input.mouseHit = input.textUTF8 = 0ui32;
+	input.mouseHit = input.textUTF8 = 0;
 
 	glfwPollEvents();
 

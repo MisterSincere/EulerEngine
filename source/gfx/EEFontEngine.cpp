@@ -8,7 +8,10 @@
 #include "eehelper.h"
 #include "EEApplication.h"
 
-using namespace DirectX;
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 
 // Useful defines
 #define MAX(x, y) ((x > y) ? x : y)
@@ -310,12 +313,10 @@ GFX::EEText GFX::EEFontEngine::RenderText(EEFont font, EEstring const& text, EEP
 	m_pApp->UpdateBuffer(pText->fragmentBuffer, &(pText->color));
 
 	EERect32U wExtent = m_pApp->GetWindowExtent();
-	XMMATRIX world = XMMatrixTransformation2D(
-		{ 0.0f, 0.0f }, 0.0f, { pText->size, pText->size}, //< Scale to desired size
-		{ 0.0f, 0.0f }, 0.0f,										//< No rotation supported until now
-		{ -(wExtent.width / 2.0f) + pText->position.x, -(wExtent.height / 2.0f) + pText->position.y } //< Translate depending on position
-	);
-	XMStoreFloat4x4(&(pText->world), world);
+  glm::vec3 scale{pText->size, pText->size, 1.0f};
+  glm::vec3 translation{-(wExtent.width / 2.0f) + pText->position.x, -(wExtent.height / 2.0f) + pText->position.y, 0.0f};
+  pText->world = glm::scale(scale);
+  pText->world *= glm::translate(translation);
 
 	// Store the created text details and its index/handle
 	EE_INVARIANT(m_currentTexts.size() == m_iCurrentTexts.size());
@@ -468,11 +469,8 @@ void GFX::EEFontEngine::SetTextPosition(EEText text, EEPoint32F const& pos)
 	EEInternText* handle = m_currentTexts[*text];
 	EERect32U wExtent = m_pApp->GetWindowExtent();
 	handle->position = pos;
-	XMStoreFloat4x4(&handle->world, XMMatrixTransformation2D(
-		{ 0.0f, 0.0f }, 0.0f, { handle->size, handle->size }, //< Scale to desired size
-		{ 0.0f, 0.0f }, 0.0f,										//< No rotation supported until now
-		{ -(wExtent.width / 2.0f) + handle->position.x, -(wExtent.height / 2.0f) + handle->position.y } //< Translate depending on position
-	));
+  handle->world = glm::scale(glm::vec3(handle->size, handle->size, 1.0f));
+  handle->world *= glm::translate(glm::vec3(-(wExtent.width / 2.0f) + handle->position.x, -(wExtent.height / 2.0f) + handle->position.y, 0.0f));
 }
 
 void GFX::EEFontEngine::SetCharacterSize(EEText text, float charSize)
@@ -486,8 +484,8 @@ void GFX::EEFontEngine::Update() const
 	// Fragment buffer gets updated if changed for the vertex buffer we do not
 	// know when the ortho/baseView matrix may have changed so we update it every frame
 	VertexUBO vertUbo;
-	XMStoreFloat4x4(&vertUbo.ortho, m_pApp->AcquireOrthoMatrixLH());
-	XMStoreFloat4x4(&vertUbo.baseView, m_pApp->AcquireBaseViewLH());
+  vertUbo.ortho = m_pApp->AcquireOrthoMatrixLH();
+  vertUbo.baseView = m_pApp->AcquireBaseViewLH();
 
 	for (size_t i = 0u; i < m_currentTexts.size(); i++) {
 		vertUbo.world = m_currentTexts[i]->world;

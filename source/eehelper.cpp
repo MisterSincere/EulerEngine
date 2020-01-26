@@ -35,7 +35,7 @@ std::vector<EEcstr> EE::tools::explodeString(EEcstr str, EEcstr del)
 	for (size_t i = 0u; i <= EE_STRLEN(str); i++) {
 		if (i == EE_STRLEN(str) || EE_STRNCMP(&str[i], del, EE_STRLEN(del)) == 0) {
 			EEstr cur = new EEchar[l + 1];
-			assert(!memcpy_s(cur, sizeof(EEchar) * l, &str[i - l], sizeof(EEchar) * l));
+			assert(!memcpy(cur, &str[i - l], sizeof(EEchar) * l));
 			cur[l] = STR('\0');
 			res.push_back(cur);
 			i += EE_STRLEN(del) - 1;

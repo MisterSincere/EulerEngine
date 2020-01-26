@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <string>
-#include <DirectXMath.h>
+#include <glm/glm.hpp>
 
 #include "keycodes.h"
 
@@ -26,14 +26,14 @@
 #endif
 
 // wide- and ansi-cstring print to stdout wrapper
-#define EE_PRINTA(val, ...) printf_s(val, __VA_ARGS__);
-#define EE_PRINTW(val, ...) wprintf_s(L##val, __VA_ARGS__);
+#define EE_PRINTA(val, ...) printf((val), ##__VA_ARGS__);
+#define EE_PRINTW(val, ...) wprintf((L##val), ##__VA_ARGS__);
 
 #if defined(UNICODE) | defined(EE_USE_UNICODE)
 # define STR(str)											L##str
 # define __WS													%s
 # define __AS													%S
-# define EE_PRINT(val, ...)						EE_PRINTW(val, __VA_ARGS__)
+# define EE_PRINT(val, ...)						EE_PRINTW(val, ##__VA_ARGS__)
 # define EE_STRCMP(str1, str2)				wcscmp(str1, str2)
 # define EE_STRNCMP(str1, str2, len)	wcsncmp(str1, str2, len)
 # define EE_STRLEN(str)								wcslen(str)
@@ -41,7 +41,7 @@
 # define STR(str)											str
 # define __WS													%S
 # define __AS													%s
-# define EE_PRINT(val, ...)						EE_PRINTA(val, __VA_ARGS__)
+# define EE_PRINT(val, ...)						EE_PRINTA(val, ##__VA_ARGS__)
 # define EE_STRCMP(str1, str2)				strcmp(str1, str2)
 # define EE_STRNCMP(str1, str2, len)	strncmp(str1, str2, len)
 # define EE_STRLEN(str)								strlen(str)
@@ -252,10 +252,10 @@ struct EEObjectResourceBinding {
 };
 
 struct EEPredefinedVertex {
-	DirectX::XMFLOAT3 position;
-	DirectX::XMFLOAT3 color;
-	DirectX::XMFLOAT2 uvCoord;
-	DirectX::XMFLOAT3 normal;
+	glm::vec3 position;
+	glm::vec3 color;
+	glm::vec2 uvCoord;
+	glm::vec3 normal;
 };
 
 struct EEApplicationCreateInfo {
@@ -297,17 +297,17 @@ struct EETextureCreateInfo {
 namespace EEShaderColor2D {
 
 	struct VertexInputType {
-		DirectX::XMFLOAT3 position; // location = 0
+		glm::vec3 position; // location = 0
 	};
 	// binding = 0
 	struct VertexUBO {
-		DirectX::XMFLOAT4X4 ortho;
-		DirectX::XMFLOAT4X4 baseView;
-		DirectX::XMFLOAT4X4 world;
+		glm::mat4 ortho;
+		glm::mat4 baseView;
+		glm::mat4 world;
 	};
 	// binding = 1
 	struct FragmentUBO {
-		DirectX::XMFLOAT4 fillColor;
+	  glm::vec4 fillColor;
 	};
 
 }

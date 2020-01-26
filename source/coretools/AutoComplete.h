@@ -41,7 +41,7 @@ namespace CORETOOLS
 		 *
 		 * @return List of commands	that are fullfilling the above criteria sorted by amount of equal chars
 		 **/
-		std::vector<::CORETOOLS::Cmd> MultiComplete(EEstring const& toBeCompleted, uint32_t minimum = 1ui32);
+		std::vector<::CORETOOLS::Cmd> MultiComplete(EEstring const& toBeCompleted, uint32_t minimum = 1u);
 
 		/**
 		 * Allows to set a whole new command list

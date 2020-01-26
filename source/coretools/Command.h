@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <vector>
+#include <algorithm>
 
 #include "eehelper.h"
 
@@ -53,8 +54,8 @@ namespace CORETOOLS
 		Cmd(EEcstr cmd)					 : raw(cmd) {}
 
 		/// Assignment for string and cstring
-		Cmd operator=(EEstring const& cmd) { raw = cmd.c_str(); }
-		Cmd operator=(EEcstr cmd)					 { raw = cmd; }
+		Cmd operator=(EEstring const& cmd) { raw = cmd.c_str(); return *this; }
+		Cmd operator=(EEcstr cmd)					 { raw = cmd; return *this; }
 
 		/// Comparison operators for equality amounts
 		template<typename T> bool operator==(T equals) const { return equals == this->equals; }

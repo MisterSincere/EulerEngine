@@ -215,35 +215,35 @@ public:
 	 * Returns an orthogonal left handed projection matrix for 2d rendering with the current
 	 * window's extent.
 	 **/
-	DirectX::XMMATRIX AcquireOrthoMatrixLH();
+	glm::mat4 AcquireOrthoMatrixLH();
 
 	/**
 	 * @return Matrix for an orthogonal right handed projection for 2d rendering with the current
 	 * window's extent.
 	 **/
-	DirectX::XMMATRIX AcquireOrthoMatrixRH();
+	glm::mat4 AcquireOrthoMatrixRH();
 
 	/**
 	 * Returns a perspective left handed projection matrix for 3d rendering with the current
 	 * window's extent.
 	 **/
-	DirectX::XMMATRIX AcquirePerspectiveMatrixLH();
+	glm::mat4 AcquirePerspectiveMatrixLH();
 
 	/**
 	 * Returns a perspective right handed projection matrix for 3d rendering with the current
 	 * window's extent.
 	 **/
-	DirectX::XMMATRIX AcquirePerspectiveMatrixRH();
+	glm::mat4 AcquirePerspectiveMatrixRH();
 
 	/**
 	 * Returns a left handed base view matrix
 	 **/
-	DirectX::XMMATRIX AcquireBaseViewLH();
+	glm::mat4 AcquireBaseViewLH();
 
 	/**
 	 * Returns a right handed base view matrix
 	 **/
-	DirectX::XMMATRIX AcquireBaseViewRH();
+	glm::mat4 AcquireBaseViewRH();
 
 	/**
 	 * Returns a handle for the prepared color 2d shader.

@@ -33,20 +33,20 @@ namespace GFX
 	private:
 		/* @brief [ShaderSpecific] Holds the shader input values per vertex */
 		struct VertexInput {
-			DirectX::XMFLOAT2 position;
-			DirectX::XMFLOAT2 texCoord;
+			glm::vec2 position;
+			glm::vec2 texCoord;
 		};
 
 		/* @brief [ShaderSpecific; binding=0] Holds the content of the vertex ubo */
 		struct VertexUBO {
-			DirectX::XMFLOAT4X4 ortho;
-			DirectX::XMFLOAT4X4 baseView;
-			DirectX::XMFLOAT4X4 world;
+			glm::mat4 ortho;
+			glm::mat4 baseView;
+			glm::mat4 world;
 		};
 
 		/* @brief [ShaderSpecifig; binding=1] Holds the color of the text */
 		struct FragmentUBO {
-			DirectX::XMFLOAT4 textColor;
+			glm::vec4 textColor;
 		};
 
 		/* @brief Holds information of a letter to find it in the created font texture */
@@ -79,8 +79,8 @@ namespace GFX
 			EEPoint32F position;
 			EERect32F maxTextDimensions;
 
-			DirectX::XMFLOAT4 color;
-			DirectX::XMFLOAT4X4 world;
+			glm::vec4 color;
+			glm::mat4 world;
 		};
 
 	public:
