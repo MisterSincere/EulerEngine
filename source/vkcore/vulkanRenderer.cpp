@@ -132,7 +132,7 @@ void vulkan::DepthImage::Create()
 	VK_CHECK(vkCreateImageView(LDEVICE, &imageViewCInfo, ALLOCATOR, &imageView));
 
 	// Convert image to an depth stencil attachment
-	ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, true);
+	ExecBuffer execBuffer(EEDEVICE, VK_COMMAND_BUFFER_LEVEL_PRIMARY, true, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	VkImageAspectFlags aspectFlags = VK_IMAGE_ASPECT_DEPTH_BIT;
 	if (tools::isStencilFormat(format)) aspectFlags |= VK_IMAGE_ASPECT_STENCIL_BIT;
@@ -747,7 +747,7 @@ void vulkan::Renderer::Draw() const
 	/// ODERS
 	// Both enabled:
 	//	 -> sem::imageAvailable  -> cmd::render3D -> sem::imageRendered3D -> cmd::render2D
-	//	 -> sem::imageRenderer2D -> cmd::present2D
+	//	 -> sem::imageRenderer2D -> cmd::present
 	// 3D only:
 	//	 -> sem::imageAvailable  -> cmd::render3D -> sem::imageRendered3D -> cmd::present
 	// 2D only:

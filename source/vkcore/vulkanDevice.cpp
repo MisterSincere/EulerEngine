@@ -6,6 +6,7 @@
 #include "vulkanDevice.h"
 
 #include <stdexcept>
+
 #include "eehelper.h"
 
 using namespace EE;

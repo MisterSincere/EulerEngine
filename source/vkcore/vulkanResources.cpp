@@ -6,6 +6,7 @@
 #include "vulkanResources.h"
 
 #include <algorithm>
+#include <cmath>
 
 #include "eehelper.h"
 

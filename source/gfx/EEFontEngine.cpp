@@ -5,6 +5,8 @@
 /////////////////////////////////////////////////////////////////////
 #include "EEFontEngine.h"
 
+#include <stdexcept>
+
 #include "eehelper.h"
 #include "EEApplication.h"
 
